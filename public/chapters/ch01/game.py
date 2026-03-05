@@ -913,8 +913,13 @@ class Game:
         dt_s = dt_ms / 1000.0
         keys = pygame.key.get_pressed()
 
-        move_x = keys[pygame.K_d] - keys[pygame.K_a]
-        move_y = keys[pygame.K_s] - keys[pygame.K_w]
+        # Support both WASD and arrow keys for movement.
+        move_x = int(keys[pygame.K_d] or keys[pygame.K_RIGHT]) - int(
+            keys[pygame.K_a] or keys[pygame.K_LEFT]
+        )
+        move_y = int(keys[pygame.K_s] or keys[pygame.K_DOWN]) - int(
+            keys[pygame.K_w] or keys[pygame.K_UP]
+        )
         if move_x and move_y:
             move_x *= 0.70710678
             move_y *= 0.70710678
