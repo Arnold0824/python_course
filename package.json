@@ -7,7 +7,8 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "webhook:start": "node webhook-server.mjs"
   },
   "dependencies": {
     "highlight.js": "^11.11.1",
