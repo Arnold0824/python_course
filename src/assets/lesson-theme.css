@@ -18,6 +18,7 @@
     --radius-md: 14px;
     --radius-sm: 10px;
     --slide-nav-offset: 92px;
+    --beian-bar-height: 48px;
     --slide-card-gap: 14px;
     --slide-chapter-width: 240px;
     --slide-outline-width: 280px;
@@ -43,6 +44,7 @@ body {
     font-family: var(--font-sans);
     line-height: 1.65;
     overflow-x: hidden;
+    padding-bottom: calc(var(--beian-bar-height) + env(safe-area-inset-bottom, 0px));
 }
 
 .bg-orb {
@@ -111,6 +113,59 @@ body {
     backdrop-filter: blur(10px);
     background: rgba(247, 251, 255, 0.83);
     border-bottom: 1px solid rgba(13, 123, 232, 0.12);
+}
+
+.site-beian {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 83;
+    min-height: var(--beian-bar-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px));
+    backdrop-filter: blur(10px);
+    background: rgba(247, 251, 255, 0.85);
+    border-top: 1px solid rgba(13, 123, 232, 0.14);
+    box-shadow: 0 -10px 28px rgba(13, 62, 108, 0.12);
+}
+
+.site-beian a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(13, 123, 232, 0.2);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(236, 246, 255, 0.92));
+    color: #0c4e8d;
+    font-size: 0.84rem;
+    font-weight: 700;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.site-beian a::before {
+    content: "备案";
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #0a62be;
+    background: rgba(13, 123, 232, 0.14);
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+.site-beian a:hover {
+    color: var(--accent);
+    border-color: rgba(13, 123, 232, 0.34);
+    transform: translateY(-1px);
+}
+
+.site-beian a:focus-visible {
+    outline: 2px solid rgba(13, 123, 232, 0.36);
+    outline-offset: 2px;
 }
 
 .brand {
@@ -184,9 +239,9 @@ body.lesson-slide-mode.lesson-sidebar-enabled {
 
 .page.is-slide-deck > .hero,
 .page.is-slide-deck > .section {
-    height: calc(100dvh - var(--slide-nav-offset) - 10px);
-    min-height: calc(100dvh - var(--slide-nav-offset) - 10px);
-    max-height: calc(100dvh - var(--slide-nav-offset) - 10px);
+    height: calc(100dvh - var(--slide-nav-offset) - var(--beian-bar-height) - 10px);
+    min-height: calc(100dvh - var(--slide-nav-offset) - var(--beian-bar-height) - 10px);
+    max-height: calc(100dvh - var(--slide-nav-offset) - var(--beian-bar-height) - 10px);
     scroll-margin-top: calc(var(--slide-nav-offset) + 6px);
     scroll-snap-align: start;
     scroll-snap-stop: always;
@@ -213,7 +268,7 @@ body.lesson-slide-mode.lesson-sidebar-enabled {
 .page.is-slide-deck > .section > .slide-card-body {
     width: min(980px, calc(100% - 16px));
     min-height: var(--slide-card-min-height);
-    max-height: calc(100dvh - var(--slide-nav-offset) - 24px);
+    max-height: calc(100dvh - var(--slide-nav-offset) - var(--beian-bar-height) - 24px);
     padding: clamp(18px, 2.4vw, 34px);
     border-radius: var(--radius-lg);
     border: 1px solid rgba(13, 123, 232, 0.14);
@@ -252,7 +307,7 @@ body.lesson-slide-mode.lesson-sidebar-enabled {
 .lesson-outline-sidebar {
     position: fixed;
     top: calc(var(--slide-nav-offset) + 8px);
-    max-height: calc(100dvh - var(--slide-nav-offset) - 18px);
+    max-height: calc(100dvh - var(--slide-nav-offset) - var(--beian-bar-height) - 18px);
     overflow: auto;
     padding: 2px 2px 8px 8px;
     z-index: 82;
@@ -1091,7 +1146,7 @@ code {
 .copy-toast {
     position: fixed;
     right: 14px;
-    bottom: 14px;
+    bottom: calc(var(--beian-bar-height) + 14px);
     padding: 10px 14px;
     border-radius: 10px;
     color: #fff;
@@ -1256,6 +1311,16 @@ code {
 
     .copy-btn {
         width: 100%;
+    }
+
+    .site-beian {
+        min-height: 44px;
+        padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .site-beian a {
+        font-size: 0.78rem;
+        padding: 4px 10px;
     }
 
     .code-pre code {

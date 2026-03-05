@@ -39,7 +39,7 @@ const active = computed(() => String(props.activeChapter || "1"));
     display: block;
     left: 10px;
     right: 10px;
-    bottom: 10px;
+    bottom: calc(var(--beian-bar-height) + 10px + env(safe-area-inset-bottom, 0px));
     top: auto;
     width: auto;
     max-height: none;
