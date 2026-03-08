@@ -1,0 +1,24 @@
+[Unit]
+Description=Python Course Node Backend
+After=network.target mysql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/python_course/server
+Environment=NODE_ENV=production
+Environment=SERVER_HOST=127.0.0.1
+Environment=SERVER_PORT=9001
+EnvironmentFile=/etc/python-course-server.env
+ExecStart=/usr/bin/node /var/www/python_course/server/src/index.js
+Restart=always
+RestartSec=3
+KillSignal=SIGINT
+TimeoutStopSec=20
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

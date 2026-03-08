@@ -8,6 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "prettier --write --experimental-cli src/",
+    "server:dev": "npm --prefix server run dev",
+    "server:start": "npm --prefix server run start",
+    "server:check": "npm --prefix server run check",
     "webhook:start": "node webhook-server.mjs"
   },
   "dependencies": {
