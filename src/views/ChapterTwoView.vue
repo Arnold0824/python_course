@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref } from 'vue'
 import LessonOutlineSidebar from '../components/LessonOutlineSidebar.vue'
 import { useLessonDeck } from '../composables/useLessonDeck'
@@ -150,9 +150,9 @@ const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef)
           <li><strong>多参数</strong>：用逗号分隔，默认输出时会有空格</li>
         </ul>
         <pre><code class="python">
-print("System Starting...")
-print("版本:", "1.0", "服务器:", "S1")
-# 输出: 版本: 1.0 服务器: S1</code></pre>
+print("系统启动中...")
+print("版本:", "1.0", "服务器:", "一区")
+# 输出: 版本: 1.0 服务器: 一区</code></pre>
       </section>
       <section
         id="card-007"
@@ -174,9 +174,9 @@ print("2025", "05", "20", sep="-")
 # 输出: 2025-05-20
 
 # 2. 不换行输出 (制作加载效果)
-print("Loading", end="...")
-print("Done!")
-# 输出: Loading...Done!</code></pre>
+print("加载中", end="...")
+print("完成！")
+# 输出: 加载中...完成！</code></pre>
       </section>
       <section
         id="card-008"
@@ -195,7 +195,7 @@ print("Done!")
         </ul>
         <pre><code class="python">
 name = input("请输入角色名: ")
-print(f"欢迎, {name}")
+print("欢迎，", name, sep="")
 
 # 类型陷阱演示
 age = input("请输入年龄: ")  # 假设输入 18
@@ -211,36 +211,30 @@ age = input("请输入年龄: ")  # 假设输入 18
         <h3>🛠️ 实战演练：身份登记</h3>
         <p><strong>任务目标</strong>：修复并完善下面的登记脚本。</p>
         <ol>
-          <li>读取姓名、职业、年龄，并清理首尾空格。</li>
-          <li>把年龄从字符串转换为整数，计算“明年年龄”。</li>
-          <li>输出格式：<code>登记成功：姓名 | 职业 | Age=当前/明年</code>。</li>
+          <li>读取姓名和职业。</li>
+          <li>使用 <code>sep</code> 输出登记结果。</li>
+          <li>使用 <code>end</code> 输出欢迎语。</li>
         </ol>
         <pre><code class="python">
 name = input("请输入姓名：")
 job = input("请输入职业：")
-age_text = input("请输入年龄：")
 
-name = name.strip
-job = job.upper()
-next_age = age_text + 1
-print(f"登记成功：{name} | {jobs} | Age={age_text}/{next_age}")</code></pre>
+print("登记成功：", name, jobs, sep="-")
+print("欢迎加入 创世系统", end)</code></pre>
         <div class="fragment">
           <p style="color: var(--neon-pink)">错误解析：</p>
           <ul>
-            <li><code>name.strip</code> 漏掉括号，应该调用为 <code>name.strip()</code>。</li>
-            <li><code>next_age = age_text + 1</code> 把字符串和整数相加会报错。</li>
-            <li>f-string 使用了未定义变量 <code>jobs</code>。</li>
-            <li>年龄应先转 <code>int</code>，再做数学运算。</li>
+            <li>f-string 使用了未定义变量 <code>jobs</code>，应改为 <code>job</code>。</li>
+            <li><code>end</code> 后面需要提供一个字符串值，例如 <code>end=""</code>。</li>
+            <li>本题目标是练习 <code>print</code> 参数控制，不需要提前引入其他语法。</li>
           </ul>
           <p style="color: var(--neon-yellow); margin-top: 12px">参考修正：</p>
           <pre><code class="python">
-name = input("请输入姓名：").strip()
-job = input("请输入职业：").strip().title()
-age_text = input("请输入年龄：").strip()
+name = input("请输入姓名：")
+job = input("请输入职业：")
 
-age = int(age_text)
-next_age = age + 1
-print(f"登记成功：{name} | {job} | Age={age}/{next_age}")</code></pre>
+print("登记成功：", name, job, sep="-")
+print("欢迎加入 创世系统", end="")</code></pre>
         </div>
       </section>
       <section
@@ -288,7 +282,7 @@ print(f"登记成功：{name} | {job} | Age={age}/{next_age}")</code></pre>
               />
               <rect x="146" y="52" width="28" height="24" rx="6" fill="#f59e0b" />
             </svg>
-            <span class="var-slot-value">"Arthur"</span>
+            <span class="var-slot-value">"亚瑟"</span>
           </div>
         </div>
         <p class="list-visual-note">变量像“有名字的储物格”：名字用于引用，值才是实际内容。</p>
@@ -332,14 +326,14 @@ print(f"登记成功：{name} | {job} | Age={age}/{next_age}")</code></pre>
         </ul>
         <pre><code class="python">
 # ✅ 合法且推荐
-hero_name = "Arthur"
+hero_name = "亚瑟"
 player_level = 1
 hp_current = 100
 
 # ❌ 非法变量名
-# 2nd_player = "Bob"   (数字开头)
+# 2nd_player = "阿勇"   (数字开头)
 # my-score = 100       (减号被视为减法运算)
-# class = "Mage"       (关键字冲突)</code></pre>
+# class = "法师"       (关键字冲突)</code></pre>
       </section>
       <section
         id="card-012"
@@ -357,8 +351,10 @@ hp_current = 100
           <li><strong>技巧</strong>：在编辑器中，关键字通常会变色（如变橙色或紫色）。</li>
         </ul>
         <pre><code class="python">
-import keyword
-print(keyword.kwlist) # 查看所有关键字</code></pre>
+# 这些名字不能作为变量名
+# if = 1
+# class = "法师"
+# return = "完成"</code></pre>
       </section>
       <section
         id="card-013"
@@ -378,7 +374,7 @@ print(score)  # 0
 score = 100   # 重新赋值
 print(score)  # 100
 
-score = "A+"  # 甚至可以改变类型 (不推荐但合法)</code></pre>
+score = "优秀"  # 甚至可以改变类型 (不推荐但合法)</code></pre>
       </section>
       <section
         id="card-014"
@@ -394,9 +390,9 @@ score = "A+"  # 甚至可以改变类型 (不推荐但合法)</code></pre>
           <li>计算总战力并输出角色摘要。</li>
         </ol>
         <pre><code class="python">
-1st_player = "Ready"
+1st_player = "就绪"
 my-score = 99
-class = "Warrior"
+class = "战士"
 base_hp = 120
 atk = 35
 totalPower = base_hp + attack + my_score
@@ -411,9 +407,9 @@ print(f"{class}-{1st_player}: {totalPower}")</code></pre>
           </ul>
           <p style="color: var(--neon-yellow)">参考修正：</p>
           <pre><code class="python">
-first_player = "Ready"
+first_player = "就绪"
 my_score = 99
-hero_class = "Warrior"
+hero_class = "战士"
 base_hp = 120
 attack = 35
 
@@ -430,12 +426,12 @@ print(f"{hero_class}-{first_player}: {total_power}")</code></pre>
         <h2>任务 3：数值系统</h2>
         <p>构建游戏的数学基石：int, float, bool</p>
         <div class="task-intro-scene task3-scene" aria-hidden="true">
-          <span class="intro-tag">Number Engine</span>
+          <span class="intro-tag">数值引擎</span>
           <span class="chip c1">10</span>
           <span class="chip c2">1.5</span>
           <span class="chip c3">True</span>
           <div class="track"></div>
-          <span class="formula">ATK * 1.5 = CRIT</span>
+          <span class="formula">攻击 × 1.5 = 暴击</span>
         </div>
       </section>
       <section
@@ -541,13 +537,11 @@ coins //= 3
 coins %= 10
 print("金币:", coins)
 
-# 4) 成员 + 身份
-skills = ["slash", "fireball", "heal"]
-alias = skills
-clone = skills[:]
-print("成员判断:", "heal" in skills, "dash" not in skills)
-print("身份判断:", skills is alias, skills is not clone)</code></pre>
-        <p class="tip">教学提示：同学最易混淆的是 <code>/</code> 与 <code>//</code>、<code>==</code> 与 <code>is</code>。</p>
+# 4) 复合判断
+energy = 12
+print("可以连招:", (hits >= 3) and (energy >= 10))
+print("需要补给:", (mana < 10) or (hp < 20))</code></pre>
+        <p class="tip">教学提示：同学最易混淆的是 <code>/</code> 与 <code>//</code>、<code>==</code> 与 <code>!=</code>。</p>
       </section>
       <section
         id="card-019"
@@ -631,17 +625,16 @@ print(1e3)  # 1000.0</code></pre>
 atk_text = input("请输入攻击力：")
 crit_rate_text = input("请输入暴击率(%)：")
 
-atk = int(atk_text)
-crit_rate = int(crit_rate_text)
+atk = atk_text
+crit_rate = crit_rate_text
 final_damage = atk * 1 + crit_rate / 100
 
-if final_damage > "0":
-    print(f"最终伤害：{round(final_damage, 2)}")</code></pre>
+print("最终伤害：", round(final_damage, 2))</code></pre>
         <div class="fragment">
           <p style="color: var(--neon-pink)">错误解析：</p>
           <ul>
             <li>公式写错了：应是 <code>atk * (1 + crit_rate / 100)</code>。</li>
-            <li><code>if final_damage > "0"</code> 是数值与字符串比较。</li>
+            <li><code>atk</code> 和 <code>crit_rate</code> 都还是字符串，不能直接做数值计算。</li>
             <li>暴击率常含小数，建议用 <code>float</code>。</li>
           </ul>
           <p style="color: var(--neon-yellow); margin-top: 12px">参考修正：</p>
@@ -649,12 +642,11 @@ if final_damage > "0":
 atk_str = input("请输入攻击力：")
 crit_rate_str = input("请输入暴击率(%)：")
 
-atk = int(atk_str.strip())
-crit_rate = float(crit_rate_str.strip())
+atk = int(atk_str)
+crit_rate = float(crit_rate_str)
 final_damage = atk * (1 + crit_rate / 100)
 
-if final_damage > 0:
-    print(f"最终伤害：{round(final_damage, 2)}")</code></pre>
+print("最终伤害：", round(final_damage, 2))</code></pre>
         </div>
       </section>
       <section
@@ -666,10 +658,10 @@ if final_damage > 0:
         <h2>任务 4：文本处理 (String)</h2>
         <p>处理对话、口号与 ID</p>
         <div class="task-intro-scene task4-scene" aria-hidden="true">
-          <span class="intro-tag">String Cleaner</span>
-          <span class="chip raw">" Fire Ball "</span>
-          <span class="op">strip().upper()</span>
-          <span class="chip clean">"FIRE BALL"</span>
+          <span class="intro-tag">文本清洗</span>
+          <span class="chip raw">" 火球术 "</span>
+          <span class="op">strip()</span>
+          <span class="chip clean">"火球术"</span>
           <span class="caret">|</span>
           <span class="hint">输入清洗 + 格式化</span>
         </div>
@@ -686,11 +678,11 @@ if final_damage > 0:
           <li><strong>不可变性 (Immutable)</strong>：字符串一旦创建，无法修改其中的某个字符。</li>
         </ul>
         <pre><code class="python">
-s = "Hello"
-# s[0] = "h"  ❌ 报错！无法修改
+s = "你好"
+# s[0] = "您"  ❌ 报错！无法修改
 
 # 正确做法是生成新字符串
-s = "h" + s[1:] </code></pre>
+s = "您" + s[1:] </code></pre>
       </section>
       <section
         id="card-025"
@@ -705,10 +697,10 @@ s = "h" + s[1:] </code></pre>
           <li><code>[start:end]</code>：获取子串 (左闭右开，含头不含尾)</li>
         </ul>
         <pre><code class="python">
-code = "ID-9527-A"
+code = "学号-9527-甲"
 
-print(code[0])      # "I" (首字符)
-print(code[-1])     # "A" (末字符)
+print(code[0])      # "学" (首字符)
+print(code[-1])     # "甲" (末字符)
 print(code[3:7])    # "9527" (从下标3开始，到7之前)</code></pre>
       </section>
       <section
@@ -724,10 +716,10 @@ print(code[3:7])    # "9527" (从下标3开始，到7之前)</code></pre>
           <li><code>startswith(prefix)</code>: 判断开头</li>
         </ul>
         <pre><code class="python">
-s = "hello world"
-print(s.find("world"))  # 6
-print(s.count("l"))     # 3
-print(s.startswith("he")) # True</code></pre>
+s = "你好老师好"
+print(s.find("老师"))    # 2
+print(s.count("好"))     # 2
+print(s.startswith("你好")) # True</code></pre>
       </section>
       <section
         id="card-027"
@@ -743,13 +735,13 @@ print(s.startswith("he")) # True</code></pre>
           <li><code>replace(old, new)</code>: 替换内容</li>
         </ul>
         <pre><code class="python">
-msg = "  Fire Ball  "
-clean_msg = msg.strip().upper()
-# 结果: "FIRE BALL"
+msg = "  火球术  "
+clean_msg = msg.strip()
+# 结果: "火球术"
 
-text = "I hate bugs"
-new_text = text.replace("hate", "love")
-# 结果: "I love bugs"</code></pre>
+text = "我爱旧地图"
+new_text = text.replace("旧", "新")
+# 结果: "我爱新地图"</code></pre>
       </section>
       <section
         id="card-028"
@@ -760,7 +752,7 @@ new_text = text.replace("hate", "love")
         <h3>f-string 格式化</h3>
         <p>Python 最强大的字符串拼接方式</p>
         <pre><code class="python">
-name = "Arthur"
+name = "亚瑟"
 hp = 80
 max_hp = 100
 
@@ -768,7 +760,7 @@ max_hp = 100
 status = f"英雄 {name} 状态: {hp}/{max_hp}"
 
 print(status)
-# 输出: 英雄 Arthur 状态: 80/100</code></pre>
+# 输出: 英雄 亚瑟 状态: 80/100</code></pre>
       </section>
       <section
         id="card-029"
@@ -784,9 +776,9 @@ print(status)
           <li><code>\"</code>：双引号本身</li>
         </ul>
         <pre><code class="python">
-print("Line 1\nLine 2")
-print("Name:\tArthur")
-print("Says: \"Hello\"")</code></pre>
+print("第一行\n第二行")
+print("姓名:\t亚瑟")
+print("他说: \"你好\"")</code></pre>
       </section>
       <section
         id="card-030"
@@ -797,32 +789,30 @@ print("Says: \"Hello\"")</code></pre>
         <h3>🛠️ 实战演练：公告板生成器</h3>
         <p><strong>任务目标</strong>：修复公告生成脚本，让输出格式统一。</p>
         <ol>
-          <li>清洗 Boss 名：去空格、转大写、空格替换为下划线。</li>
-          <li>判断是否包含 <code>DRAGON</code> 并设置危险等级。</li>
-          <li>输出：<code>⚠️ [BOSS_NAME] 已出现！(长度=xx, 等级=S)</code>。</li>
+          <li>清洗 Boss 名：去空格、空格替换为下划线。</li>
+          <li>保留原始名字，方便对照。</li>
+          <li>输出：<code>⚠️ [处理后名字] 已出现！原名=原始名字</code>。</li>
         </ol>
         <pre><code class="python">
-boss = "  Ancient Dragon  "
-clean_boss = boss.upper.strip().replace(" ", "_")
+boss = "  远古 巨龙  "
+clean_boss = boss.strip.replace(" ", "_")
+origin_name = boss
 
-if "dragon" in clean_boss:
-    level = "S"
-
-print("⚠️ [" + clean_boss + "] 已出现！(长度=" + len(clean_boss) + ", 等级=" + level + ")")</code></pre>
+print("⚠️ [" + clean_boss + "] 已出现！原名=" + original_name)</code></pre>
         <div class="fragment">
           <p style="color: var(--neon-pink)">错误解析：</p>
           <ul>
-            <li><code>boss.upper.strip()</code> 方法调用顺序和括号错误。</li>
-            <li><code>"dragon" in clean_boss</code> 大小写不匹配。</li>
-            <li>字符串拼接里直接加 <code>len(clean_boss)</code> 会触发类型错误。</li>
+            <li><code>boss.strip</code> 漏掉括号，应该写成 <code>boss.strip()</code>。</li>
+            <li>输出时使用了未定义变量 <code>original_name</code>，应改为 <code>origin_name</code>。</li>
+            <li>本题重点是字符串清洗与格式化，不需要提前引入条件判断。</li>
           </ul>
           <p style="color: var(--neon-yellow); margin-top: 12px">参考修正：</p>
           <pre><code class="python">
-boss = "  Ancient Dragon  "
-clean_boss = boss.strip().upper().replace(" ", "_")
-level = "S" if "DRAGON" in clean_boss else "A"
+boss = "  远古 巨龙  "
+origin_name = boss
+clean_boss = boss.strip().replace(" ", "_")
 
-print(f"⚠️ [{clean_boss}] 已出现！(长度={len(clean_boss)}, 等级={level})")</code></pre>
+print(f"⚠️ [{clean_boss}] 已出现！原名={origin_name}")</code></pre>
         </div>
       </section>
       <section
@@ -834,12 +824,12 @@ print(f"⚠️ [{clean_boss}] 已出现！(长度={len(clean_boss)}, 等级={lev
         <h2>任务 5：背包系统 (List)</h2>
         <p>有序、可变的数据容器</p>
         <div class="task-intro-scene task5-scene" aria-hidden="true">
-          <span class="intro-tag">List Inventory</span>
-          <div class="slot s1">[0] Water</div>
-          <div class="slot s2">[1] Food</div>
-          <div class="slot s3">[2] Gun</div>
-          <span class="chip incoming">Map</span>
-          <span class="hint">insert(0, "Map")</span>
+          <span class="intro-tag">列表示意</span>
+          <div class="slot s1">[0] 清水</div>
+          <div class="slot s2">[1] 干粮</div>
+          <div class="slot s3">[2] 木棍</div>
+          <span class="chip incoming">地图</span>
+          <span class="hint">insert(0, "地图")</span>
         </div>
       </section>
       <section
@@ -855,14 +845,14 @@ print(f"⚠️ [{clean_boss}] 已出现！(长度={len(clean_boss)}, 等级={lev
           <li><code>len(列表)</code>：返回列表元素个数（长度）</li>
         </ul>
         <pre><code class="python">
-bag = ["Potion", "Sword", "Map"]
+bag = ["药水", "长剑", "地图"]
 count = len(bag)  # 3
 last_index = count - 1
 
-print(bag[0])   # "Potion"
+print(bag[0])   # "药水"
 print(count)    # 3 (物品数量)
 print(last_index)      # 2
-print(bag[last_index]) # "Map"</code></pre>
+print(bag[last_index]) # "地图"</code></pre>
         <p class="tip"><code>len()</code> 是容器通用函数：字符串、列表、元组、字典、集合都可以求长度。</p>
       </section>
       <section
@@ -878,12 +868,12 @@ print(bag[last_index]) # "Map"</code></pre>
         </ul>
         <pre><code class="python">
 # 捡到一个盾牌
-bag.append("Shield")
-# ["Potion", "Sword", "Map", "Shield"]
+bag.append("盾牌")
+# ["药水", "长剑", "地图", "盾牌"]
 
 # 把关键道具插到第一格
-bag.insert(0, "Key")
-# ["Key", "Potion", "Sword", "Map", "Shield"]</code></pre>
+bag.insert(0, "钥匙")
+# ["钥匙", "药水", "长剑", "地图", "盾牌"]</code></pre>
       </section>
       <section
         id="card-034"
@@ -901,7 +891,7 @@ bag.insert(0, "Key")
 used_item = bag.pop()
 
 # 丢弃地图 (按名称删除)
-bag.remove("Map")</code></pre>
+bag.remove("地图")</code></pre>
       </section>
       <section
         id="card-035"
@@ -916,18 +906,17 @@ bag.remove("Map")</code></pre>
           <li><strong>查找与计数</strong>：<code>index()</code> / <code>count()</code></li>
         </ul>
         <pre><code class="python">
-items = ["A", "B", "C", "A"]
+items = ["药水", "长剑", "地图", "药水"]
 
 # 切片
-print(items[0:2])  # ["A", "B"]
+print(items[0:2])  # ["药水", "长剑"]
 
 # 查找与计数
-print(items.count("A")) # 2
-print(items.index("C")) # 2
+print(items.count("药水")) # 2
+print(items.index("地图")) # 2
 
 # 判断是否存在
-if "A" in items:
-    print("A 在列表中")</code></pre>
+print("药水" in items) # True</code></pre>
       </section>
       <section
         id="card-036"
@@ -966,9 +955,9 @@ nums.reverse()       # nums 变为 [9, 5, 2, 1]</code></pre>
         </ul>
         <pre><code class="python">
 # 合并
-bag_a = ["Potion"]
-bag_b = ["Sword"]
-total = bag_a + bag_b  # ["Potion", "Sword"]
+bag_a = ["药水"]
+bag_b = ["长剑"]
+total = bag_a + bag_b  # ["药水", "长剑"]
 
 # 复制
 backup = total.copy()</code></pre>
@@ -982,15 +971,15 @@ backup = total.copy()</code></pre>
         <h3>🛠️ 实战演练：物资整理</h3>
         <p><strong>任务目标</strong>：修复列表操作脚本并输出关键状态。</p>
         <ol>
-          <li>在列表最前面插入 <code>Map</code>，删除 <code>Food</code>，再追加 <code>MedKit</code>。</li>
+          <li>在列表最前面插入 <code>地图</code>，删除 <code>干粮</code>，再追加 <code>急救包</code>。</li>
           <li>输出首项、末项和总数量。</li>
           <li>保证脚本运行不报错。</li>
         </ol>
         <pre><code class="python">
-supplies = ["Water", "Food", "Gun"]
-supplies.insert("Map", 0)
-supplies.remove("food")
-supplies.append = "MedKit"
+supplies = ["清水", "干粮", "木棍"]
+supplies.insert("地图", 0)
+supplies.remove("粮食")
+supplies.append = "急救包"
 
 first_item = supplies[0]
 last_item = supplies[len(supplies)]
@@ -999,17 +988,16 @@ print(f"首项={first_item}, 末项={last_item}, 总数={len(supplies)}")</code>
           <p style="color: var(--neon-pink)">错误解析：</p>
           <ul>
             <li><code>insert</code> 参数顺序应为 <code>(index, item)</code>。</li>
-            <li><code>"food"</code> 大小写与原列表不一致。</li>
+            <li><code>"粮食"</code> 与原列表中的 <code>"干粮"</code> 名称不一致。</li>
             <li><code>append</code> 是方法，不是可直接赋值的属性。</li>
             <li><code>supplies[len(supplies)]</code> 会越界，末项索引应为 <code>-1</code>。</li>
           </ul>
           <p style="color: var(--neon-yellow); margin-top: 12px">参考修正：</p>
           <pre><code class="python">
-supplies = ["Water", "Food", "Gun"]
-supplies.insert(0, "Map")
-if "Food" in supplies:
-    supplies.remove("Food")
-supplies.append("MedKit")
+supplies = ["清水", "干粮", "木棍"]
+supplies.insert(0, "地图")
+supplies.remove("干粮")
+supplies.append("急救包")
 
 first_item = supplies[0]
 last_item = supplies[-1]
@@ -1025,7 +1013,7 @@ print(f"首项={first_item}, 末项={last_item}, 总数={len(supplies)}")</code>
         <h2>任务 6：固定档案 (Tuple)</h2>
         <p>不可变的有序列表</p>
         <div class="task-intro-scene task6-scene" aria-hidden="true">
-          <span class="intro-tag">Tuple Lock</span>
+          <span class="intro-tag">元组锁定</span>
           <span class="tuple-card">(50, 100)</span>
           <span class="lock-badge">🔒</span>
           <span class="warn">loc[0] = 0 ❌</span>
@@ -1067,8 +1055,8 @@ pos = (100, 200)
 # 自动解包
 x, y = pos
 
-print(f"X坐标: {x}")
-print(f"Y坐标: {y}")</code></pre>
+print(f"横坐标: {x}")
+print(f"纵坐标: {y}")</code></pre>
       </section>
       <section
         id="card-042"
@@ -1143,10 +1131,10 @@ print(f"旧坐标:{loc}, 新坐标:{new_loc}, 距离:{distance}")</code></pre>
         <h2>任务 7：技能池 (Set)</h2>
         <p>无序、不重复的元素集</p>
         <div class="task-intro-scene task7-scene" aria-hidden="true">
-          <span class="intro-tag">Set Dedup</span>
-          <span class="orb o1">Gold</span>
-          <span class="orb o2">Gold</span>
-          <span class="orb o3">Sword</span>
+          <span class="intro-tag">集合去重</span>
+          <span class="orb o1">金币</span>
+          <span class="orb o2">金币</span>
+          <span class="orb o3">长剑</span>
           <span class="hint">set() 自动去重</span>
         </div>
       </section>
@@ -1163,10 +1151,10 @@ print(f"旧坐标:{loc}, 新坐标:{new_loc}, 距离:{distance}")</code></pre>
         </ul>
         <pre><code class="python">
 # 玩家重复点击学习
-skills = {"Fireball", "Heal", "Fireball"}
+skills = {"火球术", "治疗术", "火球术"}
 
 print(skills)
-# 输出: {'Fireball', 'Heal'} (自动去重)</code></pre>
+# 输出: {'火球术', '治疗术'} (自动去重)</code></pre>
       </section>
       <section
         id="card-046"
@@ -1180,12 +1168,11 @@ print(skills)
           <li><code>in</code>: 极速判断是否存在 (比列表快得多)</li>
         </ul>
         <pre><code class="python">
-learned = {"Attack", "Defend"}
-learned.add("Dodge")
+learned = {"攻击", "防御"}
+learned.add("闪避")
 
 # 判定是否学会
-if "Attack" in learned:
-    print("发动攻击！")</code></pre>
+print("是否学会攻击:", "攻击" in learned)</code></pre>
       </section>
       <section
         id="card-047"
@@ -1201,11 +1188,11 @@ if "Attack" in learned:
           <li><code>-</code> 差集：有的没的</li>
         </ul>
         <pre><code class="python">
-warrior = {"Attack", "Defend"}
-mage = {"Attack", "Fireball"}
+warrior = {"攻击", "防御"}
+mage = {"攻击", "火球术"}
 
 # 通用技能 (交集)
-common = warrior &amp; mage # {"Attack"}
+common = warrior &amp; mage # {"攻击"}
 # 所有技能 (并集)
 all_skills = warrior | mage</code></pre>
       </section>
@@ -1223,8 +1210,8 @@ all_skills = warrior | mage</code></pre>
           <li>输出排序后的并集结果与唯一数量。</li>
         </ol>
         <pre><code class="python">
-loot = ["Gold", "Gold", "Sword", "Potion", "Sword"]
-rare_loot = {"Sword", "Gem"}
+loot = ["金币", "金币", "长剑", "药水", "长剑"}
+rare_loot = {"长剑", "宝石"}
 
 unique_loot = {}
 unique_loot = set(loot)
@@ -1243,8 +1230,8 @@ print("共同战利品:", common_loot)</code></pre>
           </ul>
           <p style="color: var(--neon-yellow); margin-top: 12px">参考修正：</p>
           <pre><code class="python">
-loot = ["Gold", "Gold", "Sword", "Potion", "Sword"]
-rare_loot = {"Sword", "Gem"}
+loot = ["金币", "金币", "长剑", "药水", "长剑"}
+rare_loot = {"长剑", "宝石"}
 
 unique_loot = set(loot)
 all_loot = unique_loot | rare_loot
@@ -1264,15 +1251,15 @@ print("共同战利品:", sorted(common_loot))</code></pre>
         <h2>任务 8：角色卡片 (Dict)</h2>
         <p>键值对 (Key-Value) 映射系统</p>
         <div class="task-intro-scene task8-scene" aria-hidden="true">
-          <span class="intro-tag">Dict Mapping</span>
+          <span class="intro-tag">字典映射</span>
           <div class="pair p1">
-            <span class="key">name</span><span class="arrow">→</span><span class="val">Arthur</span>
+            <span class="key">姓名</span><span class="arrow">→</span><span class="val">亚瑟</span>
           </div>
           <div class="pair p2">
-            <span class="key">hp</span><span class="arrow">→</span><span class="val">100</span>
+            <span class="key">生命</span><span class="arrow">→</span><span class="val">100</span>
           </div>
           <span class="dict-shell">{ ... }</span>
-          <span class="hint">Key → Value 映射</span>
+          <span class="hint">键 → 值 映射</span>
         </div>
       </section>
       <section
@@ -1289,13 +1276,13 @@ print("共同战利品:", sorted(common_loot))</code></pre>
         </ul>
         <pre><code class="python">
 hero = {
-    "name": "Arthur",
-    "level": 10,
-    "hp": 100,
-    "bag": ["Sword", "Potion"]  # 嵌套列表
+    "姓名": "亚瑟",
+    "等级": 10,
+    "生命": 100,
+    "背包": ["长剑", "药水"]  # 嵌套列表
 }
 
-print(hero["name"])  # "Arthur"</code></pre>
+print(hero["姓名"])  # "亚瑟"</code></pre>
       </section>
       <section
         id="card-051"
@@ -1306,15 +1293,15 @@ print(hero["name"])  # "Arthur"</code></pre>
         <h3>增删改查</h3>
         <pre><code class="python">
 # 1. 修改/新增 (语法一样)
-hero["hp"] = 90          # 修改已有键
-hero["title"] = "Rookie" # 新增键
+hero["生命"] = 90          # 修改已有键
+hero["称号"] = "新兵"      # 新增键
 
 # 2. 安全查询 get
-# print(hero["mana"])    ❌ 报错 (KeyError)
-print(hero.get("mana", 0)) # ✅ 返回默认值 0
+# print(hero["法力"])    ❌ 报错 (KeyError)
+print(hero.get("法力", 0)) # ✅ 返回默认值 0
 
 # 3. 删除
-hero.pop("title")</code></pre>
+hero.pop("称号")</code></pre>
       </section>
       <section
         id="card-052"
@@ -1325,37 +1312,37 @@ hero.pop("title")</code></pre>
         <h3>🛠️ 实战演练：怪物图鉴</h3>
         <p><strong>任务目标</strong>：修复怪物档案脚本并输出结构化摘要。</p>
         <ol>
-          <li>将 HP 正确扣减并防止小于 0。</li>
-          <li>新增等级信息，安全读取可选字段 <code>element</code>。</li>
-          <li>输出：名称、等级、HP、掉落、元素。</li>
+          <li>将生命值正确扣减并防止小于 0。</li>
+          <li>新增等级信息，安全读取可选字段 <code>元素</code>。</li>
+          <li>输出：名称、等级、生命、掉落、元素。</li>
         </ol>
         <pre><code class="python">
-monster = {"name": "Slime", "hp": "10", "drop": ["Gel"]}
-monster["hp"] = monster["hp"] - 3
-monster["level"] = 1
-element = monster["element"]
+monster = {"姓名": "史莱姆", "生命": "10", "掉落": ["凝胶"]}
+monster["生命"] = monster["生命"] - 3
+monster["等级"] = 1
+element = monster["元素"]
 
 print(
-    f"{monster['name']} Lv{level} HP={monster['hp']} "
-    f"Drop={monster['drop'][0]} Elem={element}"
+    f"{monster['姓名']} 等级{level} 生命={monster['生命']} "
+    f"掉落={monster['掉落'][0]} 元素={element}"
 )</code></pre>
         <div class="fragment">
           <p style="color: var(--neon-pink)">错误解析：</p>
           <ul>
-            <li><code>hp</code> 是字符串，不能直接参与减法。</li>
-            <li><code>monster['element']</code> 可能不存在，直接索引会报错。</li>
+            <li><code>生命</code> 是字符串，不能直接参与减法。</li>
+            <li><code>monster['元素']</code> 可能不存在，直接索引会报错。</li>
             <li>f-string 中 <code>level</code> 未定义，应该从字典中读取。</li>
           </ul>
           <p style="color: var(--neon-yellow); margin-top: 12px">参考修正：</p>
           <pre><code class="python">
-monster = {"name": "Slime", "hp": 10, "drop": ["Gel"]}
-monster["hp"] = max(0, monster["hp"] - 3)
-monster["level"] = 1
-element = monster.get("element", "None")
+monster = {"姓名": "史莱姆", "生命": 10, "掉落": ["凝胶"]}
+monster["生命"] = max(0, monster["生命"] - 3)
+monster["等级"] = 1
+element = monster.get("元素", "无")
 
 print(
-    f"{monster['name']} Lv{monster['level']} HP={monster['hp']} "
-    f"Drop={monster['drop'][0]} Elem={element}"
+    f"{monster['姓名']} 等级{monster['等级']} 生命={monster['生命']} "
+    f"掉落={monster['掉落'][0]} 元素={element}"
 )</code></pre>
         </div>
       </section>
@@ -1391,12 +1378,12 @@ items = hero.items()</code></pre>
         <h3>合并与更新</h3>
         <p>使用 <code>update()</code> 批量修改数据</p>
         <pre><code class="python">
-base = {"hp": 100, "mp": 50}
-buff = {"mp": 100, "atk": 20}
+base = {"生命": 100, "法力": 50}
+buff = {"法力": 100, "攻击": 20}
 
 # buff 覆盖 base
 base.update(buff)
-# 结果: {'hp': 100, 'mp': 100, 'atk': 20}</code></pre>
+# 结果: {'生命': 100, '法力': 100, '攻击': 20}</code></pre>
       </section>
       <section
         id="card-055"
@@ -1407,11 +1394,11 @@ base.update(buff)
         <h2>任务 9：代码规范</h2>
         <p>写出优雅、可读的 Python 代码</p>
         <div class="task-intro-scene task9-scene" aria-hidden="true">
-          <span class="intro-tag">Code Style</span>
-          <div class="code-line l1"><span class="indent"></span>if hp &gt; 0:</div>
-          <div class="code-line l2"><span class="indent"></span>print("Hello")</div>
+          <span class="intro-tag">代码风格</span>
+          <div class="code-line l1"><span class="indent"></span># 角色资料</div>
+          <div class="code-line l2"><span class="indent"></span>hero_name = "亚瑟"</div>
           <div class="code-line l3">
-            <span class="indent"></span><span class="indent"></span>print("World")
+            <span class="indent"></span><span class="indent"></span>hero_job = "法师"
           </div>
           <span class="hint">统一缩进，结构清晰</span>
         </div>
@@ -1426,16 +1413,18 @@ base.update(buff)
         <p>代码是写给人看的，顺便给机器运行</p>
         <ul>
           <li><strong>单行注释</strong>：使用 <code>#</code></li>
-          <li><strong>文档字符串</strong>：使用 <code>""" ... """</code>，常用于函数或模块说明</li>
+          <li><strong>注释要点</strong>：说明“为什么这样写”，而不是重复代码表面意思。</li>
         </ul>
         <pre><code class="python">
-# 计算伤害 (这是单行注释)
-atk = 10
-damage = atk * 2
+# 记录角色初始资料，后面会统一汇总
+hero_name = "亚瑟"
+hero_job = "法师"
 
-def calc_damage(base_atk):
-    """根据攻击力返回基础伤害。"""
-    return base_atk * 2</code></pre>
+# 用字典保存两个字段
+profile = {
+    "姓名": hero_name,
+    "职业": hero_job
+}</code></pre>
       </section>
       <section
         id="card-057"
@@ -1451,12 +1440,13 @@ def calc_damage(base_atk):
           <li>严禁 Tab 和空格混用！</li>
         </ul>
         <pre><code class="python">
-if hp &gt; 0:
-        # 缩进开始：属于 if 内部的代码
-        print("Alive")
-        print("Fighting")
-    # 缩进结束：跳出 if
-    print("Game Over")</code></pre>
+profile = {
+    "姓名": "亚瑟",
+    "职业": "法师",
+    "生命": 80
+}
+
+print(profile)</code></pre>
       </section>
       <section
         id="card-058"
@@ -1472,40 +1462,31 @@ if hp &gt; 0:
           <li>可选加分：补 1 行注释，说明关键修复点。</li>
         </ol>
         <pre><code class="python">
-hero_name = "Arthur"
-hero_job = "Mage"
+hero_name = "亚瑟"
+ hero_job = "法师"
 hp_text = "80"
 
-if hero_name:
-print("角色创建开始")
-    if hp_text > 0:
-      hp = int(hp_text)
-        print("状态: 存活")
-        print(f"{hero_name} | {job} | HP={hp}")
-else:
-    print("角色名为空")</code></pre>
+hp = hp_text + 0
+ print("状态: 存活")
+print(f"{hero_name} | {job} | 生命={hp}")</code></pre>
         <div class="fragment">
           <p style="color: var(--neon-pink)">错误解析：</p>
           <ul>
-            <li><code>print("角色创建开始")</code> 没有缩进到 <code>if hero_name:</code> 代码块内。</li>
-            <li><code>if hp_text > 0:</code> 用字符串和整数比较，需先转 <code>int</code>。</li>
-            <li><code>print("状态: 存活")</code> 缩进层级不一致。</li>
+            <li><code>hero_job = "法师"</code> 前面多了空格，顶格代码不能随意缩进。</li>
+            <li><code>hp = hp_text + 0</code> 把字符串和整数相加会报错，需先转 <code>int</code>。</li>
+            <li><code>print("状态: 存活")</code> 前面多了空格，和其他顶格语句不在同一层。</li>
             <li>f-string 中使用了未定义变量 <code>job</code>，应改为 <code>hero_job</code>。</li>
           </ul>
           <p style="color: var(--neon-yellow); margin-top: 12px">参考修正：</p>
           <pre><code class="python">
-hero_name = "Arthur"
-hero_job = "Mage"
+hero_name = "亚瑟"
+hero_job = "法师"
 hp_text = "80"
 
-if hero_name:
-    print("角色创建开始")
-    hp = int(hp_text)  # 先转 int 再做数值判断
-    if hp > 0:
-        print("状态: 存活")
-        print(f"{hero_name} | {hero_job} | HP={hp}")
-else:
-    print("角色名为空")</code></pre>
+# 先把文本转成整数，再输出摘要
+hp = int(hp_text)
+print("状态: 存活")
+print(f"{hero_name} | {hero_job} | 生命={hp}")</code></pre>
         </div>
       </section>
       <section
@@ -1545,7 +1526,7 @@ hp = 100            # 默认值</code></pre>
         data-outline-label="步骤 2：配置装备与技能"
       >
         <h3>步骤 2：配置装备与技能</h3>
-        <p>利用 List, Tuple, Set</p>
+        <p>利用列表、元组、集合</p>
         <pre><code class="python">
 # 3. 初始化背包 (List - 有序可变)
 bag = ["新手剑", "面包"]
@@ -1566,21 +1547,21 @@ skills.add("普通攻击") # 重复学习无效，系统自动去重</code></pre
         data-outline-label="步骤 3：生成档案卡"
       >
         <h3>步骤 3：生成档案卡</h3>
-        <p>利用 Dictionary 汇总数据</p>
+        <p>利用字典汇总数据</p>
         <pre><code class="python">
 # 6. 汇总数据 (Dict)
 hero_data = {
-    "id": hero_name,
-    "stats": {"hp": hp, "atk": atk}, # 字典嵌套
-    "bag": bag,
-    "pos": spawn_point,
-    "skills": skills
+    "代号": hero_name,
+    "属性": {"生命": hp, "攻击": atk}, # 字典嵌套
+    "背包": bag,
+    "坐标": spawn_point,
+    "技能": skills
 }
 
 # 7. 最终输出 (f-string)
-print(f"\n✅ 角色 {hero_data['id']} 创建成功！")
-print(f"当前位置: {hero_data['pos']}")
-print(f"携带物品: {hero_data['bag']}")</code></pre>
+print(f"\n✅ 角色 {hero_data['代号']} 创建成功！")
+print(f"当前位置: {hero_data['坐标']}")
+print(f"携带物品: {hero_data['背包']}")</code></pre>
       </section>
       <section
         id="card-063"
@@ -1591,24 +1572,11 @@ print(f"携带物品: {hero_data['bag']}")</code></pre>
         <h3>🎉 完整代码预览</h3>
         <p style="font-size: 0.95rem">(点击放大查看)</p>
         <pre><code class="python" style="max-height: 600px; font-size: 0.9rem;">
-# -*- coding: utf-8 -*-
-"""
-项目名称：Genesis 英雄档案系统 (Hero Profile System)
-文件名称：genesis_hero_system.py
-描述：这是一个综合练习，涵盖了 Python 基础语法的核心知识点。
+# 项目名称：创世英雄档案系统
+# 文件名称：genesis_hero_system.py
+# 描述：这是一个综合练习，涵盖 Python 基础语法的核心知识点。
 
-包含知识点：
-    1. 输入输出 (print, input)
-    2. 变量与命名
-    3. 数值计算 (int)
-    4. 字符串处理 (strip, upper, f-string)
-    5. 列表操作 (list, append)
-    6. 元组特性 (tuple)
-    7. 集合去重 (set)
-    8. 字典映射 (dict)
-"""
-
-print("--- 🚀 Genesis 系统启动 ---")
+print("--- 🚀 创世系统启动 ---")
 
 # ==========================================
 # 第一阶段：基础数据录入
@@ -1651,23 +1619,23 @@ skills.add("普通攻击") # 尝试重复添加，系统会自动去重
 # 6. 汇总数据 (Dict)
 # 知识点：字典通过“键值对”存储复杂数据，支持嵌套
 hero_data = {
-    "id": hero_name,
-    "stats": {"hp": hp, "atk": atk}, # 字典嵌套字典
-    "bag": bag,                      # 字典的值可以是列表
-    "pos": spawn_point,              # 字典的值可以是元组
-    "skills": skills                 # 字典的值可以是集合
+    "代号": hero_name,
+    "属性": {"生命": hp, "攻击": atk}, # 字典嵌套
+    "背包": bag,                      # 字典的值可以是列表
+    "坐标": spawn_point,              # 字典的值可以是元组
+    "技能": skills                    # 字典的值可以是集合
 }
 
 # 7. 最终输出 (f-string)
-print(f"\n✅ 角色 {hero_data['id']} 创建成功！")
+print(f"\n✅ 角色 {hero_data['代号']} 创建成功！")
 print("-" * 30)
-print(f"❤️  生命值: {hero_data['stats']['hp']}")
-print(f"⚔️  攻击力: {hero_data['stats']['atk']}")
-print(f"📍 出生点: {hero_data['pos']}")
-print(f"🎒 背包物品: {hero_data['bag']}")
-print(f"⚡ 已学技能: {hero_data['skills']}")
+print(f"❤️  生命值: {hero_data['属性']['生命']}")
+print(f"⚔️  攻击力: {hero_data['属性']['攻击']}")
+print(f"📍 出生点: {hero_data['坐标']}")
+print(f"🎒 背包物品: {hero_data['背包']}")
+print(f"⚡ 已学技能: {hero_data['技能']}")
 print("-" * 30)
-print("Ready for Adventure!")</code></pre>
+print("准备开始冒险！")</code></pre>
       </section>
       <section
         id="card-064"
