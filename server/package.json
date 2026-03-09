@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/index.js",
-    "start": "node src/index.js",
-    "check": "node --check src/index.js"
+    "dev": "node --watch src/main.js",
+    "start": "node src/main.js",
+    "check": "node --check src/main.js"
   },
   "dependencies": {
     "express": "^4.21.2",

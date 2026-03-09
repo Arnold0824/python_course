@@ -1,4 +1,3 @@
-import { pathToFileURL } from 'node:url';
 import { createApp } from './app.js';
 import { loadConfig } from './config/env.js';
 import { createDatabase } from './db/index.js';
@@ -102,16 +101,5 @@ export async function startServer() {
       });
       reject(error);
     });
-  });
-}
-
-const isDirectRun =
-  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-
-if (isDirectRun) {
-  startServer().catch((error) => {
-    console.error('[server] startup failed');
-    console.error(error);
-    process.exit(1);
   });
 }

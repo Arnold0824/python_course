@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'python-course-server',
       cwd: __dirname,
-      script: 'src/index.js',
+      script: 'src/main.js',
       interpreter: 'node',
       instances: 1,
       exec_mode: 'fork',
