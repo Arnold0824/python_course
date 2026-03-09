@@ -96,7 +96,7 @@ export function createAnalyticsService({ config, db }) {
 
   async function getRecentPageViews(limit = 50) {
     const safeLimit = Math.max(1, Math.min(Number(limit) || 50, 200));
-    const [rows] = await db.getPool().execute(
+    const [rows] = await db.getPool().query(
       `
         SELECT
           id,
@@ -109,9 +109,8 @@ export function createAnalyticsService({ config, db }) {
           created_at AS createdAt
         FROM ${tableRef()}
         ORDER BY created_at DESC, id DESC
-        LIMIT ?
+        LIMIT ${safeLimit}
       `,
-      [safeLimit],
     );
 
     return rows;
@@ -119,17 +118,16 @@ export function createAnalyticsService({ config, db }) {
 
   async function getDailyViews(days = 7) {
     const safeDays = Math.max(1, Math.min(Number(days) || 7, 90));
-    const [rows] = await db.getPool().execute(
+    const [rows] = await db.getPool().query(
       `
         SELECT
           DATE(created_at) AS viewDate,
           COUNT(*) AS views
         FROM ${tableRef()}
-        WHERE created_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY)
+        WHERE created_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ${safeDays} DAY)
         GROUP BY DATE(created_at)
         ORDER BY viewDate DESC
       `,
-      [safeDays],
     );
 
     return rows;

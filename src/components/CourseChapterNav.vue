@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink } from "vue-router";
 import { courseChapters } from "../config/chapters";
 
 const props = defineProps({
@@ -11,8 +11,6 @@ const props = defineProps({
 });
 
 const active = computed(() => String(props.activeChapter || "1"));
-const route = useRoute();
-const isAdminActive = computed(() => route.name === "admin-stats");
 </script>
 
 <template>
@@ -31,27 +29,11 @@ const isAdminActive = computed(() => route.name === "admin-stats");
           </RouterLink>
         </li>
       </ol>
-      <div class="chapter-admin">
-        <RouterLink
-          to="/admin/stats"
-          class="chapter-link level-1"
-          :class="{ 'is-active': isAdminActive }"
-        >
-          <span class="chapter-no">AD</span>
-          <span class="chapter-text">统计后台</span>
-        </RouterLink>
-      </div>
     </section>
   </aside>
 </template>
 
 <style scoped>
-.chapter-admin {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px dashed rgba(13, 123, 232, 0.18);
-}
-
 @media (max-width: 1280px) {
   .lesson-chapter-sidebar {
     display: block;

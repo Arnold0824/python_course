@@ -7,10 +7,18 @@ export function notFoundHandler(req, res) {
 
 export function createErrorHandler({ logger }) {
   return function errorHandler(error, req, res, next) {
+    const requestBody =
+      req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)
+        ? req.body
+        : undefined;
+
     logger.error('request failed', {
+      body: requestBody,
       message: error.message,
       method: req.method,
       path: req.originalUrl,
+      query: req.query,
+      stack: error.stack,
     });
 
     if (res.headersSent) {
