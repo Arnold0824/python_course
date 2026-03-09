@@ -4,6 +4,7 @@ import { RouterLink } from "vue-router";
 import { fetchAnalyticsDashboard } from "../services/adminAnalytics";
 
 const TOKEN_STORAGE_KEY = "python-course-admin-token";
+const CHART_COLORS = ["#0d7be8", "#11a982", "#f59e0b", "#d63535", "#7c3aed", "#0891b2"];
 
 const adminToken = ref("");
 const days = ref(14);
@@ -13,16 +14,19 @@ const errorMessage = ref("");
 const dashboard = ref(null);
 const lastLoadedAt = ref("");
 
-const totalViews = computed(() => Number(dashboard.value?.overview?.totalViews || 0));
-const uniqueSessions = computed(() => Number(dashboard.value?.overview?.uniqueSessions || 0));
+const overview = computed(() => dashboard.value?.overview || {});
+const totalViews = computed(() => Number(overview.value.totalViews || 0));
+const uniqueUsers = computed(() => Number(overview.value.uniqueUsers || 0));
+const uniqueSessions = computed(() => Number(overview.value.uniqueSessions || 0));
 const recentViews = computed(() => dashboard.value?.recentViews || []);
-const chapterViews = computed(() => dashboard.value?.overview?.chapters || []);
-const pathViews = computed(() => dashboard.value?.overview?.paths || []);
-const dailyViews = computed(() => dashboard.value?.dailyViews || []);
-const maxDailyViews = computed(() => {
-  const values = dailyViews.value.map((item) => Number(item.views || 0));
-  return Math.max(1, ...values);
-});
+const chapterViews = computed(() => overview.value.chapters || []);
+const pathViews = computed(() => overview.value.paths || []);
+const dailyMetrics = computed(() => dashboard.value?.dailyMetrics || []);
+const hourlyMetrics = computed(() => dashboard.value?.hourlyMetrics || []);
+const chapterTrend = computed(() => dashboard.value?.chapterTrend || { labels: [], series: [] });
+const activeIpCount = computed(
+  () => dailyMetrics.value[dailyMetrics.value.length - 1]?.uniqueUsers || 0,
+);
 
 function loadStoredToken() {
   adminToken.value = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
@@ -57,21 +61,73 @@ function formatDateTime(value) {
   }).format(date);
 }
 
-function formatShortDate(value) {
-  if (!value) {
-    return "-";
+function buildPolyline(values, maxValue, width = 100, height = 44) {
+  if (!values.length) {
+    return "";
   }
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
+  const safeMax = Math.max(1, maxValue);
+  const xStep = values.length === 1 ? 0 : width / (values.length - 1);
 
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-  }).format(date);
+  return values
+    .map((value, index) => {
+      const x = values.length === 1 ? width / 2 : index * xStep;
+      const y = height - (Number(value || 0) / safeMax) * height;
+      return `${x},${Number.isFinite(y) ? y.toFixed(2) : height}`;
+    })
+    .join(" ");
 }
+
+function maxFromSeries(items, keys) {
+  const values = [];
+  for (const item of items) {
+    for (const key of keys) {
+      values.push(Number(item[key] || 0));
+    }
+  }
+  return Math.max(1, ...values);
+}
+
+const dailyChartMax = computed(() => maxFromSeries(dailyMetrics.value, ["views", "uniqueUsers"]));
+const hourlyChartMax = computed(() =>
+  maxFromSeries(hourlyMetrics.value, ["views", "uniqueUsers"]),
+);
+const chapterTrendMax = computed(() => {
+  const values = chapterTrend.value.series.flatMap((item) => item.values.map((value) => Number(value || 0)));
+  return Math.max(1, ...values);
+});
+
+const dailyViewsLine = computed(() =>
+  buildPolyline(
+    dailyMetrics.value.map((item) => item.views),
+    dailyChartMax.value,
+  ),
+);
+const dailyUsersLine = computed(() =>
+  buildPolyline(
+    dailyMetrics.value.map((item) => item.uniqueUsers),
+    dailyChartMax.value,
+  ),
+);
+const hourlyViewsLine = computed(() =>
+  buildPolyline(
+    hourlyMetrics.value.map((item) => item.views),
+    hourlyChartMax.value,
+  ),
+);
+const hourlyUsersLine = computed(() =>
+  buildPolyline(
+    hourlyMetrics.value.map((item) => item.uniqueUsers),
+    hourlyChartMax.value,
+  ),
+);
+const chapterTrendSeries = computed(() =>
+  chapterTrend.value.series.map((item, index) => ({
+    ...item,
+    color: CHART_COLORS[index % CHART_COLORS.length],
+    points: buildPolyline(item.values, chapterTrendMax.value),
+  })),
+);
 
 async function refreshDashboard() {
   errorMessage.value = "";
@@ -86,9 +142,9 @@ async function refreshDashboard() {
   isLoading.value = true;
   try {
     dashboard.value = await fetchAnalyticsDashboard({
-      token: adminToken.value,
       days: days.value,
       limit: limit.value,
+      token: adminToken.value,
     });
     lastLoadedAt.value = formatDateTime(new Date().toISOString());
   } catch (error) {
@@ -115,9 +171,9 @@ onMounted(() => {
     <header class="admin-topbar">
       <div>
         <p class="admin-kicker">统计后台</p>
-        <h1>访问流量与章节热度</h1>
+        <h1>按 IP 识别独立用户</h1>
         <p class="admin-intro">
-          查看总访问量、独立会话、章节热度、页面排行和最近访问记录。
+          独立用户按照 IP 地址去重统计，同时展示访问量、独立用户、24 小时趋势和章节趋势。
         </p>
       </div>
       <div class="admin-actions">
@@ -133,7 +189,7 @@ onMounted(() => {
         <div class="control-header">
           <div>
             <h2>连接设置</h2>
-            <p>管理员令牌会保存在当前浏览器的本地存储中。</p>
+            <p>管理员令牌会保存在当前浏览器本地，仅用于调用统计接口。</p>
           </div>
           <p class="sync-note">上次刷新：{{ lastLoadedAt || "尚未刷新" }}</p>
         </div>
@@ -150,7 +206,7 @@ onMounted(() => {
           </label>
 
           <label class="field">
-            <span>统计天数</span>
+            <span>趋势天数</span>
             <select v-model.number="days">
               <option :value="7">最近 7 天</option>
               <option :value="14">最近 14 天</option>
@@ -178,48 +234,107 @@ onMounted(() => {
           <strong>{{ totalViews }}</strong>
         </article>
         <article class="stat-card">
+          <span class="stat-label">独立用户（按 IP）</span>
+          <strong>{{ uniqueUsers }}</strong>
+        </article>
+        <article class="stat-card">
           <span class="stat-label">独立会话</span>
           <strong>{{ uniqueSessions }}</strong>
         </article>
         <article class="stat-card">
-          <span class="stat-label">章节数</span>
-          <strong>{{ chapterViews.length }}</strong>
+          <span class="stat-label">最近一天活跃 IP</span>
+          <strong>{{ activeIpCount }}</strong>
         </article>
-        <article class="stat-card">
-          <span class="stat-label">已统计页面</span>
-          <strong>{{ pathViews.length }}</strong>
+      </section>
+
+      <section class="trend-grid">
+        <article class="panel trend-card">
+          <div class="panel-head">
+            <h2>{{ days }} 天访问与用户趋势</h2>
+            <span>访问量 + 独立用户</span>
+          </div>
+          <div class="chart-legend">
+            <span><i class="dot views"></i>访问量</span>
+            <span><i class="dot users"></i>独立用户</span>
+          </div>
+          <div v-if="dailyMetrics.length" class="line-chart">
+            <svg viewBox="0 0 100 44" preserveAspectRatio="none" aria-hidden="true">
+              <polyline class="line users-line" :points="dailyUsersLine"></polyline>
+              <polyline class="line views-line" :points="dailyViewsLine"></polyline>
+            </svg>
+            <div class="chart-footer">
+              <span>{{ dailyMetrics[0]?.label }}</span>
+              <span>{{ dailyMetrics[dailyMetrics.length - 1]?.label }}</span>
+            </div>
+          </div>
+          <p v-else class="empty-state">暂无趋势数据。</p>
+        </article>
+
+        <article class="panel trend-card">
+          <div class="panel-head">
+            <h2>24 小时趋势</h2>
+            <span>按小时聚合</span>
+          </div>
+          <div class="chart-legend">
+            <span><i class="dot views"></i>访问量</span>
+            <span><i class="dot users"></i>独立用户</span>
+          </div>
+          <div v-if="hourlyMetrics.length" class="line-chart">
+            <svg viewBox="0 0 100 44" preserveAspectRatio="none" aria-hidden="true">
+              <polyline class="line users-line" :points="hourlyUsersLine"></polyline>
+              <polyline class="line views-line" :points="hourlyViewsLine"></polyline>
+            </svg>
+            <div class="chart-footer">
+              <span>{{ hourlyMetrics[0]?.label }}</span>
+              <span>{{ hourlyMetrics[hourlyMetrics.length - 1]?.label }}</span>
+            </div>
+          </div>
+          <p v-else class="empty-state">暂无 24 小时数据。</p>
+        </article>
+
+        <article class="panel trend-card chapter-trend-card">
+          <div class="panel-head">
+            <h2>章节趋势</h2>
+            <span>Top {{ chapterTrendSeries.length }}</span>
+          </div>
+          <div class="chart-legend">
+            <span
+              v-for="item in chapterTrendSeries"
+              :key="item.chapterId"
+              class="legend-item"
+            >
+              <i class="dot" :style="{ background: item.color }"></i>
+              第 {{ item.chapterId }} 章
+            </span>
+          </div>
+          <div v-if="chapterTrendSeries.length" class="line-chart">
+            <svg viewBox="0 0 100 44" preserveAspectRatio="none" aria-hidden="true">
+              <polyline
+                v-for="item in chapterTrendSeries"
+                :key="item.chapterId"
+                class="line chapter-line"
+                :points="item.points"
+                :style="{ stroke: item.color }"
+              ></polyline>
+            </svg>
+            <div class="chart-footer">
+              <span>{{ chapterTrend.labels[0] || "-" }}</span>
+              <span>{{ chapterTrend.labels[chapterTrend.labels.length - 1] || "-" }}</span>
+            </div>
+          </div>
+          <p v-else class="empty-state">当前时间范围内暂无章节趋势数据。</p>
         </article>
       </section>
 
       <section class="dashboard-grid">
-        <article class="panel chart-panel">
-          <div class="panel-head">
-            <h2>最近访问走势</h2>
-            <span>{{ days }} 天</span>
-          </div>
-          <div v-if="dailyViews.length" class="bar-chart">
-            <div v-for="item in dailyViews" :key="item.viewDate" class="bar-row">
-              <span class="bar-label">{{ formatShortDate(item.viewDate) }}</span>
-              <div class="bar-track">
-                <span
-                  class="bar-fill"
-                  :style="{ width: `${(Number(item.views || 0) / maxDailyViews) * 100}%` }"
-                ></span>
-              </div>
-              <strong class="bar-value">{{ item.views }}</strong>
-            </div>
-          </div>
-          <p v-else class="empty-state">暂无访问数据。</p>
-        </article>
-
         <article class="panel ranking-panel">
           <div class="panel-head">
-            <h2>章节热度</h2>
-            <span>Top {{ chapterViews.length }}</span>
+            <h2>章节热度排行</h2>
+            <span>按总访问量</span>
           </div>
           <ol v-if="chapterViews.length" class="ranking-list">
             <li v-for="item in chapterViews" :key="item.chapterId || 'unknown'">
-              <span>{{ item.chapterId || "未标记章节" }}</span>
+              <span>{{ item.chapterId ? `第 ${item.chapterId} 章` : "未标记章节" }}</span>
               <strong>{{ item.views }}</strong>
             </li>
           </ol>
@@ -261,7 +376,7 @@ onMounted(() => {
             <tbody>
               <tr v-for="item in recentViews" :key="item.id">
                 <td>{{ formatDateTime(item.createdAt) }}</td>
-                <td>{{ item.chapterId || "-" }}</td>
+                <td>{{ item.chapterId ? `第 ${item.chapterId} 章` : "-" }}</td>
                 <td class="mono">{{ item.path }}</td>
                 <td class="mono">{{ item.referrer || "-" }}</td>
                 <td class="mono">{{ item.sessionId }}</td>
@@ -442,6 +557,7 @@ onMounted(() => {
 }
 
 .stats-grid,
+.trend-grid,
 .dashboard-grid {
   display: grid;
   gap: 18px;
@@ -472,41 +588,81 @@ onMounted(() => {
   color: #0a62be;
 }
 
+.trend-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .dashboard-grid {
-  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.bar-chart {
-  margin-top: 14px;
-  display: grid;
-  gap: 12px;
+.chart-legend {
+  margin-top: 12px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #56738d;
+  font-size: 0.86rem;
 }
 
-.bar-row {
-  display: grid;
-  grid-template-columns: 62px 1fr 48px;
-  gap: 12px;
+.legend-item,
+.chart-legend span {
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
 }
 
-.bar-label,
-.bar-value {
-  font-size: 0.9rem;
-}
-
-.bar-track {
-  height: 12px;
+.dot {
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
-  background: rgba(13, 123, 232, 0.08);
-  overflow: hidden;
+  background: currentColor;
 }
 
-.bar-fill {
+.views {
+  color: #0d7be8;
+}
+
+.users {
+  color: #11a982;
+}
+
+.line-chart {
+  margin-top: 14px;
+}
+
+.line-chart svg {
   display: block;
-  height: 100%;
-  min-width: 6px;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #0d7be8, #11a982);
+  width: 100%;
+  height: 180px;
+  padding: 8px 0;
+}
+
+.line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+.views-line {
+  stroke: #0d7be8;
+}
+
+.users-line {
+  stroke: #11a982;
+}
+
+.chapter-line {
+  stroke-width: 2;
+}
+
+.chart-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #5d7891;
+  font-size: 0.82rem;
 }
 
 .ranking-list {
@@ -580,6 +736,12 @@ td {
   color: var(--text-secondary);
 }
 
+@media (max-width: 1180px) {
+  .trend-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1080px) {
   .stats-grid,
   .dashboard-grid,
@@ -608,9 +770,8 @@ td {
     display: grid;
   }
 
-  .bar-row {
-    grid-template-columns: 56px 1fr 42px;
-    gap: 8px;
+  .line-chart svg {
+    height: 150px;
   }
 }
 </style>

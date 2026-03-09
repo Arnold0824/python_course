@@ -1,8 +1,68 @@
 export function createAnalyticsService({ config, db }) {
   const tableName = config.analytics.pageViewTable;
 
+  function toSafeInt(value, fallback, min, max) {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isNaN(parsed)) {
+      return fallback;
+    }
+
+    return Math.max(min, Math.min(parsed, max));
+  }
+
   function tableRef() {
     return `\`${tableName}\``;
+  }
+
+  function formatDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function formatDateLabel(dateKey) {
+    return dateKey.slice(5).replace('-', '/');
+  }
+
+  function formatHourKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hour}:00`;
+  }
+
+  function formatHourLabel(hourKey) {
+    return hourKey.slice(5);
+  }
+
+  function buildRecentDateKeys(days) {
+    const keys = [];
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    for (let offset = days - 1; offset >= 0; offset -= 1) {
+      const current = new Date(today);
+      current.setDate(today.getDate() - offset);
+      keys.push(formatDateKey(current));
+    }
+
+    return keys;
+  }
+
+  function buildRecentHourKeys(hours) {
+    const keys = [];
+    const now = new Date();
+    now.setMinutes(0, 0, 0);
+
+    for (let offset = hours - 1; offset >= 0; offset -= 1) {
+      const current = new Date(now);
+      current.setHours(now.getHours() - offset);
+      keys.push(formatHourKey(current));
+    }
+
+    return keys;
   }
 
   async function initSchema() {
@@ -57,6 +117,7 @@ export function createAnalyticsService({ config, db }) {
       `
         SELECT
           COUNT(*) AS totalViews,
+          COUNT(DISTINCT NULLIF(ip_address, '')) AS uniqueUsers,
           COUNT(DISTINCT session_id) AS uniqueSessions
         FROM ${tableRef()}
       `,
@@ -90,6 +151,7 @@ export function createAnalyticsService({ config, db }) {
       chapters: chapterRows,
       paths: pathRows,
       totalViews: Number(totalsRows[0]?.totalViews ?? 0),
+      uniqueUsers: Number(totalsRows[0]?.uniqueUsers ?? 0),
       uniqueSessions: Number(totalsRows[0]?.uniqueSessions ?? 0),
     };
   }
@@ -116,32 +178,138 @@ export function createAnalyticsService({ config, db }) {
     return rows;
   }
 
-  async function getDailyViews(days = 7) {
-    const safeDays = Math.max(1, Math.min(Number(days) || 7, 90));
+  async function getDailyMetrics(days = 7) {
+    const safeDays = toSafeInt(days, 7, 1, 90);
     const [rows] = await db.getPool().query(
       `
         SELECT
           DATE(created_at) AS viewDate,
-          COUNT(*) AS views
+          COUNT(*) AS views,
+          COUNT(DISTINCT NULLIF(ip_address, '')) AS uniqueUsers
         FROM ${tableRef()}
-        WHERE created_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ${safeDays} DAY)
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${safeDays} DAY)
         GROUP BY DATE(created_at)
         ORDER BY viewDate DESC
       `,
     );
 
-    return rows;
+    const rowMap = new Map(
+      rows.map((row) => [
+        String(row.viewDate),
+        {
+          uniqueUsers: Number(row.uniqueUsers ?? 0),
+          views: Number(row.views ?? 0),
+        },
+      ]),
+    );
+
+    return buildRecentDateKeys(safeDays).map((dateKey) => {
+      const hit = rowMap.get(dateKey) ?? { views: 0, uniqueUsers: 0 };
+      return {
+        label: formatDateLabel(dateKey),
+        uniqueUsers: hit.uniqueUsers,
+        viewDate: dateKey,
+        views: hit.views,
+      };
+    });
+  }
+
+  async function getHourlyMetrics(hours = 24) {
+    const safeHours = toSafeInt(hours, 24, 6, 72);
+    const [rows] = await db.getPool().query(
+      `
+        SELECT
+          DATE_FORMAT(created_at, '%Y-%m-%d %H:00') AS hourKey,
+          COUNT(*) AS views,
+          COUNT(DISTINCT NULLIF(ip_address, '')) AS uniqueUsers
+        FROM ${tableRef()}
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${safeHours} HOUR)
+        GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d %H:00')
+        ORDER BY hourKey ASC
+      `,
+    );
+
+    const rowMap = new Map(
+      rows.map((row) => [
+        String(row.hourKey),
+        {
+          uniqueUsers: Number(row.uniqueUsers ?? 0),
+          views: Number(row.views ?? 0),
+        },
+      ]),
+    );
+
+    return buildRecentHourKeys(safeHours).map((hourKey) => {
+      const hit = rowMap.get(hourKey) ?? { views: 0, uniqueUsers: 0 };
+      return {
+        hourKey,
+        label: formatHourLabel(hourKey),
+        uniqueUsers: hit.uniqueUsers,
+        views: hit.views,
+      };
+    });
+  }
+
+  async function getChapterTrend(days = 7, topN = 4) {
+    const safeDays = toSafeInt(days, 7, 1, 90);
+    const safeTopN = toSafeInt(topN, 4, 1, 6);
+    const [rows] = await db.getPool().query(
+      `
+        SELECT
+          DATE(created_at) AS viewDate,
+          chapter_id AS chapterId,
+          COUNT(*) AS views
+        FROM ${tableRef()}
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${safeDays} DAY)
+          AND chapter_id IS NOT NULL
+          AND chapter_id <> ''
+        GROUP BY DATE(created_at), chapter_id
+        ORDER BY viewDate ASC
+      `,
+    );
+
+    const totals = new Map();
+    const valueMap = new Map();
+
+    for (const row of rows) {
+      const chapterId = String(row.chapterId);
+      const viewDate = String(row.viewDate);
+      const views = Number(row.views ?? 0);
+
+      totals.set(chapterId, (totals.get(chapterId) ?? 0) + views);
+      valueMap.set(`${chapterId}|${viewDate}`, views);
+    }
+
+    const topChapterIds = [...totals.entries()]
+      .sort((left, right) => right[1] - left[1])
+      .slice(0, safeTopN)
+      .map(([chapterId]) => chapterId);
+
+    const dateKeys = buildRecentDateKeys(safeDays);
+
+    return {
+      labels: dateKeys.map((dateKey) => formatDateLabel(dateKey)),
+      series: topChapterIds.map((chapterId) => ({
+        chapterId,
+        totalViews: totals.get(chapterId) ?? 0,
+        values: dateKeys.map((dateKey) => Number(valueMap.get(`${chapterId}|${dateKey}`) ?? 0)),
+      })),
+    };
   }
 
   async function getAdminDashboard({ days = 7, limit = 50 } = {}) {
-    const [overview, recentViews, dailyViews] = await Promise.all([
+    const [overview, recentViews, dailyMetrics, hourlyMetrics, chapterTrend] = await Promise.all([
       getOverview(),
       getRecentPageViews(limit),
-      getDailyViews(days),
+      getDailyMetrics(days),
+      getHourlyMetrics(),
+      getChapterTrend(days),
     ]);
 
     return {
-      dailyViews,
+      chapterTrend,
+      dailyMetrics,
+      hourlyMetrics,
       overview,
       recentViews,
     };
@@ -149,7 +317,9 @@ export function createAnalyticsService({ config, db }) {
 
   return {
     getAdminDashboard,
-    getDailyViews,
+    getChapterTrend,
+    getDailyMetrics,
+    getHourlyMetrics,
     getOverview,
     getRecentPageViews,
     initSchema,

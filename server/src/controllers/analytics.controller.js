@@ -6,6 +6,23 @@ function normalizeString(value, fallback = '') {
   return value.trim();
 }
 
+function normalizeIpAddress(value) {
+  const ip = normalizeString(value, null);
+  if (!ip) {
+    return null;
+  }
+
+  if (ip === '::1') {
+    return '127.0.0.1';
+  }
+
+  if (ip.startsWith('::ffff:')) {
+    return ip.slice(7);
+  }
+
+  return ip;
+}
+
 export function createAnalyticsController({ analyticsService }) {
   return {
     getOverview: async (req, res, next) => {
@@ -34,7 +51,7 @@ export function createAnalyticsController({ analyticsService }) {
 
         const result = await analyticsService.trackPageView({
           chapterId: normalizeString(req.body?.chapterId, null),
-          ipAddress: req.ip,
+          ipAddress: normalizeIpAddress(req.ip),
           path,
           referrer:
             normalizeString(req.body?.referrer) || normalizeString(req.get('referer'), null),

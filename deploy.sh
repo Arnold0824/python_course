@@ -10,6 +10,7 @@ RUN_SERVER_INSTALL="${RUN_SERVER_INSTALL:-1}"
 PM2_APP_NAME="${PM2_APP_NAME:-python-course-server}"
 PM2_ECOSYSTEM_CONFIG="${PM2_ECOSYSTEM_CONFIG:-${SERVER_DIR}/ecosystem.config.cjs}"
 PM2_AUTO_RESTART="${PM2_AUTO_RESTART:-1}"
+FRONTEND_INSTALL_INCLUDE_DEV="${FRONTEND_INSTALL_INCLUDE_DEV:-1}"
 
 echo "[deploy] start $(date -Iseconds)"
 echo "[deploy] repo=${REPO_DIR}"
@@ -45,7 +46,12 @@ fi
 
 if [[ "${RUN_BUILD}" == "1" ]]; then
   if command -v npm >/dev/null 2>&1; then
-    npm ci
+    echo "[deploy] installing frontend dependencies"
+    if [[ "${FRONTEND_INSTALL_INCLUDE_DEV}" == "1" ]]; then
+      npm ci --include=dev
+    else
+      npm ci
+    fi
     npm run build
   else
     echo "[deploy] npm not found, skip build"
