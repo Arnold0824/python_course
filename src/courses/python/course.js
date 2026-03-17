@@ -1,0 +1,36 @@
+export const pythonCourse = {
+  id: "python",
+  label: "Python编程与科学计算",
+  shortLabel: "Python编程与科学计算",
+  home: "/python/chapter/1",
+  chapters: [
+    {
+      no: "01",
+      id: "1",
+      label: "第一章 认识 Python",
+      path: "/python/chapter/1",
+      component: () => import("./views/ChapterOneView.vue"),
+    },
+    {
+      no: "02",
+      id: "2",
+      label: "第二章 基础语法与数据类型",
+      path: "/python/chapter/2",
+      component: () => import("./views/ChapterTwoView.vue"),
+    },
+    {
+      no: "03",
+      id: "3",
+      label: "第三章 运算符与控制流程",
+      path: "/python/chapter/3",
+      component: () => import("./views/ChapterThreeView.vue"),
+    },
+    {
+      no: "04",
+      id: "4",
+      label: "第四章 函数与异常处理",
+      path: "/python/chapter/4",
+      component: () => import("./views/ChapterFourView.vue"),
+    },
+  ],
+};

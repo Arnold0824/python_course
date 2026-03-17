@@ -1,24 +1,30 @@
 <script setup>
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
-import { courseChapters } from "../config/chapters";
+import { getCourseById } from "../config/courses";
 
 const props = defineProps({
+  activeCourse: {
+    type: String,
+    required: true,
+  },
   activeChapter: {
     type: String,
     required: true,
   },
 });
 
+const course = computed(() => getCourseById(String(props.activeCourse || "python")));
+const chapters = computed(() => course.value?.chapters || []);
 const active = computed(() => String(props.activeChapter || "1"));
 </script>
 
 <template>
   <aside class="lesson-chapter-sidebar" aria-label="课程章节导航">
     <section class="chapter-nav">
-      <h3>章节导航</h3>
+      <h3>{{ course?.label || "章节导航" }}</h3>
       <ol class="chapter-list">
-        <li v-for="chapter in courseChapters" :key="chapter.id">
+        <li v-for="chapter in chapters" :key="chapter.id">
           <RouterLink
             :to="chapter.path"
             class="chapter-link level-1"

@@ -1,11 +1,12 @@
 <script setup>
 import { ref } from "vue";
-import LessonOutlineSidebar from "../components/LessonOutlineSidebar.vue";
-import { useLessonDeck } from "../composables/useLessonDeck";
+import CourseSwitcher from "../../../components/CourseSwitcher.vue";
+import LessonOutlineSidebar from "../../../components/LessonOutlineSidebar.vue";
+import { useLessonDeck } from "../../../composables/useLessonDeck";
 
 const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
-const chapterOneRewardHref = encodeURI("/chapters/ch01/game.py");
+const chapterOneRewardHref = encodeURI("/courses/python/ch01/game.py");
 </script>
 
 <template>
@@ -23,14 +24,7 @@ const chapterOneRewardHref = encodeURI("/chapters/ch01/game.py");
                 <span class="brand-tag">Chapter 1</span>
                 <strong>pip / conda 环境管理</strong>
             </a>
-            <nav class="nav-links" aria-label="页面目录">
-                <a href="#goals">教学目标</a>
-                <a href="#concepts">核心概念</a>
-                <a href="#commands">命令集合</a>
-                <a href="#venv">venv</a>
-                <a href="#conda">Conda</a>
-                <a href="#pitfalls">常见坑</a>
-            </nav>
+            <CourseSwitcher />
         </header>
 
         <main id="top" class="page is-slide-deck">

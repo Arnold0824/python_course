@@ -1,39 +1,37 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import ChapterOneView from "../views/ChapterOneView.vue";
-import ChapterTwoView from "../views/ChapterTwoView.vue";
-import ChapterThreeView from "../views/ChapterThreeView.vue";
-import ChapterFourView from "../views/ChapterFourView.vue";
+import { courses } from "../config/courses";
 import AdminStatsView from "../views/AdminStatsView.vue";
+
+const lessonRoutes = courses.flatMap((course) =>
+  course.chapters.map((chapter) => ({
+    path: chapter.path,
+    name: `${course.id}-chapter-${chapter.id}`,
+    component: chapter.component,
+    meta: {
+      courseId: course.id,
+      chapterId: chapter.id,
+    },
+  }))
+);
 
 const routes = [
   {
     path: "/",
-    redirect: "/chapter/1",
+    redirect: "/python/chapter/1",
   },
   {
-    path: "/chapter/1",
-    name: "chapter-1",
-    component: ChapterOneView,
-    meta: { chapterId: "1" },
+    path: "/chapter/:chapterId",
+    redirect: (to) => `/python/chapter/${to.params.chapterId}`,
   },
   {
-    path: "/chapter/2",
-    name: "chapter-2",
-    component: ChapterTwoView,
-    meta: { chapterId: "2" },
+    path: "/python",
+    redirect: "/python/chapter/1",
   },
   {
-    path: "/chapter/3",
-    name: "chapter-3",
-    component: ChapterThreeView,
-    meta: { chapterId: "3" },
+    path: "/carla",
+    redirect: "/carla/chapter/1",
   },
-  {
-    path: "/chapter/4",
-    name: "chapter-4",
-    component: ChapterFourView,
-    meta: { chapterId: "4" },
-  },
+  ...lessonRoutes,
   {
     path: "/admin/stats",
     name: "admin-stats",
@@ -42,7 +40,7 @@ const routes = [
   },
   {
     path: "/:pathMatch(.*)*",
-    redirect: "/chapter/1",
+    redirect: "/python/chapter/1",
   },
 ];
 

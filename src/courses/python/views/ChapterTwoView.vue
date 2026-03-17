@@ -1,7 +1,8 @@
 ﻿<script setup>
 import { ref } from 'vue'
-import LessonOutlineSidebar from '../components/LessonOutlineSidebar.vue'
-import { useLessonDeck } from '../composables/useLessonDeck'
+import CourseSwitcher from '../../../components/CourseSwitcher.vue'
+import LessonOutlineSidebar from '../../../components/LessonOutlineSidebar.vue'
+import { useLessonDeck } from '../../../composables/useLessonDeck'
 
 const rootRef = ref(null)
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef)
@@ -22,11 +23,7 @@ const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef)
         <span class="brand-tag">Chapter 2</span>
         <strong>Python 基础知识</strong>
       </a>
-      <nav class="nav-links" aria-label="页面目录">
-        <a href="#card-001">Python 基础：项目实战</a>
-        <a href="#card-032">5.1 创建与访问</a>
-        <a href="#card-064">任务完成！</a>
-      </nav>
+      <CourseSwitcher />
     </header>
 
     <main id="top" class="page is-slide-deck">

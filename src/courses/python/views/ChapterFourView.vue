@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from "vue";
-import LessonOutlineSidebar from "../components/LessonOutlineSidebar.vue";
-import { useLessonDeck } from "../composables/useLessonDeck";
+import CourseSwitcher from "../../../components/CourseSwitcher.vue";
+import LessonOutlineSidebar from "../../../components/LessonOutlineSidebar.vue";
+import { useLessonDeck } from "../../../composables/useLessonDeck";
 
 const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
@@ -22,17 +23,7 @@ const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef)
         <span class="brand-tag">Chapter 4</span>
         <strong>函数与异常处理</strong>
       </a>
-      <nav class="nav-links" aria-label="页面目录">
-        <a href="#cover">封面</a>
-        <a href="#why-functions">为什么学函数</a>
-        <a href="#task-function-basics">函数基础</a>
-        <a href="#task-params">参数</a>
-        <a href="#task-scope">变量</a>
-        <a href="#task-recursion">递归</a>
-        <a href="#task-exception">异常处理</a>
-        <a href="#challenge-rabbit">综合训练</a>
-        <a href="#summary">总结</a>
-      </nav>
+      <CourseSwitcher />
     </header>
 
     <main id="top" class="page is-slide-deck">

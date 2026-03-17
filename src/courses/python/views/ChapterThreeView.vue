@@ -1,14 +1,15 @@
 <script setup>
 import { ref } from "vue";
-import LessonOutlineSidebar from "../components/LessonOutlineSidebar.vue";
-import { useLessonDeck } from "../composables/useLessonDeck";
+import CourseSwitcher from "../../../components/CourseSwitcher.vue";
+import LessonOutlineSidebar from "../../../components/LessonOutlineSidebar.vue";
+import { useLessonDeck } from "../../../composables/useLessonDeck";
 
 const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
 const exp1ReportHref = encodeURI(
-  "/exp_reports/实验报告1：阶梯电价计算电费（理实课程实验部分）-学生姓名.docx",
+  "/courses/python/exp_reports/实验报告1：阶梯电价计算电费（理实课程实验部分）-学生姓名.docx",
 );
-const exp1SubmissionQrSrc = encodeURI("/chapters/ch03/表单QR.png");
+const exp1SubmissionQrSrc = encodeURI("/courses/python/ch03/表单QR.png");
 const exp1SubmissionHref = "https://f.wps.cn/g/Nm7bHL0N/";
 </script>
 
@@ -27,16 +28,7 @@ const exp1SubmissionHref = "https://f.wps.cn/g/Nm7bHL0N/";
         <span class="brand-tag">Chapter 3</span>
         <strong>运算符与控制流程</strong>
       </a>
-      <nav class="nav-links" aria-label="页面目录">
-        <a href="#cover">封面</a>
-        <a href="#roadmap">主线</a>
-        <a href="#operators-overview">运算符</a>
-        <a href="#if-structure">if</a>
-        <a href="#loop-roadmap">循环</a>
-        <a href="#nested-practice">练习</a>
-        <a href="#summary">总结</a>
-        <a href="#experiment-1">实验 1</a>
-      </nav>
+      <CourseSwitcher />
     </header>
 
     <main id="top" class="page is-slide-deck">

@@ -177,7 +177,7 @@ onMounted(() => {
         </p>
       </div>
       <div class="admin-actions">
-        <RouterLink class="ghost-link" to="/chapter/1">返回课程</RouterLink>
+        <RouterLink class="ghost-link" to="/python/chapter/1">返回课程</RouterLink>
         <button class="primary-btn" type="button" :disabled="isLoading" @click="refreshDashboard">
           {{ isLoading ? "加载中..." : "刷新数据" }}
         </button>
