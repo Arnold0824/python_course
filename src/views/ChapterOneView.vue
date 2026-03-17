@@ -5,6 +5,7 @@ import { useLessonDeck } from "../composables/useLessonDeck";
 
 const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
+const chapterOneRewardHref = encodeURI("/chapters/ch01/game.py");
 </script>
 
 <template>
@@ -518,6 +519,17 @@ python -m venv .venv
     python -m pip install numpy
     python -c "import numpy; print(numpy.__version__)"
     python -m pip freeze &gt; requirements.txt</code></pre>
+                <article class="chapter-one-reward">
+                    <h3>环境配置完成奖励</h3>
+                    <p>如果环境已经配置好，可以下载这个小游戏文件，直接运行测试自己的 Python 环境。</p>
+                    <a
+                      class="chapter-one-reward-link"
+                      :href="chapterOneRewardHref"
+                      download="game.py"
+                    >
+                      下载 game.py
+                    </a>
+                </article>
             </section>
         </main>
 
@@ -534,3 +546,45 @@ python -m venv .venv
         <div id="copyToast" class="copy-toast" role="status" aria-live="polite">命令已复制</div>
   </div>
 </template>
+
+<style scoped>
+.chapter-one-reward {
+    margin-top: 18px;
+    padding: 18px 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(13, 123, 232, 0.16);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(236, 246, 255, 0.92));
+    box-shadow: 0 10px 24px rgba(13, 62, 108, 0.08);
+}
+
+.chapter-one-reward h3 {
+    margin: 0 0 8px;
+    color: #0c4e8d;
+}
+
+.chapter-one-reward p {
+    margin: 0;
+}
+
+.chapter-one-reward-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    margin-top: 12px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(13, 123, 232, 0.24);
+    background: linear-gradient(180deg, rgba(13, 123, 232, 0.12), rgba(13, 123, 232, 0.18));
+    color: #0a5eaf;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.chapter-one-reward-link:hover {
+    transform: translateY(-1px);
+    border-color: rgba(13, 123, 232, 0.38);
+    background: linear-gradient(180deg, rgba(13, 123, 232, 0.16), rgba(13, 123, 232, 0.24));
+}
+</style>
