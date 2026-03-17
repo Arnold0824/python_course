@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import ChapterOneView from "../views/ChapterOneView.vue";
 import ChapterTwoView from "../views/ChapterTwoView.vue";
 import ChapterThreeView from "../views/ChapterThreeView.vue";
+import ChapterFourView from "../views/ChapterFourView.vue";
 import AdminStatsView from "../views/AdminStatsView.vue";
 
 const routes = [
@@ -26,6 +27,12 @@ const routes = [
     name: "chapter-3",
     component: ChapterThreeView,
     meta: { chapterId: "3" },
+  },
+  {
+    path: "/chapter/4",
+    name: "chapter-4",
+    component: ChapterFourView,
+    meta: { chapterId: "4" },
   },
   {
     path: "/admin/stats",
