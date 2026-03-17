@@ -11,5 +11,12 @@ export const carlaCourse = {
       path: "/carla/chapter/1",
       component: () => import("./views/Chapter01View.vue"),
     },
+    {
+      no: "02",
+      id: "2",
+      label: "第二章 CARLA运行机制与首次连接",
+      path: "/carla/chapter/2",
+      component: () => import("./views/Chapter02View.vue"),
+    },
   ],
 };
