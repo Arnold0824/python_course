@@ -43,3 +43,5 @@ try:
     print("出生点数量：", len(current_map.get_spawn_points()))
 except Exception as e:
     print("连接失败：", e)
+
+# %%

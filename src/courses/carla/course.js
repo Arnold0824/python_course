@@ -18,5 +18,12 @@ export const carlaCourse = {
       path: "/carla/chapter/2",
       component: () => import("./views/Chapter02View.vue"),
     },
+    {
+      no: "03",
+      id: "3",
+      label: "第三章 车辆生成、传感器挂载与自动采图",
+      path: "/carla/chapter/3",
+      component: () => import("./views/Chapter03View.vue"),
+    },
   ],
 };
