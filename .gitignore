@@ -22,6 +22,8 @@ lerna-debug.log*
 .env.*
 !.env.example
 
+./output/
+
 # Python caches / virtual envs (project contains Python teaching files)
 __pycache__/
 *.py[cod]
