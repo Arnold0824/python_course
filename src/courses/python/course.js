@@ -32,5 +32,12 @@ export const pythonCourse = {
       path: "/python/chapter/4",
       component: () => import("./views/ChapterFourView.vue"),
     },
+    {
+      no: "05",
+      id: "5",
+      label: "第五章 面向对象基础",
+      path: "/python/chapter/5",
+      component: () => import("./views/ChapterFiveView.vue"),
+    },
   ],
 };

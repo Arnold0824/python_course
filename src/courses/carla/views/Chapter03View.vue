@@ -35,7 +35,7 @@ const expSubmitQrHref = "/courses/carla/ch03/自动驾驶软件系统B_ 实验�
 
     <header class="top-nav">
       <a class="brand" href="#top">
-        <span class="brand-tag">CARLA 03</span>
+        <span class="brand-tag">CARLA 02</span>
         <strong>车辆生成、传感器挂载与自动采图</strong>
       </a>
       <CourseSwitcher />
@@ -49,7 +49,7 @@ const expSubmitQrHref = "/courses/carla/ch03/自动驾驶软件系统B_ 实验�
         data-outline-label="章节封面"
       >
         <p class="kicker">ACTORS, SENSORS AND DATA CAPTURE</p>
-        <h1>第三章 车辆生成、传感器挂载与自动采图</h1>
+        <h1>第二章 车辆生成、传感器挂载与自动采图</h1>
         <p class="hero-intro">
           这一章从“能连接世界”推进到“能在世界里生成主车、把相机挂到车上、稳定拿到图像数据”。
           所有代码都按 notebook 代码段来设计，每一步都先看现象，再继续下一步。
@@ -167,7 +167,7 @@ const expSubmitQrHref = "/courses/carla/ch03/自动驾驶软件系统B_ 实验�
         data-outline-level="1"
         data-outline-label="为什么先学车与相机"
       >
-        <h2>为什么第三章先学车与相机，而不是先读官方大脚本</h2>
+        <h2>为什么第二章先学车与相机，而不是先读官方大脚本</h2>
         <p class="chapter-three-cue">
           <strong>这一章的原则：</strong>先从最小原生 API 跑通“车 + 相机 + 图像”，再去看
           <code>manual_control.py</code> 或 <code>automatic_control.py</code> 这类大脚本。先建立对象关系，再读大型工程代码。
@@ -443,7 +443,7 @@ print("车辆位姿：", ego_vehicle.get_transform())</code></pre>
       >
         <h3>为什么会出现 <code>AttributeError: 'NoneType' object ...</code></h3>
         <p class="chapter-three-cue">
-          第三章最常见的错误不是 <code>get_transform()</code> 本身有问题，而是前面的
+          第二章最常见的错误不是 <code>get_transform()</code> 本身有问题，而是前面的
           <code>ego_vehicle</code> 根本没有生成成功。
         </p>
         <div class="concept-grid chapter-three-quad-grid">
@@ -844,7 +844,7 @@ print("已保存：", filename)</code></pre>
         data-outline-level="1"
         data-outline-label="天气控制"
       >
-        <h2>第三章为什么要把天气控制放进来</h2>
+        <h2>第二章为什么要把天气控制放进来</h2>
         <p class="chapter-three-cue">
           这一章的综合实验定为“同步天气控制与相机数据采集”。天气控制不是为了炫效果，而是为了让学生看到：
           同一个相机，在不同天气下会得到不同的视觉数据，这才是真正的数据采集场景。
@@ -971,7 +971,7 @@ print("已保存：", filename)</code></pre>
       >
         <h3>扩展任务：让主车自动驾驶起来，再继续采图</h3>
         <p class="chapter-three-cue">
-          自动驾驶不是本章实验一的必做内容，但它是第三章最自然的扩展。只要主车、相机和同步模式已经跑通，再把车交给 Traffic Manager 即可。
+          自动驾驶不是本章实验一的必做内容，但它是第二章最自然的扩展。只要主车、相机和同步模式已经跑通，再把车交给 Traffic Manager 即可。
         </p>
         <div class="chapter-three-code-stack">
           <article class="command-card chapter-three-cell-card">
@@ -1007,7 +1007,7 @@ traffic_manager = None</code></pre>
             <p class="chapter-three-cell-tag">代码段 19</p>
             <h3>停止传感器、销毁 Actor，并恢复原始世界设置</h3>
             <pre><code class="python">cleanup()
-print("第三章主线代码已清理完成")</code></pre>
+print("第二章主线代码已清理完成")</code></pre>
           </article>
         </div>
       </section>
@@ -1022,7 +1022,7 @@ print("第三章主线代码已清理完成")</code></pre>
           <h2>实验项目一：同步天气控制与相机数据采集</h2>
         </div>
         <p class="chapter-three-cue">
-          这个实验是第三章的综合收束。只要前面的车、相机、同步模式和天气控制都理解了，这个实验就能独立完成。
+          这个实验是第二章的综合收束。只要前面的车、相机、同步模式和天气控制都理解了，这个实验就能独立完成。
         </p>
         <div class="concept-grid chapter-three-quad-grid">
           <article class="concept-card">
@@ -1268,7 +1268,7 @@ if __name__ == "__main__":
       >
         <div class="section-head">
           <p class="kicker">SUMMARY</p>
-          <h2>第三章总结：从生成主车，到真正采到数据</h2>
+          <h2>第二章总结：从生成主车，到真正采到数据</h2>
         </div>
         <div class="concept-grid chapter-three-quad-grid">
           <article class="concept-card">
@@ -1285,7 +1285,7 @@ if __name__ == "__main__":
           </article>
           <article class="concept-card">
             <h3>实验关系</h3>
-            <p>同步模式、固定步长、天气控制和相机采样共同构成了第三章的实验主线，也是真实数据采集的基础思路。</p>
+            <p>同步模式、固定步长、天气控制和相机采样共同构成了第二章的实验主线，也是真实数据采集的基础思路。</p>
           </article>
         </div>
       </section>
