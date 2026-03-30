@@ -268,17 +268,16 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
           <article class="command-card">
             <h3>安装时要勾选什么</h3>
             <p>
-              至少要勾选 <code>Add python.exe to PATH</code>，并保留 <code>Python Launcher</code> 的安装选项。
-              这样 PowerShell 里才更稳地支持 <code>py</code> 命令。
+              至少要勾选 <code>Add python.exe to PATH</code>。
+              安装完成后，终端里应该可以直接识别 <code>python</code> 命令。
             </p>
           </article>
           <article class="command-card">
             <h3>安装后先验证</h3>
-            <pre><code class="bash">py --version
-py -3.10 --version</code></pre>
+            <pre><code class="bash">python --version</code></pre>
             <p>
-              两条命令都能正常输出，才说明 Python Launcher 已可直接使用。
-              如果 <code>py</code> 不可用，优先重新运行安装程序并确认 Launcher 组件没有被去掉。
+              看到 <code>Python 3.10.x</code> 再继续后面的步骤。
+              如果命令不存在，先修正环境变量，不要直接往下装包。
             </p>
           </article>
         </div>
@@ -353,9 +352,9 @@ py -3.10 --version</code></pre>
         <div class="command-layout carla-single-code">
           <article class="command-card">
             <h3>推荐命令</h3>
-            <pre><code class="bash">py -3.10 -m pip install --upgrade pip
-py -3.10 -m pip install carla==0.9.16
-py -3.10 -m pip install jupyter ipykernel</code></pre>
+            <pre><code class="bash">python -m pip install --upgrade pip
+python -m pip install carla==0.9.16
+python -m pip install jupyter ipykernel</code></pre>
             <p>第一行升级 pip，第二行安装与课堂版本一致的 CARLA Python 包，第三行为 VS Code 中运行 Notebook 补齐内核支持。</p>
           </article>
         </div>
@@ -373,14 +372,13 @@ py -3.10 -m pip install jupyter ipykernel</code></pre>
         <h3>安装完成后先做两项验证</h3>
         <div class="command-layout carla-link-grid">
           <article class="command-card">
-            <h3>验证 1：先确认 py 可用</h3>
-            <pre><code class="bash">py --version
-py -3.10 --version</code></pre>
-            <p>如果这里失败，不要继续装包，先修正 Python Launcher 安装。</p>
+            <h3>验证 1：先确认 python 可用</h3>
+            <pre><code class="bash">python --version</code></pre>
+            <p>如果这里失败，不要继续装包，先修正环境变量里的 Python 配置。</p>
           </article>
           <article class="command-card">
             <h3>验证 2：pip 是否看到 carla</h3>
-            <pre><code class="bash">py -3.10 -m pip show carla</code></pre>
+            <pre><code class="bash">python -m pip show carla</code></pre>
             <p>能打印版本信息，说明 Python 侧已装好 client library。</p>
           </article>
           <article class="command-card">
@@ -652,7 +650,7 @@ except Exception as error:
         <div class="command-layout carla-2plus1">
           <article class="command-card">
             <h3>运行 .py 文件</h3>
-            <p>先确认右下角解释器是 Python 3.10，再点击右上角运行按钮，或者在终端中执行 <code>py -3.10 文件名.py</code>。</p>
+            <p>先确认右下角解释器是 Python 3.10，再点击右上角运行按钮，或者在终端中执行 <code>python 文件名.py</code>。</p>
           </article>
           <article class="command-card">
             <h3>运行 .ipynb 文件</h3>
