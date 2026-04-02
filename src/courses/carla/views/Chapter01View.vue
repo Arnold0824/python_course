@@ -17,8 +17,8 @@ const vscodePythonExt =
   "https://marketplace.visualstudio.com/items?itemName=ms-python.python";
 const vscodeJupyterExt =
   "https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter";
-const carla0916WindowsDownload = "https://tiny.carla.org/carla-0-9-16-windows";
-const pypiCarla = "https://pypi.org/project/carla/0.9.16/";
+const carla0915WindowsDownload = "https://tiny.carla.org/carla-0-9-15-windows";
+const pypiCarla = "https://pypi.org/project/carla/0.9.15/";
 
 const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
 </script>
@@ -199,7 +199,7 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
           </article>
           <article class="concept-card">
             <h3>推荐版本</h3>
-            <p>课堂统一使用 CARLA 0.9.16，Python 统一使用 3.10，减少版本不一致导致的兼容问题。</p>
+            <p>课堂统一使用 CARLA 0.9.15，Python 统一使用 3.10，减少版本不一致导致的兼容问题。</p>
           </article>
           <article class="concept-card">
             <h3>编辑器</h3>
@@ -217,18 +217,18 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
         data-outline-level="2"
         data-outline-label="步骤 1 下载 CARLA"
       >
-        <h3>步骤 1：下载 Windows 版 CARLA 0.9.16</h3>
+        <h3>步骤 1：下载 Windows 版 CARLA 0.9.15</h3>
         <div class="command-layout carla-link-grid">
           <article class="command-card carla-highlight-card">
             <h3>Windows 下载地址</h3>
-            <p>课堂统一版本。下载后解压到一个英文路径目录，例如 <code>D:\\CARLA_0.9.16</code>。</p>
+            <p>课堂统一版本。下载后解压到一个英文路径目录，例如 <code>D:\\CARLA_0.9.15</code>。</p>
             <a
               class="carla-link"
-              :href="carla0916WindowsDownload"
+              :href="carla0915WindowsDownload"
               target="_blank"
               rel="noopener noreferrer"
             >
-              {{ carla0916WindowsDownload }}
+              {{ carla0915WindowsDownload }}
             </a>
           </article>
           <article class="command-card">
@@ -249,7 +249,7 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
       >
         <h3>步骤 2：安装 Python 3.10</h3>
         <p class="carla-cue">
-          本章统一指定 <strong>Python 3.10</strong>。原因很简单：课堂环境要可控，CARLA 0.9.16 的 PyPI 页面提供了
+          本章统一指定 <strong>Python 3.10</strong>。原因很简单：课堂环境要可控，CARLA 0.9.15 的 PyPI 页面提供了
           <code>cp310</code> 的 Windows wheel，课堂部署更稳。
         </p>
         <div class="command-layout carla-link-grid">
@@ -352,10 +352,8 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
         <div class="command-layout carla-single-code">
           <article class="command-card">
             <h3>推荐命令</h3>
-            <pre><code class="bash">python -m pip install --upgrade pip
-python -m pip install carla==0.9.16
-python -m pip install jupyter ipykernel</code></pre>
-            <p>第一行升级 pip，第二行安装与课堂版本一致的 CARLA Python 包，第三行为 VS Code 中运行 Notebook 补齐内核支持。</p>
+            <pre><code class="bash">python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple carla==0.9.15 jupyter ipykernel</code></pre>
+            <p>这一条命令会通过清华源一次性安装 CARLA、Jupyter 和 ipykernel，适合课堂环境直接使用。</p>
           </article>
         </div>
         <p class="carla-inline-link">
@@ -407,10 +405,9 @@ python -m pip install jupyter ipykernel</code></pre>
         <div class="command-layout carla-single-code">
           <article class="command-card carla-highlight-card">
             <h3>PowerShell 启动命令</h3>
-            <pre><code class="bash">cd D:\CARLA_0.9.16\WindowsNoEditor
-.\CarlaUE4.exe -dx11 -quality-level=Low</code></pre>
+            <pre><code class="bash">.\CarlaUE4.exe -dx11 -quality-level=Low</code></pre>
             <p>
-              先切换到 CARLA 解压目录，再启动可执行文件。
+              先在 PowerShell 中进入 <code>D:\CARLA_0.9.15\WindowsNoEditor</code> 目录，再执行这一条启动命令。
               <code>-dx11</code> 强制使用 DirectX 11，<code>-quality-level=Low</code> 直接降低画质，优先保证能打开和稳定运行。
             </p>
           </article>
