@@ -39,5 +39,12 @@ export const pythonCourse = {
       path: "/python/chapter/5",
       component: () => import("./views/ChapterFiveView.vue"),
     },
+    {
+      no: "06",
+      id: "6",
+      label: "第六章 文件操作与模块",
+      path: "/python/chapter/6",
+      component: () => import("./views/ChapterSixView.vue"),
+    },
   ],
 };
