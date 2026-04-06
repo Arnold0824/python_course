@@ -1,0 +1,15 @@
+mask_star.png
+来源：https://commons.wikimedia.org/wiki/File:5-point_black_star_icon.svg
+说明：Wikimedia Commons 文件页
+
+mask_leaf.png
+来源：https://commons.wikimedia.org/wiki/File:Leaf_icon_(Noun_Project).svg
+说明：Wikimedia Commons 文件页
+
+mask_book.png
+来源：https://commons.wikimedia.org/wiki/File:Black_book_icon.svg
+说明：Wikimedia Commons 文件页
+
+mask_cloud.png
+来源：https://commons.wikimedia.org/wiki/File:Wikimania2019_cloud_icon.svg
+说明：Wikimedia Commons 文件页

@@ -7,6 +7,90 @@ import { useLessonDeck } from "../../../composables/useLessonDeck";
 const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
 const missionLogHref = "/courses/python/ch06/mission_log.txt";
+const exp3ReportHref = encodeURI(
+  "/courses/python/exp_reports/实验报告3：词云展示2022年政府工作报告关键词（理实课程实验部分）-学生姓名.docx",
+);
+const exp3SubmitHref = "https://f.wps.cn/g/4WJfPt8S/";
+const exp3TextHref = encodeURI("/courses/python/ch06/2022年政府工作报告.txt");
+const jiebaMemeSrc = encodeURI("/courses/python/ch06/jieba-danding-dingzhen-meme.jpg");
+const wordcloudMaskDemoHref = encodeURI("/courses/python/ch06/wordcloud_mask_demo.py");
+const wordcloudStopwordsHref = encodeURI("/courses/python/ch06/stopwords_basic.txt");
+const wordcloudMaskSourcesHref = encodeURI("/courses/python/ch06/mask_sources.txt");
+const wordcloudMaskCards = [
+  {
+    title: "云朵 mask",
+    imageSrc: encodeURI("/courses/python/ch06/mask_cloud.png"),
+    downloadHref: encodeURI("/courses/python/ch06/mask_cloud.png"),
+    desc: "留白大、轮廓明显，适合课程反馈、班级总结这类主题。",
+  },
+  {
+    title: "星形 mask",
+    imageSrc: encodeURI("/courses/python/ch06/mask_star.png"),
+    downloadHref: encodeURI("/courses/python/ch06/mask_star.png"),
+    desc: "适合人工智能、比赛、目标、成就这类关键词比较集中的文本。",
+  },
+  {
+    title: "叶片 mask",
+    imageSrc: encodeURI("/courses/python/ch06/mask_leaf.png"),
+    downloadHref: encodeURI("/courses/python/ch06/mask_leaf.png"),
+    desc: "适合校园生活、环保活动、春季主题、自然观察这类内容。",
+  },
+  {
+    title: "书本 mask",
+    imageSrc: encodeURI("/courses/python/ch06/mask_book.png"),
+    downloadHref: encodeURI("/courses/python/ch06/mask_book.png"),
+    desc: "适合阅读笔记、文学作品、课程总结、读书报告等文本。",
+  },
+];
+const wordcloudTextCards = [
+  {
+    title: "课程反馈文本",
+    downloadHref: encodeURI("/courses/python/ch06/text_course_feedback.txt"),
+    desc: "适合练习课程评价词云，关键词集中在课程、模块、练习、案例。",
+  },
+  {
+    title: "人工智能主题文本",
+    downloadHref: encodeURI("/courses/python/ch06/text_ai_topics.txt"),
+    desc: "适合练习主题词云，关键词集中在数据、模型、训练、算法。",
+  },
+  {
+    title: "校园生活文本",
+    downloadHref: encodeURI("/courses/python/ch06/text_campus_life.txt"),
+    desc: "适合练习校园活动词云，关键词集中在图书馆、自习、比赛、社团。",
+  },
+  {
+    title: "阅读笔记文本",
+    downloadHref: encodeURI("/courses/python/ch06/text_reading_notes.txt"),
+    desc: "适合练习读书报告词云，关键词集中在人物、主题、情节、表达。",
+  },
+  {
+    title: "但丁丁真梗图文本",
+    downloadHref: encodeURI("/courses/python/ch06/text_dingzhen_meme.txt"),
+    desc: "适合先做分词，再观察歧义文本进入词云后的结果。",
+  },
+];
+const wordcloudDemoCards = [
+  {
+    title: "云朵课程反馈词云",
+    imageSrc: encodeURI("/courses/python/ch06/demo_wordcloud_cloud.png"),
+    downloadHref: encodeURI("/courses/python/ch06/demo_wordcloud_cloud.png"),
+  },
+  {
+    title: "星形人工智能词云",
+    imageSrc: encodeURI("/courses/python/ch06/demo_wordcloud_star.png"),
+    downloadHref: encodeURI("/courses/python/ch06/demo_wordcloud_star.png"),
+  },
+  {
+    title: "叶片校园生活词云",
+    imageSrc: encodeURI("/courses/python/ch06/demo_wordcloud_leaf.png"),
+    downloadHref: encodeURI("/courses/python/ch06/demo_wordcloud_leaf.png"),
+  },
+  {
+    title: "书本阅读笔记词云",
+    imageSrc: encodeURI("/courses/python/ch06/demo_wordcloud_book.png"),
+    downloadHref: encodeURI("/courses/python/ch06/demo_wordcloud_book.png"),
+  },
+];
 </script>
 
 <template>
@@ -2191,9 +2275,9 @@ turtle.done()</code></pre>
         data-outline-label="安装外置模块"
       >
         <h3>安装外置模块：先把环境准备好</h3>
-        <pre><code class="bash">python -m pip install faker jieba wordcloud</code></pre>
+        <pre><code class="bash">python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple faker jieba wordcloud</code></pre>
         <p class="section-note">
-          这条命令把本章三个外置模块一起装好。之后就可以像导入内置模块一样导入它们，只是首次使用前必须先安装。
+          这条命令把本章三个外置模块一起装好，并且只在这一次安装时临时使用清华源，不会修改 pip 的全局配置。之后就可以像导入内置模块一样导入它们，只是首次使用前必须先安装。
         </p>
       </section>
 
@@ -2204,33 +2288,272 @@ turtle.done()</code></pre>
       >
         <div class="section-head">
           <p class="kicker">FAKER</p>
-          <h2><code>faker</code>：快速制造测试数据</h2>
+          <h2><code>faker</code>：先造数据，再调程序</h2>
         </div>
-        <div class="command-layout chapter-six-code-grid">
+        <p class="chapter-six-cue">
+          <strong><code>faker</code> 不只是“随机几个名字”。</strong>
+          它真正的价值是：当真实数据还没准备好时，先生成一批结构合理、格式像真的测试数据，
+          让文件读写、统计分析、界面展示这些流程先跑通。学这一部分时，要把它看成“给程序准备练习材料”的工具。
+        </p>
+        <div class="concept-grid chapter-six-quad-grid">
+          <article class="concept-card">
+            <h3>学生资料</h3>
+            <p>生成姓名、电话、地址、邮箱，适合做名单、通讯录、注册表。</p>
+          </article>
+          <article class="concept-card">
+            <h3>批量样本</h3>
+            <p>把单次方法调用放进循环后，就能快速得到一整批测试数据。</p>
+          </article>
+          <article class="concept-card">
+            <h3>配合 random</h3>
+            <p>用 <code>faker</code> 造基本资料，用 <code>random</code> 补充分数、课程、等级等字段。</p>
+          </article>
+          <article class="concept-card">
+            <h3>保存到文件</h3>
+            <p>把生成结果写入文本文件后，后面就能继续练习读取、统计和分析。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 应用场景"
+      >
+        <h3>先分清 <code>faker</code> 最常见的 4 类应用场景</h3>
+        <div class="concept-grid chapter-six-quad-grid">
+          <article class="concept-card">
+            <h3>场景 1：真实名单还没有</h3>
+            <p>程序已经要测试输入输出，但班级名单、用户资料、订单信息还没整理好，就先用假数据顶上。</p>
+          </article>
+          <article class="concept-card">
+            <h3>场景 2：真实数据不方便公开</h3>
+            <p>姓名、电话、地址这类信息涉及隐私，课堂演示和作业示例更适合使用模拟数据。</p>
+          </article>
+          <article class="concept-card">
+            <h3>场景 3：需要批量样本</h3>
+            <p>手敲 50 条数据太慢，也容易出错；用循环配合 <code>faker</code> 可以几秒钟生成一大批样本。</p>
+          </article>
+          <article class="concept-card">
+            <h3>场景 4：先调流程再换真数据</h3>
+            <p>先把“生成数据 → 写入文件 → 读取分析”这条链路调通，后续再替换成真实数据会更稳。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 创建对象"
+      >
+        <h3>第一步：先创建 <code>Faker</code> 对象，再从对象身上取数据</h3>
+        <div class="command-layout chapter-six-single-code">
           <article class="command-card chapter-six-code-card">
-            <h3>基础示例</h3>
             <pre><code class="python">from faker import Faker
 
 fake = Faker("zh_CN")
 
 print(fake.name())
 print(fake.phone_number())
-print(fake.address())</code></pre>
+print(fake.address())
+print(fake.company())</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          <code>Faker("zh_CN")</code> 表示优先生成中文环境下更常见的姓名、电话和地址格式。
+          这里最关键的不是把方法名背下来，而是看懂“先创建对象，再用 <code>对象.方法()</code> 取值”的调用方式。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 常用方法"
+      >
+        <h3>常用方法：先记住“个人资料”和“扩展资料”两大类</h3>
+        <div class="command-layout chapter-six-code-grid">
+          <article class="command-card chapter-six-code-card">
+            <h3>个人资料类</h3>
+            <pre><code class="python">print(fake.name())
+print(fake.phone_number())
+print(fake.address())
+print(fake.email())</code></pre>
           </article>
           <article class="command-card chapter-six-code-card">
-            <h3>进阶示例：批量写入测试数据</h3>
+            <h3>扩展资料类</h3>
+            <pre><code class="python">print(fake.company())
+print(fake.job())
+print(fake.city())
+print(fake.date())</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          课堂上不需要一次把所有方法全背下来。先记住：想生成什么类型的数据，就去找对应的方法；
+          例如姓名用 <code>name()</code>，电话用 <code>phone_number()</code>，公司用 <code>company()</code>。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 批量生成"
+      >
+        <h3>示例 1：把方法调用放进循环，快速生成一批学生资料</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
             <pre><code class="python">from faker import Faker
 
 fake = Faker("zh_CN")
 
-with open("students.txt", "w", encoding="utf-8") as file:
-    for _ in range(5):
-        file.write(fake.name() + "\\n")</code></pre>
+for i in range(1, 6):
+    print(
+        f"学号：202500{i:02d} "
+        f"姓名：{fake.name()} "
+        f"电话：{fake.phone_number()}"
+    )</code></pre>
           </article>
         </div>
         <p class="section-note">
-          当还没有真实数据，但程序已经需要先调试读写流程时，<code>faker</code> 非常有用。
+          这页最重要的是看懂：<code>faker</code> 本身只负责“生成一条资料”，而循环负责“重复生成很多条资料”。
+          两者组合后，才真正有了批量造测试数据的能力。
         </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 配合 random"
+      >
+        <h3><code>faker</code> 和 <code>random</code> 怎么分工</h3>
+        <div class="command-layout chapter-six-2plus1">
+          <article class="command-card">
+            <h3><code>faker</code> 负责什么</h3>
+            <p>更适合生成“像真的”资料字段，例如姓名、电话、地址、邮箱、公司、日期。</p>
+          </article>
+          <article class="command-card">
+            <h3><code>random</code> 负责什么</h3>
+            <p>更适合补充规则简单的随机值，例如成绩、课程编号、是否通过、奖项等级。</p>
+          </article>
+          <article class="command-card">
+            <h3>课堂记忆法</h3>
+            <p><code>faker</code> 负责“造资料”，<code>random</code> 负责“补字段”。前者更像素材生成器，后者更像规则随机器。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 写入文件"
+      >
+        <h3>示例 2：生成成绩名单，并写入文本文件</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">from faker import Faker
+import random
+
+fake = Faker("zh_CN")
+
+with open("score_list.txt", "w", encoding="utf-8") as file:
+    file.write("姓名，Python成绩，电话\\n")
+
+    for _ in range(10):
+        name = fake.name()
+        score = random.randint(60, 100)
+        phone = fake.phone_number()
+        file.write(f"{name}，{score}，{phone}\\n")</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          这一页把本章主线连起来了：先生成测试数据，再写入文件。等文件准备好以后，后面就可以继续练习读取、统计、分析和可视化。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 综合案例"
+      >
+        <h3>示例 3：模拟课程报名记录</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">from faker import Faker
+import random
+
+fake = Faker("zh_CN")
+courses = ["Python 程序设计", "数据分析基础", "Web 前端入门"]
+
+for i in range(1, 6):
+    record = {
+        "报名编号": f"BM2025{i:03d}",
+        "姓名": fake.name(),
+        "课程": random.choice(courses),
+        "报名日期": fake.date(),
+        "联系方式": fake.phone_number()
+    }
+    print(record)</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          这类案例更接近真实项目：一条数据往往不是只有姓名，而是由编号、姓名、课程、日期、联系方式等多个字段共同组成。
+          <code>faker</code> 适合用来快速补全这些资料字段。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 练习"
+      >
+        <h3>练习：生成 8 条班级通讯录数据</h3>
+        <div class="command-layout chapter-six-2plus1">
+          <article class="command-card">
+            <h3>任务要求</h3>
+            <p>
+              用 <code>faker</code> 编写一个小程序：生成 8 条班级通讯录数据，每条至少包含姓名、电话和城市，
+              再把结果写入 <code>contacts.txt</code> 文件。要求每行保存一条记录，方便后续读取查看。
+            </p>
+          </article>
+          <article class="command-card">
+            <h3>建议操作顺序</h3>
+            <ol>
+              <li>先导入 <code>Faker</code>，并创建 <code>fake = Faker("zh_CN")</code>。</li>
+              <li>使用 <code>for</code> 循环重复生成 8 条资料。</li>
+              <li>在循环中调用 <code>fake.name()</code>、<code>fake.phone_number()</code>、<code>fake.city()</code>。</li>
+              <li>使用 <code>with open(...)</code> 把每条记录写入文件。</li>
+              <li>写完后打开文件，检查是否真的生成了 8 行内容。</li>
+            </ol>
+          </article>
+          <article class="command-card">
+            <h3>关键提示</h3>
+            <p>
+              这题的重点不在于字段越多越好，而在于看懂完整流程：
+              “创建对象 → 调用方法生成资料 → 用循环批量处理 → 写入文件保存”。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="faker 练习答案"
+      >
+        <h3><code>faker</code> 练习参考答案：生成班级通讯录</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">from faker import Faker
+
+fake = Faker("zh_CN")
+
+with open("contacts.txt", "w", encoding="utf-8") as file:
+    for i in range(1, 9):
+        name = fake.name()
+        phone = fake.phone_number()
+        city = fake.city()
+        file.write(f"{i}. {name}，{phone}，{city}\\n")</code></pre>
+          </article>
+        </div>
       </section>
 
       <section
@@ -2240,30 +2563,385 @@ with open("students.txt", "w", encoding="utf-8") as file:
       >
         <div class="section-head">
           <p class="kicker">JIEBA</p>
-          <h2><code>jieba</code>：中文文本分析的起点</h2>
+          <h2><code>jieba</code>：先把中文切开，再谈统计分析</h2>
         </div>
-        <div class="command-layout chapter-six-code-grid">
+        <p class="chapter-six-cue">
+          <strong>中文文本和英文文本有一个很大的不同。</strong>
+          英文单词之间通常有空格，程序比较容易识别边界；中文句子往往是连在一起的，
+          如果不先分词，程序就很难知道哪里是“一个完整的词”。所以做中文词频、关键词提取、搜索和词云之前，
+          常常都要先经过 <code>jieba</code> 这一步。
+        </p>
+        <div class="concept-grid chapter-six-quad-grid">
+          <article class="concept-card">
+            <h3>先切词</h3>
+            <p>把整段中文拆成一个个更适合处理的词语列表，这是后续统计分析的入口。</p>
+          </article>
+          <article class="concept-card">
+            <h3>再统计</h3>
+            <p>分词之后，才能进一步做词频、关键词、搜索命中和文本可视化。</p>
+          </article>
+          <article class="concept-card">
+            <h3>注意歧义</h3>
+            <p>同样一串汉字，边界不同，含义就可能完全不同，这正是中文分词的难点。</p>
+          </article>
+          <article class="concept-card">
+            <h3>可自定义</h3>
+            <p>遇到人名、地名、课程名、网络梗时，可以手动加入自定义词，让结果更贴近真实语义。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 为什么要分词"
+      >
+        <h3>先理解一个根本问题：中文为什么需要分词</h3>
+        <div class="command-layout chapter-six-2plus1">
+          <article class="command-card">
+            <h3>英文常有空格</h3>
+            <p><code>I love Python</code> 里，程序看到空格，比较容易判断 <code>I</code>、<code>love</code>、<code>Python</code> 是三个词。</p>
+          </article>
+          <article class="command-card">
+            <h3>中文通常连写</h3>
+            <p><code>我喜欢Python课程</code> 里没有天然空格，程序必须自己判断到底该切成哪些词。</p>
+          </article>
+          <article class="command-card">
+            <h3>理解重点</h3>
+            <p>中文分词就是在连续汉字里找边界。边界找对了，后面的统计才有意义；边界找错了，后面的分析就会偏掉。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 基础分词"
+      >
+        <h3>基础示例：先用 <code>jieba.lcut()</code> 把一句话切开</h3>
+        <div class="command-layout chapter-six-single-code">
           <article class="command-card chapter-six-code-card">
-            <h3>基础示例</h3>
             <pre><code class="python">import jieba
 
+# 准备一段中文文本
 text = "人工智能课程项目训练非常重要"
+# lcut() 会直接返回一个列表
+words = jieba.lcut(text)
+# 打印分词结果
+print(words)</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          <code>lcut()</code> 返回的是列表，适合入门阶段使用，因为结果能直接看到、直接打印、直接参与后续循环和统计。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba cut 和 lcut"
+      >
+        <h3><code>cut()</code> 和 <code>lcut()</code> 的区别要先分清</h3>
+        <div class="command-layout chapter-six-code-grid">
+          <article class="command-card chapter-six-code-card">
+            <h3><code>cut()</code></h3>
+            <pre><code class="python">import jieba
+
+text = "中文文本分析很有趣"
+# cut() 返回的是一个可迭代对象
+result = jieba.cut(text)
+
+print(result)
+# 转成列表后更容易观察结果
+print(list(result))</code></pre>
+          </article>
+          <article class="command-card chapter-six-code-card">
+            <h3><code>lcut()</code></h3>
+            <pre><code class="python">import jieba
+
+text = "中文文本分析很有趣"
+# lcut() 直接返回列表
+result = jieba.lcut(text)
+
+print(result)</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          简单记忆就行：<code>cut()</code> 更像“边切边给”，<code>lcut()</code> 直接给出完整列表。做课堂演示和初学练习时，通常优先用 <code>lcut()</code>。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 梗图原图"
+      >
+        <h3>先看原图：连续汉字一旦换一种切法，意思就会变</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-meme-card">
+            <img
+              class="chapter-six-meme chapter-six-meme--large"
+              :src="jiebaMemeSrc"
+              alt="用于说明中文分词歧义的但丁丁真梗图"
+            />
+            <p class="chapter-six-meme-caption">
+              连续出现“但丁”“丁真”“真是”这类片段时，词语边界一旦变化，整句话的理解方向就会跟着变化。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 梗图案例"
+      >
+        <h3>案例：把梗图文字交给 <code>jieba</code>，观察它是怎么切词的</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+
+# 让代码里的文本和梗图保持一样的换行顺序
+text = """你记住
+但丁是意大利人
+但丁真是中国人
+但丁真去过地狱
+但丁真没去过地狱
+但丁真是妈妈生的
+但丁真也是妈妈生的
+但但丁丁真真是三个人
+但但丁丁真真是两个人"""
+
+# 观察默认分词结果
 words = jieba.lcut(text)
 print(words)</code></pre>
           </article>
+        </div>
+        <div class="command-layout chapter-six-2plus1">
+          <article class="command-card">
+            <h3>为什么这个梗适合讲分词</h3>
+            <p>因为这里连续出现了 <code>但丁</code>、<code>丁真</code>、<code>真是</code> 这几类容易“重新切边界”的片段，同一串字换一种切法，意思就会变。</p>
+          </article>
+          <article class="command-card">
+            <h3>观察重点</h3>
+            <p>从这个例子里可以直接看到：中文不是天然按一个字一个字去理解，而是要尽量切成更合理的词。程序也在做这件事，但它不一定总能一次切对。</p>
+          </article>
+          <article class="command-card">
+            <h3>理解提示</h3>
+            <p>这一页不必把梗完全解释清楚，更重要的是记住“分词本质上是在判断边界，边界不同，语义就不同”。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 自定义词"
+      >
+        <h3>遇到人名、专有名词和网络梗时，可以手动加词</h3>
+        <div class="command-layout chapter-six-single-code">
           <article class="command-card chapter-six-code-card">
-            <h3>进阶示例：统计词频</h3>
+            <pre><code class="python">import jieba
+
+text = """但丁真是中国人
+但丁真去过地狱"""
+
+# 先看默认分词结果
+print("默认分词：", jieba.lcut(text))
+
+# 把希望优先识别的词加入词典
+jieba.add_word("但丁")
+jieba.add_word("丁真")
+
+# 再次分词，比较前后差异
+print("加入词语后：", jieba.lcut(text))</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          当默认词典不能很好识别课堂里的专有词、人名、地名或课程术语时，<code>add_word()</code> 很有用。
+          这也是把“通用工具”调成“更贴合当前任务工具”的常见做法。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 搜索模式"
+      >
+        <h3>普通模式和搜索模式：切词颗粒度并不一样</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+
+text = "人工智能课程项目训练"
+
+# 普通模式：更适合一般阅读和统计
+print("普通模式：", jieba.lcut(text))
+# 搜索模式：会切得更细一些
+print("搜索模式：", jieba.lcut_for_search(text))</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          搜索模式会给出更细的切分结果，适合搜索命中、检索提示这类场景。课堂里先知道“不同模式会产生不同粒度的词”就够了。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 词频统计"
+      >
+        <h3>示例 1：分词之后统计词频</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
             <pre><code class="python">import jieba
 
 text = "数据分析很重要，文本分析也很重要，词频统计尤其重要"
+# 先分词，得到词语列表
 words = jieba.lcut(text)
 
+# 用字典统计每个词出现的次数
 counts = {}
 for word in words:
+    # 只统计长度大于 1 的词
     if len(word) &gt; 1:
         counts[word] = counts.get(word, 0) + 1
 
 print(counts)</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          这一页要看懂顺序：先分词，再循环，再计数。词频统计不是直接对整段句子做的，而是对“分好词后的列表”做的。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 过滤词语"
+      >
+        <h3>示例 2：过滤掉太短或价值不大的词</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+
+text = "这门课程很有趣，这门课程的案例也很有趣"
+words = jieba.lcut(text)
+
+# 准备一个新列表，保存筛选后的词
+result = []
+for word in words:
+    # 过滤掉太短的词，以及不想保留的词
+    if len(word) &gt; 1 and word not in ["这门", "也很"]:
+        result.append(word)
+
+print(result)</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          不是所有分出来的词都值得保留。为了让统计结果更聚焦，常常要去掉无意义或信息量太低的词，这一步叫做过滤。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 文件分词"
+      >
+        <h3>示例 3：读取文本文件，再做分词</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+
+# 先读取文件中的中文文本
+with open("comments.txt", "r", encoding="utf-8") as file:
+    text = file.read()
+
+# 再对读取到的内容做分词
+words = jieba.lcut(text)
+# 只打印前 20 个词，便于观察
+print(words[:20])</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          这一步和本章前面的文件操作直接连上了。真实任务里，文本通常不是写死在变量里，而是从文件中读取出来后再分词处理。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 练习"
+      >
+        <h3>练习：分析“但丁 / 丁真”梗图文本的分词结果</h3>
+        <div class="command-layout chapter-six-2plus1">
+          <article class="command-card">
+            <h3>任务要求</h3>
+            <p>
+              对下面这段文本先用 <code>jieba.lcut()</code> 做默认分词，
+              再使用 <code>jieba.add_word()</code> 加入至少两个自定义词，比较前后结果有什么变化。
+            </p>
+            <pre><code class="text">你记住
+但丁是意大利人
+但丁真是中国人
+但丁真去过地狱
+但丁真没去过地狱
+但丁真是妈妈生的
+但丁真也是妈妈生的
+但但丁丁真真是三个人
+但但丁丁真真是两个人</code></pre>
+          </article>
+          <article class="command-card">
+            <h3>建议操作顺序</h3>
+            <ol>
+              <li>先把题目里给出的文本复制到字符串变量 <code>text</code> 中。</li>
+              <li>调用 <code>jieba.lcut(text)</code>，打印默认分词结果。</li>
+              <li>加入 <code>但丁</code>、<code>丁真</code> 这类自定义词。</li>
+              <li>再次分词，并观察前后差异。</li>
+              <li>最后用自己的话解释：为什么这个例子适合说明中文分词的难点。</li>
+            </ol>
+          </article>
+          <article class="command-card">
+            <h3>关键提示</h3>
+            <p>
+              这题不要求得到唯一“标准答案”，更重要的是看懂：
+              分词结果会受到上下文和词典影响，必要时需要人工补充词语。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="jieba 练习答案"
+      >
+        <h3><code>jieba</code> 练习参考答案：比较默认分词和加词后的结果</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+
+text = """你记住
+但丁是意大利人
+但丁真是中国人
+但丁真去过地狱
+但丁真没去过地狱
+但丁真是妈妈生的
+但丁真也是妈妈生的
+但但丁丁真真是三个人
+但但丁丁真真是两个人"""
+
+# 先看默认分词
+print("默认分词：")
+print(jieba.lcut(text))
+
+# 加入希望优先识别的词语
+jieba.add_word("但丁")
+jieba.add_word("丁真")
+
+# 再比较加词后的结果
+print("加词后：")
+print(jieba.lcut(text))</code></pre>
           </article>
         </div>
       </section>
@@ -2275,68 +2953,118 @@ print(counts)</code></pre>
       >
         <div class="section-head">
           <p class="kicker">WORDCLOUD</p>
-          <h2><code>wordcloud</code>：把词频结果变成图像</h2>
+          <h2><code>wordcloud</code>：把高频词变成一张真正能看的图</h2>
         </div>
+        <p class="chapter-six-cue">
+          <strong>词云不是把文字随便堆在一起。</strong>
+          它背后先要有文本，再要有分词、过滤、统计，最后才是可视化。
+          这一部分特别适合用来展示“哪些词最常出现、哪些主题最值得关注”。
+        </p>
+        <div class="concept-grid chapter-six-quad-grid">
+          <article class="concept-card">
+            <h3>先有文本</h3>
+            <p>文本可以来自课程反馈、梗图句子、校园活动总结、阅读笔记或调查问卷。</p>
+          </article>
+          <article class="concept-card">
+            <h3>再做分词</h3>
+            <p>中文通常要先用 <code>jieba</code> 切词，否则整段中文不能直接拿来做高质量词云。</p>
+          </article>
+          <article class="concept-card">
+            <h3>然后调样式</h3>
+            <p>尺寸、颜色、背景、轮廓、最大词数、遮罩图形都会直接影响最后的视觉效果。</p>
+          </article>
+          <article class="concept-card">
+            <h3>最后导出图片</h3>
+            <p>生成后的词云可以保存为 PNG，用于报告、课件、海报或数据展示。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 基础示例"
+      >
+        <h3>基础示例：先看最简单的词云是怎么生成的</h3>
         <div class="command-layout chapter-six-single-code">
           <article class="command-card chapter-six-code-card">
-            <h3>基础示例</h3>
             <pre><code class="python">from wordcloud import WordCloud
 
-text = "Python Python 数据分析 文本分析 词云 词云"
+# 准备一段已经用空格分开的文本
+text = "Python Python data analysis file module module wordcloud"
 
+# 创建词云对象
 wc = WordCloud(
     width=800,
     height=400,
     background_color="white"
 )
 
+# 根据文本生成词云
 wc.generate(text)
-wc.to_file("wordcloud.png")</code></pre>
-          </article>
-          <article class="command-card chapter-six-code-card">
-            <h3>中文词云写法</h3>
-            <pre><code class="python">from wordcloud import WordCloud
-
-wc = WordCloud(
-    font_path="msyh.ttc",
-    width=1000,
-    height=500,
-    background_color="white"
-)
-
-wc.generate("人工智能 数据分析 文本分析 词云")
-wc.to_file("cn_wordcloud.png")</code></pre>
+# 保存为图片
+wc.to_file("wordcloud_basic.png")</code></pre>
           </article>
         </div>
         <p class="section-note">
-          中文词云通常要加 <code>font_path</code>，否则很多系统里会出现中文显示不出来的问题。
+          这一页先看最基础的生成流程：准备文本，创建 <code>WordCloud</code> 对象，调用 <code>generate()</code>，最后用 <code>to_file()</code> 输出图片。
         </p>
       </section>
 
       <section
         class="section reveal"
         data-outline-level="2"
-        data-outline-label="外置模块练习"
+        data-outline-label="wordcloud 中文处理"
       >
-        <h3>课堂练习：分词后生成词云</h3>
+        <h3>中文词云通常要先分词，再指定中文字体</h3>
+        <div class="command-layout chapter-six-code-grid">
+          <article class="command-card chapter-six-code-card">
+            <h3>不分词时</h3>
+            <pre><code class="python">from wordcloud import WordCloud
+
+text = "人工智能课程项目训练非常重要"
+
+wc = WordCloud(font_path="msyh.ttc", background_color="white")
+wc.generate(text)
+wc.to_file("cn_no_cut.png")</code></pre>
+          </article>
+          <article class="command-card chapter-six-code-card">
+            <h3>分词后</h3>
+            <pre><code class="python">import jieba
+from wordcloud import WordCloud
+
+text = "人工智能课程项目训练非常重要"
+words = jieba.lcut(text)
+result = " ".join(words)
+
+wc = WordCloud(font_path="msyh.ttc", background_color="white")
+wc.generate(result)
+wc.to_file("cn_cut.png")</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          中文词云通常要先分词，再用空格连接成字符串。除此之外，还要指定 <code>font_path</code>，否则很多系统里会出现中文显示不出来的问题。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 常用参数"
+      >
+        <h3>常用参数：先看懂大小、背景、轮廓和词数上限</h3>
         <div class="command-layout chapter-six-2plus1">
           <article class="command-card">
-            <h3>任务要求</h3>
-            <p>准备一段中文文本，先用 <code>jieba</code> 完成分词，再把分词结果用空格连接成字符串，最后交给 <code>WordCloud</code> 生成词云图片。</p>
+            <h3><code>width</code> / <code>height</code></h3>
+            <p>决定图片画布大小。画布越大，词云越清晰，适合导出到报告或海报。</p>
           </article>
           <article class="command-card">
-            <h3>建议操作顺序</h3>
-            <ol>
-              <li>先准备中文文本变量 <code>text</code>。</li>
-              <li>调用 <code>jieba.lcut(text)</code> 得到分词列表。</li>
-              <li>使用 <code>" ".join(words)</code> 拼成词云需要的字符串。</li>
-              <li>创建 <code>WordCloud</code> 对象，并加上 <code>font_path</code>。</li>
-              <li>调用 <code>generate()</code> 后再 <code>to_file()</code> 输出图片。</li>
-            </ol>
+            <h3><code>background_color</code></h3>
+            <p>决定背景颜色。最常见的是白底，也可以换成浅色背景配合不同主题。</p>
           </article>
           <article class="command-card">
-            <h3>关键提示</h3>
-            <p><code>jieba</code> 负责把中文切开，<code>wordcloud</code> 负责画图。两者中间靠“空格拼接后的字符串”连接起来。</p>
+            <h3><code>max_words</code> / <code>contour_width</code></h3>
+            <p>前者控制最多显示多少个词，后者控制图形轮廓线粗细，适合配合 <code>mask</code> 一起使用。</p>
           </article>
         </div>
       </section>
@@ -2344,21 +3072,286 @@ wc.to_file("cn_wordcloud.png")</code></pre>
       <section
         class="section reveal"
         data-outline-level="2"
-        data-outline-label="外置模块练习答案"
+        data-outline-label="wordcloud mask 用法"
       >
-        <h3>外置模块练习参考答案：分词后生成词云</h3>
+        <h3><code>mask</code> 的作用：让词云长成指定图形</h3>
         <div class="command-layout chapter-six-single-code">
           <article class="command-card chapter-six-code-card">
             <pre><code class="python">import jieba
+import numpy as np
+from PIL import Image
 from wordcloud import WordCloud
 
-text = "Python 课程中的文件操作和模块学习非常重要"
+# 读取中文文本
+with open("text_course_feedback.txt", "r", encoding="utf-8") as file:
+    text = file.read()
+
+# 先分词，再拼接成词云需要的字符串
 words = jieba.lcut(text)
+result = " ".join(word for word in words if len(word) &gt; 1)
+
+# 读取 mask 图像，白色区域不会绘制词云
+mask = np.array(Image.open("mask_cloud.png"))
+
+# 生成带图形轮廓的词云
+wc = WordCloud(
+    font_path="C:/Windows/Fonts/msyh.ttc",
+    width=900,
+    height=900,
+    background_color="white",
+    mask=mask,
+    contour_width=3,
+    contour_color="#0d7be8"
+)
+wc.generate(result)
+wc.to_file("wordcloud_mask_demo.png")</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          <code>mask</code> 本质上是在告诉程序“哪些位置可以放词，哪些位置不能放词”。这样一来，词云就不再只是一个矩形，而会长成云朵、星形、叶片、书本等轮廓。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud mask 下载"
+      >
+        <h3>下载区：4 张可直接使用的 <code>mask</code> 图</h3>
+        <div class="command-layout chapter-six-download-grid">
+          <article
+            v-for="item in wordcloudMaskCards"
+            :key="item.downloadHref"
+            class="command-card chapter-six-resource-card"
+          >
+            <h3>{{ item.title }}</h3>
+            <img class="chapter-six-preview chapter-six-preview--mask" :src="item.imageSrc" :alt="item.title" />
+            <p>{{ item.desc }}</p>
+            <a class="chapter-six-link" :href="item.downloadHref" download>下载这张 mask</a>
+          </article>
+        </div>
+        <p class="section-note">
+          这几张图都已经处理成适合 <code>wordcloud mask</code> 使用的 PNG 格式，可以直接下载后放进示例代码里。
+          来源说明文件也可以一起下载查看。
+          <a class="chapter-six-link" :href="wordcloudMaskSourcesHref" download>下载来源说明</a>
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 文本下载"
+      >
+        <h3>下载区：5 份适合先分词再做词云的中文文本</h3>
+        <div class="command-layout chapter-six-download-grid">
+          <article
+            v-for="item in wordcloudTextCards"
+            :key="item.downloadHref"
+            class="command-card chapter-six-resource-card"
+          >
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.desc }}</p>
+            <a class="chapter-six-link" :href="item.downloadHref" download>下载文本</a>
+          </article>
+        </div>
+        <div class="command-layout chapter-six-2plus1">
+          <article class="command-card">
+            <h3>停用词表</h3>
+            <p>去掉“的、了、是、在”这类高频但信息量不大的词，词云会更聚焦。</p>
+            <a class="chapter-six-link" :href="wordcloudStopwordsHref" download>下载停用词表</a>
+          </article>
+          <article class="command-card">
+            <h3>示例脚本</h3>
+            <p>把“读取文本、分词、过滤、读取 mask、生成词云”这条流程完整串起来。</p>
+            <a class="chapter-six-link" :href="wordcloudMaskDemoHref" download>下载示例脚本</a>
+          </article>
+          <article class="command-card">
+            <h3>使用顺序</h3>
+            <p>先下载文本，再下载一张 mask 图，然后把两者一起放进代码里，就能练习完整的中文词云流程。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 效果预览"
+      >
+        <h3>效果预览：同样是词云，换一张 <code>mask</code> 图，感觉会完全不同</h3>
+        <div class="command-layout chapter-six-download-grid">
+          <article
+            v-for="item in wordcloudDemoCards"
+            :key="item.downloadHref"
+            class="command-card chapter-six-resource-card"
+          >
+            <h3>{{ item.title }}</h3>
+            <img class="chapter-six-preview chapter-six-preview--cloud" :src="item.imageSrc" :alt="item.title" />
+            <a class="chapter-six-link" :href="item.downloadHref" download>下载示例图</a>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 过滤文本"
+      >
+        <h3>不要急着直接生成，先过滤掉信息量太低的词</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+
+with open("text_course_feedback.txt", "r", encoding="utf-8") as file:
+    text = file.read()
+
+with open("stopwords_basic.txt", "r", encoding="utf-8") as file:
+    stopwords = {line.strip() for line in file if line.strip()}
+
+words = []
+for word in jieba.lcut(text):
+    word = word.strip()
+    # 过滤掉长度太短或停用词表中的词
+    if len(word) &gt; 1 and word not in stopwords:
+        words.append(word)
+
+result = " ".join(words)
+print(result)</code></pre>
+          </article>
+        </div>
+        <p class="section-note">
+          如果不过滤，词云里往往会出现很多“的、是、在、了”这类高频词。过滤之后，真正有信息量的词才能更突出。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 综合示例"
+      >
+        <h3>综合示例：读取文本、分词、过滤、套用 mask，一次完成</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+import numpy as np
+from PIL import Image
+from wordcloud import WordCloud
+
+# 读取课程反馈文本
+with open("text_course_feedback.txt", "r", encoding="utf-8") as file:
+    text = file.read()
+
+# 读取停用词表
+with open("stopwords_basic.txt", "r", encoding="utf-8") as file:
+    stopwords = {line.strip() for line in file if line.strip()}
+
+# 分词并过滤
+words = []
+for word in jieba.lcut(text):
+    word = word.strip()
+    if len(word) &gt; 1 and word not in stopwords:
+        words.append(word)
 result = " ".join(words)
 
-wc = WordCloud(font_path="msyh.ttc", background_color="white")
+# 读取云朵 mask
+mask = np.array(Image.open("mask_cloud.png"))
+
+# 生成词云
+wc = WordCloud(
+    font_path="C:/Windows/Fonts/msyh.ttc",
+    width=900,
+    height=900,
+    background_color="white",
+    mask=mask,
+    contour_width=3,
+    contour_color="#0d7be8",
+    max_words=120
+)
 wc.generate(result)
-wc.to_file("result.png")</code></pre>
+wc.to_file("course_feedback_cloud.png")</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 练习"
+      >
+        <h3>练习：下载一份文本和一张 <code>mask</code>，做出自己的主题词云</h3>
+        <div class="command-layout chapter-six-2plus1">
+          <article class="command-card">
+            <h3>任务要求</h3>
+            <p>
+              从下载区任选 1 份文本和 1 张 <code>mask</code> 图，先完成中文分词和停用词过滤，
+              再生成一张带图形轮廓的词云图片。词云图片至少要体现：中文字体、图形轮廓、较清晰的高频词。
+            </p>
+          </article>
+          <article class="command-card">
+            <h3>建议操作顺序</h3>
+            <ol>
+              <li>先下载一份文本，例如 <code>text_campus_life.txt</code>。</li>
+              <li>再下载一张 mask 图，例如 <code>mask_leaf.png</code>。</li>
+              <li>用 <code>jieba.lcut()</code> 完成分词，并结合停用词表做过滤。</li>
+              <li>用 <code>Image.open()</code> 和 <code>np.array()</code> 读取 mask。</li>
+              <li>创建 <code>WordCloud</code> 对象，补上 <code>font_path</code>、<code>mask</code>、<code>contour_width</code> 等参数。</li>
+              <li>调用 <code>generate()</code> 后再用 <code>to_file()</code> 导出图片。</li>
+            </ol>
+          </article>
+          <article class="command-card">
+            <h3>关键提示</h3>
+            <p>
+              这一题不是只比谁颜色好看，更重要的是把“文本处理”和“图形展示”连起来。
+              词云效果好不好，往往先取决于分词和过滤，再取决于颜色和轮廓。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="wordcloud 练习答案"
+      >
+        <h3><code>wordcloud</code> 练习参考答案：叶片形校园生活词云</h3>
+        <div class="command-layout chapter-six-single-code">
+          <article class="command-card chapter-six-code-card">
+            <pre><code class="python">import jieba
+import numpy as np
+from PIL import Image
+from wordcloud import WordCloud
+
+# 读取校园生活文本
+with open("text_campus_life.txt", "r", encoding="utf-8") as file:
+    text = file.read()
+
+# 读取停用词表
+with open("stopwords_basic.txt", "r", encoding="utf-8") as file:
+    stopwords = {line.strip() for line in file if line.strip()}
+
+# 分词并过滤
+words = []
+for word in jieba.lcut(text):
+    word = word.strip()
+    if len(word) &gt; 1 and word not in stopwords:
+        words.append(word)
+result = " ".join(words)
+
+# 读取叶片 mask
+mask = np.array(Image.open("mask_leaf.png"))
+
+# 生成词云
+wc = WordCloud(
+    font_path="C:/Windows/Fonts/msyh.ttc",
+    width=900,
+    height=900,
+    background_color="white",
+    mask=mask,
+    contour_width=3,
+    contour_color="#2d8a4b",
+    max_words=100
+)
+wc.generate(result)
+wc.to_file("campus_life_leaf_cloud.png")</code></pre>
           </article>
         </div>
       </section>
@@ -2366,34 +3359,33 @@ wc.to_file("result.png")</code></pre>
       <section
         class="section reveal"
         data-outline-level="1"
-        data-outline-label="综合实践"
+        data-outline-label="实验3"
       >
         <div class="section-head">
-          <p class="kicker">CAPSTONE</p>
-          <h2>综合实践：课程反馈数据工具箱</h2>
+          <p class="kicker">EXPERIMENT 03</p>
+          <h2>实验3：词云展示 2022 年政府工作报告关键词</h2>
         </div>
         <p class="chapter-six-cue">
-          <strong>这一节不是额外换题。</strong> 它把本章主线真正串起来：
-          先用 <code>faker</code> 和 <code>random</code> 生成测试数据，再把结果写入文件；
-          然后用 <code>os</code> 和 <code>time</code> 管理输出目录与文件名；
-          最后用 <code>jieba</code> 和 <code>wordcloud</code> 分析课程反馈并生成词云。
+          这个实验直接对应实验报告 3 和实验指导书中的实验项目三。
+          需要读取《2022年政府工作报告》文本，使用 <code>jieba</code> 做中文分词与关键词统计，
+          再用 <code>wordcloud</code> 生成词云图片，最后把实验目的、过程、结果和分析整理到实验报告中。
         </p>
         <div class="concept-grid chapter-six-quad-grid">
           <article class="concept-card">
-            <h3>步骤 1</h3>
-            <p>生成随机的学生姓名和课程反馈文本。</p>
+            <h3>实验目的</h3>
+            <p>练习文本读取、字典统计、中文分词和词云生成，把文件操作与外置模块真正串起来使用。</p>
           </article>
           <article class="concept-card">
-            <h3>步骤 2</h3>
-            <p>把反馈内容写入带时间戳的文本文件。</p>
+            <h3>文本主题</h3>
+            <p>通过关键词统计观察政府工作报告的主题词，理解高频词怎样反映经济、发展、就业、创新、民生等重点内容。</p>
           </article>
           <article class="concept-card">
-            <h3>步骤 3</h3>
-            <p>读取文本并使用 jieba 分词。</p>
+            <h3>实验要求</h3>
+            <p>正确读取给定文本，正确使用 <code>jieba</code> 和 <code>wordcloud</code>，并能输出词云图片。</p>
           </article>
           <article class="concept-card">
-            <h3>步骤 4</h3>
-            <p>生成课程反馈词云，并输出到指定目录。</p>
+            <h3>交付内容</h3>
+            <p>至少准备 3 项结果：实验源代码、词云图片 <code>government_report_cloud.png</code>、实验报告。</p>
           </article>
         </div>
       </section>
@@ -2401,55 +3393,153 @@ wc.to_file("result.png")</code></pre>
       <section
         class="section reveal"
         data-outline-level="2"
-        data-outline-label="综合实践代码"
+        data-outline-label="实验3原理与流程"
       >
-        <h3>综合实践骨架代码</h3>
-        <pre><code class="python">import os
-import time
-import random
-import jieba
-from faker import Faker
+        <h3>实验3原理与流程</h3>
+        <div class="concept-grid chapter-six-quad-grid">
+          <article class="concept-card">
+            <h3>步骤 1：读取文本</h3>
+            <p>使用 <code>open()</code> 和 <code>read()</code> 读取《2022年政府工作报告.txt》，让长文本先进入程序。</p>
+          </article>
+          <article class="concept-card">
+            <h3>步骤 2：精确分词</h3>
+            <p>使用 <code>jieba.lcut()</code> 进行精确模式分词，把连续中文文本拆成一个个词语。</p>
+          </article>
+          <article class="concept-card">
+            <h3>步骤 3：统计词频</h3>
+            <p>创建字典，使用 <code>counts[word] = counts.get(word, 0) + 1</code> 统计关键词出现次数，并结合停用词表过滤无意义词语。</p>
+          </article>
+          <article class="concept-card">
+            <h3>步骤 4：生成词云</h3>
+            <p>创建 <code>WordCloud</code> 对象，使用 <code>generate_from_frequencies()</code> 按词频生成词云，再保存为图片。</p>
+          </article>
+        </div>
+        <p class="section-note">
+          先观察前 20 个高频词，再生成词云。这样可以先判断分词和过滤是否合理，避免词云图做出来了，
+          关键词却不准确。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="实验3代码骨架"
+      >
+        <h3>实验3代码骨架：政府工作报告关键词词云</h3>
+        <pre><code class="python">import jieba
 from wordcloud import WordCloud
 
-fake = Faker("zh_CN")
-comments = [
-    "课堂节奏清楚，例子很多。",
-    "文件读写终于和实际任务连起来了。",
-    "模块导入方式需要再练习。",
-    "词云生成很直观，适合做课程总结。"
-]
-
-output_dir = "output"
-if not os.path.exists(output_dir):
-    os.mkdir(output_dir)
-
-timestamp = time.strftime("%Y%m%d_%H%M%S")
-text_path = os.path.join(output_dir, f"feedback_{timestamp}.txt")
-
-with open(text_path, "w", encoding="utf-8") as file:
-    for _ in range(20):
-        name = fake.name()
-        comment = random.choice(comments)
-        file.write(f"{name}：{comment}\\n")
-
-with open(text_path, "r", encoding="utf-8") as file:
+# 读取政府工作报告文本
+with open("2022年政府工作报告.txt", "r", encoding="utf-8") as file:
     text = file.read()
 
-words = jieba.lcut(text)
-result = " ".join(word for word in words if len(word) &gt; 1)
+# 读取停用词表
+with open("stopwords_basic.txt", "r", encoding="utf-8") as file:
+    stopwords = {line.strip() for line in file if line.strip()}
 
+# 使用精确模式分词
+words = jieba.lcut(text)
+
+# 创建字典，统计每个关键词出现的次数
+counts = {}
+for word in words:
+    # 单字词通常信息量较小，先跳过
+    if len(word) == 1:
+        continue
+    # 停用词不参与统计
+    if word in stopwords:
+        continue
+    counts[word] = counts.get(word, 0) + 1
+
+# 按出现次数从高到低排序，方便先观察结果
+items = list(counts.items())
+items.sort(key=lambda item: item[1], reverse=True)
+
+print("出现次数最多的前 20 个关键词：")
+for word, count in items[:20]:
+    print(word, count)
+
+# 创建词云对象
 wc = WordCloud(
     font_path="msyh.ttc",
     width=1000,
-    height=500,
-    background_color="white"
+    height=600,
+    max_words=150,
+    background_color="white",
 )
-wc.generate(result)
-wc.to_file(os.path.join(output_dir, f"feedback_cloud_{timestamp}.png"))</code></pre>
+
+# 按词频生成词云，并保存图片
+wc.generate_from_frequencies(dict(items[:150]))
+wc.to_file("government_report_cloud.png")</code></pre>
         <p class="section-note">
-          这段代码覆盖了本章最核心的链路：文件、模块、随机数据、路径处理、分词和可视化。
-          如果能读懂这一页，第六章的主线就已经真正串起来了。
+          这段代码和实验指导书的主线一致：读取文本、精确分词、字典计数、排序观察、按词频生成词云。
+          如果脚本和素材文件不在同一个文件夹中，就需要把文件路径改成自己的实际路径。
         </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="实验3素材下载"
+      >
+        <h3>实验3素材下载</h3>
+        <div class="command-layout chapter-six-download-grid">
+          <article class="command-card chapter-six-highlight-card chapter-six-resource-card">
+            <h3>政府工作报告文本</h3>
+            <p>先下载实验用原始文本，再把它和 Python 脚本放在同一个文件夹里，方便直接读取。</p>
+            <a class="chapter-six-link" :href="exp3TextHref" download>下载《2022年政府工作报告.txt》</a>
+          </article>
+          <article class="command-card chapter-six-resource-card">
+            <h3>停用词表</h3>
+            <p>停用词表可以去掉“的、了、是、在”等高频虚词，让词云更聚焦于真正有信息量的关键词。</p>
+            <a class="chapter-six-link" :href="wordcloudStopwordsHref" download>下载停用词表</a>
+          </article>
+          <article class="command-card chapter-six-resource-card">
+            <h3>文件摆放建议</h3>
+            <p>建议把 <code>2022年政府工作报告.txt</code>、<code>stopwords_basic.txt</code> 和实验代码文件放在同一目录，这样代码里的文件名可以直接使用。</p>
+          </article>
+          <article class="command-card chapter-six-resource-card">
+            <h3>输出文件建议</h3>
+            <p>建议生成并保留 <code>government_report_cloud.png</code>，后续写实验报告时可以直接插入运行结果截图。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="实验3报告与提交"
+      >
+        <h3>实验报告下载与提交</h3>
+        <div class="command-layout chapter-six-download-grid">
+          <article class="command-card chapter-six-highlight-card chapter-six-resource-card">
+            <h3>实验报告 3</h3>
+            <p>按实验要求完成代码、保存词云结果，并在实验报告中整理实验目的、实验过程、运行结果和分析结论。</p>
+            <a class="chapter-six-link" :href="exp3ReportHref" download>
+              下载实验报告3：词云展示2022年政府工作报告关键词
+            </a>
+          </article>
+          <article class="command-card chapter-six-resource-card">
+            <h3>实验过程怎么写</h3>
+            <p>可以按“读取文本 -> 分词 -> 过滤停用词 -> 统计词频 -> 生成词云 -> 保存图片”的顺序描述，不要只贴代码，不写过程说明。</p>
+          </article>
+          <article class="command-card chapter-six-resource-card">
+            <h3>实验结果怎么分析</h3>
+            <p>重点不在于颜色是否花哨，而在于关键词是否准确、主题是否清晰，以及高频词能不能反映报告的核心内容。</p>
+          </article>
+          <article class="command-card chapter-six-resource-card">
+            <h3>实验报告提交</h3>
+            <p>完成代码、词云图片和实验分析后，将实验报告提交到 WPS 收集表。提交前先检查报告中的代码、运行结果截图和分析是否完整。</p>
+            <a
+              class="chapter-six-link"
+              :href="exp3SubmitHref"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ exp3SubmitHref }}
+            </a>
+          </article>
+        </div>
       </section>
 
       <section
@@ -2552,6 +3642,11 @@ wc.to_file(os.path.join(output_dir, f"feedback_cloud_{timestamp}.png"))</code></
   align-items: start;
 }
 
+.page.is-slide-deck .command-layout.chapter-six-download-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
 .page.is-slide-deck .command-layout.chapter-six-single-code {
   grid-template-columns: 1fr;
 }
@@ -2564,6 +3659,66 @@ wc.to_file(os.path.join(output_dir, f"feedback_cloud_{timestamp}.png"))</code></
 .page.is-slide-deck .chapter-six-task-card,
 .page.is-slide-deck .chapter-six-code-card {
   height: 100%;
+}
+
+.page.is-slide-deck .chapter-six-resource-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.page.is-slide-deck .chapter-six-resource-card p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.page.is-slide-deck .chapter-six-meme-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.page.is-slide-deck .chapter-six-preview {
+  width: 100%;
+  align-self: center;
+  border-radius: 18px;
+  border: 1px solid rgba(13, 123, 232, 0.14);
+  background: #fff;
+  object-fit: contain;
+}
+
+.page.is-slide-deck .chapter-six-preview--mask {
+  max-width: 180px;
+  max-height: 150px;
+  padding: 8px;
+}
+
+.page.is-slide-deck .chapter-six-preview--cloud {
+  max-width: 320px;
+  max-height: 220px;
+}
+
+.page.is-slide-deck .chapter-six-meme {
+  width: min(100%, 420px);
+  align-self: center;
+  border-radius: 18px;
+  border: 1px solid rgba(13, 123, 232, 0.16);
+  box-shadow: 0 16px 40px rgba(10, 40, 90, 0.12);
+  background: #000;
+  object-fit: contain;
+}
+
+.page.is-slide-deck .chapter-six-meme--large {
+  width: min(100%, 360px);
+  max-height: 62vh;
+}
+
+.page.is-slide-deck .chapter-six-meme-caption {
+  margin: 0;
+  color: var(--text-main);
+  line-height: 1.7;
+  text-align: center;
 }
 
 .page.is-slide-deck .chapter-six-task-card ol {
@@ -2626,6 +3781,7 @@ wc.to_file(os.path.join(output_dir, f"feedback_cloud_{timestamp}.png"))</code></
   .page.is-slide-deck .command-layout.chapter-six-math-grid,
   .page.is-slide-deck .concept-grid.chapter-six-quad-grid,
   .page.is-slide-deck .command-layout.chapter-six-code-grid,
+  .page.is-slide-deck .command-layout.chapter-six-download-grid,
   .page.is-slide-deck .command-layout.chapter-six-practice-grid {
     grid-template-columns: 1fr;
   }
