@@ -31,10 +31,6 @@ const routes = [
     path: "/carla",
     redirect: "/carla/chapter/1",
   },
-  {
-    path: "/carla/chapter/3",
-    redirect: "/carla/chapter/2",
-  },
   ...lessonRoutes,
   {
     path: "/admin/stats",

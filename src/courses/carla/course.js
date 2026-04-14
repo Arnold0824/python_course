@@ -18,5 +18,12 @@ export const carlaCourse = {
       path: "/carla/chapter/2",
       component: () => import("./views/Chapter03View.vue"),
     },
+    {
+      no: "03",
+      id: "3",
+      label: "第三章 RGB与语义分割双通道采集对齐",
+      path: "/carla/chapter/3",
+      component: () => import("./views/Chapter04View.vue"),
+    },
   ],
 };
