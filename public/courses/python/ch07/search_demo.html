@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CampusBook 动态搜索 - 第七章 Selenium 练习页</title>
+    <meta name="description" content="Python 第七章本地爬虫练习站：动态搜索与 Selenium 浏览器自动化。" />
+    <link rel="stylesheet" href="./practice_site.css" />
+  </head>
+  <body data-page="dynamic-search">
+    <header class="mall-header">
+      <div class="top-strip">
+        <span>CampusBook 动态搜索</span>
+        <span>由 JavaScript 读取 JSON 后渲染</span>
+        <span>适合 Selenium 练习等待、点击、输入和读取结果</span>
+      </div>
+      <div class="main-header">
+        <a class="brand" href="./books_static.html">
+          <span class="brand-mark">CB</span>
+          <span>
+            <strong>CampusBook</strong>
+            <em>动态搜索中心</em>
+          </span>
+        </a>
+        <nav class="quick-links" aria-label="快捷入口">
+          <a href="./books_static.html">静态列表</a>
+          <a href="./sample_books.json">JSON接口</a>
+          <a href="#dynamicResults">搜索结果</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mall-shell">
+      <section class="promo-hero dynamic-hero">
+        <div>
+          <p class="eyebrow">Browser Rendered Page</p>
+          <h1>动态搜索结果页</h1>
+          <p>
+            这个页面的商品结果不直接写在 HTML 源码里，而是由 <code>practice_site.js</code>
+            读取 <code>sample_books.json</code> 后渲染。用 requests 只能看到页面骨架，
+            用 Selenium 才能读取浏览器执行 JavaScript 后的最终结果。
+          </p>
+        </div>
+        <div class="hero-metrics">
+          <span><b id="heroTotal">--</b> 条数据</span>
+          <span><b>JS</b> 动态渲染</span>
+          <span><b>Selenium</b> 练习页</span>
+        </div>
+      </section>
+
+      <section class="search-panel" id="searchPanel">
+        <label>
+          关键词
+          <input id="keyword" type="search" placeholder="Python / Selenium / 合规 / 数据 / API" autocomplete="off" />
+        </label>
+        <label>
+          分类
+          <select id="dynamicCategory">
+            <option value="all">全部分类</option>
+          </select>
+        </label>
+        <label>
+          难度
+          <select id="levelFilter">
+            <option value="all">全部难度</option>
+          </select>
+        </label>
+        <label>
+          价格上限
+          <input id="maxPrice" type="number" min="0" step="1" placeholder="例如 70" />
+        </label>
+        <label>
+          排序
+          <select id="sortBy">
+            <option value="rating_desc">评分从高到低</option>
+            <option value="price_asc">价格从低到高</option>
+            <option value="price_desc">价格从高到低</option>
+            <option value="sales_desc">销量从高到低</option>
+            <option value="newest">出版时间从新到旧</option>
+          </select>
+        </label>
+        <div class="button-row">
+          <button id="searchBtn" class="mall-button primary" type="button">搜索</button>
+          <button id="resetBtn" class="mall-button ghost" type="button">重置</button>
+        </div>
+      </section>
+
+      <section class="dynamic-dashboard">
+        <div class="result-toolbar">
+          <div>
+            <p class="eyebrow">Dynamic Results</p>
+            <h2>搜索结果</h2>
+            <p id="dynamicStatus">正在加载 JSON 数据...</p>
+          </div>
+          <div class="view-switch">
+            <button id="gridViewBtn" class="mall-button ghost is-active" type="button">卡片</button>
+            <button id="listViewBtn" class="mall-button ghost" type="button">列表</button>
+          </div>
+        </div>
+
+        <div class="stat-board" aria-label="搜索统计">
+          <span id="statTotal">结果：0</span>
+          <span id="statAvgPrice">均价：--</span>
+          <span id="statBestRating">最高评分：--</span>
+          <span id="statLowStock">低库存：--</span>
+        </div>
+
+        <div class="product-grid dynamic-grid" id="dynamicResults" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="mall-footer">
+      <div>
+        <strong>Selenium 练习目标</strong>
+        <p>定位输入框、选择下拉框、点击按钮、等待结果渲染、读取卡片文本和 data 属性。</p>
+      </div>
+      <div>
+        <strong>关键区别</strong>
+        <p>静态页适合 BeautifulSoup，动态页适合 Selenium。两者都使用同一份规律化数据。</p>
+      </div>
+    </footer>
+
+    <script src="./practice_site.js" defer></script>
+  </body>
+</html>

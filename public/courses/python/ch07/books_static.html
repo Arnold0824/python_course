@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CampusBook 技术书店 - 搜索结果</title>
+    <meta name="description" content="Python 第七章本地爬虫练习站：静态商品列表页。" />
+    <link rel="stylesheet" href="./practice_site.css" />
+  </head>
+  <body data-page="static-books">
+    <header class="mall-header">
+      <div class="top-strip">
+        <span>CampusBook 本地练习站</span>
+        <span>订单热线：028-6688-2026</span>
+        <span>教学模拟数据，请勿用于真实交易</span>
+      </div>
+      <div class="main-header">
+        <a class="brand" href="./books_static.html">
+          <span class="brand-mark">CB</span>
+          <span>
+            <strong>CampusBook</strong>
+            <em>技术图书商城</em>
+          </span>
+        </a>
+        <form class="global-search" action="./books_static.html" method="get">
+          <input id="siteSearch" name="keyword" type="search" placeholder="搜索 Python / 爬虫 / Selenium / 数据分析" />
+          <button type="submit">搜索</button>
+        </form>
+        <nav class="quick-links" aria-label="快捷入口">
+          <a href="./sample_books.json">JSON接口</a>
+          <a href="./search_demo.html">动态搜索</a>
+          <a href="#crawler-tips">爬取提示</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mall-shell">
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <a href="./books_static.html">首页</a>
+        <span>/</span>
+        <a href="#bookGrid">技术图书</a>
+        <span>/</span>
+        <strong>Python 与网络数据采集</strong>
+      </nav>
+
+      <section class="promo-hero">
+        <div>
+          <p class="eyebrow">Local Practice Website</p>
+          <h1>像真实网站一样练爬虫</h1>
+          <p>
+            这个页面是服务端渲染风格的商品列表，HTML 源码里直接包含商品信息。
+            它足够复杂，但每张商品卡片结构完全一致，适合 BeautifulSoup、CSS 选择器和正则表达式练习。
+          </p>
+        </div>
+        <div class="hero-metrics">
+          <span><b>18</b> 本图书</span>
+          <span><b>8</b> 个分类</span>
+          <span><b>规律化</b> DOM结构</span>
+        </div>
+      </section>
+
+      <section class="mall-layout">
+        <aside class="filter-sidebar">
+          <section class="filter-card" id="crawler-tips">
+            <h2>爬取任务</h2>
+            <ol>
+              <li>用 <code>.product-card</code> 获取所有商品卡片。</li>
+              <li>读取 <code>data-sku</code>、<code>data-category</code>、<code>data-price</code>。</li>
+              <li>提取标题、作者、出版社、日期、价格、评分、库存。</li>
+              <li>用正则提取优惠券编码，例如 <code>PYTHON10</code>。</li>
+            </ol>
+          </section>
+
+          <section class="filter-card">
+            <h2>分类</h2>
+            <ul class="facet-list">
+              <li><a href="./books_static.html?category=Python">Python <span>2</span></a></li>
+              <li><a href="./books_static.html?category=Crawler">Crawler <span>4</span></a></li>
+              <li><a href="./books_static.html?category=Data">Data <span>3</span></a></li>
+              <li><a href="./books_static.html?category=HTML">HTML <span>2</span></a></li>
+              <li><a href="./books_static.html?category=Automation">Automation <span>2</span></a></li>
+              <li><a href="./books_static.html?category=AI">AI <span>2</span></a></li>
+              <li><a href="./books_static.html?category=Database">Database <span>1</span></a></li>
+              <li><a href="./books_static.html?category=Security">Security <span>2</span></a></li>
+            </ul>
+          </section>
+
+          <section class="filter-card rank-card">
+            <h2>销量榜</h2>
+            <ol>
+              <li><a href="#CB-2026-0001">Python 数据采集入门</a><span>3120</span></li>
+              <li><a href="#CB-2026-0003">数据分析小项目</a><span>2260</span></li>
+              <li><a href="#CB-2026-0002">网络爬虫实战手册</a><span>1840</span></li>
+              <li><a href="#CB-2026-0010">Pandas 表格处理课堂练习</a><span>1510</span></li>
+            </ol>
+          </section>
+        </aside>
+
+        <section class="product-area">
+          <div class="result-toolbar">
+            <div>
+              <p class="eyebrow">Search Result</p>
+              <h2>Python 与数据采集相关图书</h2>
+              <p id="staticResultCount">共 18 件商品，当前显示 18 件</p>
+            </div>
+            <div class="toolbar-controls">
+              <label>分类
+                <select id="categoryFilter">
+                  <option value="all">全部</option>
+                  <option value="Python">Python</option>
+                  <option value="Crawler">Crawler</option>
+                  <option value="Data">Data</option>
+                  <option value="HTML">HTML</option>
+                  <option value="Automation">Automation</option>
+                  <option value="AI">AI</option>
+                  <option value="Database">Database</option>
+                  <option value="Security">Security</option>
+                </select>
+              </label>
+              <label>最低评分
+                <select id="ratingFilter">
+                  <option value="0">不限</option>
+                  <option value="4.5">4.5+</option>
+                  <option value="4.7">4.7+</option>
+                </select>
+              </label>
+              <label>页内筛选
+                <input id="inlineSearch" type="search" placeholder="关键词筛选" />
+              </label>
+            </div>
+          </div>
+
+          <div class="product-grid" id="bookGrid">
+            <article class="product-card" id="CB-2026-0001" data-sku="CB-2026-0001" data-category="Python" data-level="入门" data-price="59.80" data-rating="4.8" data-stock="28" data-sales="3120">
+              <div class="product-cover cover-python"><span>Py</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0001 | ISBN: 978-7-115-26001-1</p>
+                <h3 class="product-title">Python 数据采集入门</h3>
+                <p class="product-subtitle">从 requests 到数据文件保存</p>
+                <p class="product-meta">作者：<span class="author">林晓舟</span> | 出版社：<span class="publisher">星河科技出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2026-03-12">2026-03-12</time></p>
+                <p class="price"><strong>¥59.80</strong><del>¥69.80</del><span>8.6折</span></p>
+                <p class="rating">评分：<b>4.8</b> / 5.0，评论 384 条</p>
+                <p class="stock">库存：有货，成都仓，28 本</p>
+                <p class="coupon">优惠券：PYTHON10 立减 10 元</p>
+                <div class="tags"><span>requests</span><span>json</span><span>文件保存</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0002" data-sku="CB-2026-0002" data-category="Crawler" data-level="进阶" data-price="72.00" data-rating="4.6" data-stock="16" data-sales="1840">
+              <div class="product-cover cover-crawler"><span>Cr</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0002 | ISBN: 978-7-115-26002-8</p>
+                <h3 class="product-title">网络爬虫实战手册</h3>
+                <p class="product-subtitle">网页结构、选择器与常见反爬提示</p>
+                <p class="product-meta">作者：<span class="author">陈一鸣</span> | 出版社：<span class="publisher">云岭工业出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-11-20">2025-11-20</time></p>
+                <p class="price"><strong>¥72.00</strong><del>¥89.00</del><span>8.1折</span></p>
+                <p class="rating">评分：<b>4.6</b> / 5.0，评论 216 条</p>
+                <p class="stock">库存：有货，重庆仓，16 本</p>
+                <p class="coupon">优惠券：CRAWL18 立减 18 元</p>
+                <div class="tags"><span>BeautifulSoup</span><span>CSS Selector</span><span>正则表达式</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0003" data-sku="CB-2026-0003" data-category="Data" data-level="项目" data-price="65.50" data-rating="4.7" data-stock="21" data-sales="2260">
+              <div class="product-cover cover-data"><span>Da</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0003 | ISBN: 978-7-115-26003-5</p>
+                <h3 class="product-title">数据分析小项目</h3>
+                <p class="product-subtitle">用 CSV、JSON 和图表完成课堂项目</p>
+                <p class="product-meta">作者：<span class="author">赵南</span> | 出版社：<span class="publisher">湖畔教育出版中心</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-08-05">2025-08-05</time></p>
+                <p class="price"><strong>¥65.50</strong><del>¥79.00</del><span>8.3折</span></p>
+                <p class="rating">评分：<b>4.7</b> / 5.0，评论 302 条</p>
+                <p class="stock">库存：有货，成都仓，21 本</p>
+                <p class="coupon">优惠券：DATA08 立减 8 元</p>
+                <div class="tags"><span>csv</span><span>json</span><span>统计</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0004" data-sku="CB-2026-0004" data-category="Automation" data-level="进阶" data-price="88.00" data-rating="4.5" data-stock="9" data-sales="980">
+              <div class="product-cover cover-auto"><span>Se</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0004 | ISBN: 978-7-115-26004-2</p>
+                <h3 class="product-title">Selenium 浏览器自动化</h3>
+                <p class="product-subtitle">真实浏览器、动态网页与自动化测试</p>
+                <p class="product-meta">作者：<span class="author">周子墨</span> | 出版社：<span class="publisher">极光软件出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2026-01-18">2026-01-18</time></p>
+                <p class="price"><strong>¥88.00</strong><del>¥108.00</del><span>8.1折</span></p>
+                <p class="rating">评分：<b>4.5</b> / 5.0，评论 148 条</p>
+                <p class="stock">库存：少量库存，西安仓，9 本</p>
+                <p class="coupon">优惠券：AUTO20 立减 20 元</p>
+                <div class="tags"><span>selenium</span><span>WebDriver</span><span>动态网页</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0005" data-sku="CB-2026-0005" data-category="HTML" data-level="入门" data-price="49.90" data-rating="4.4" data-stock="34" data-sales="1410">
+              <div class="product-cover cover-html"><span>Ht</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0005 | ISBN: 978-7-115-26005-9</p>
+                <h3 class="product-title">网页结构解析基础</h3>
+                <p class="product-subtitle">从 HTML 标签到 CSS 选择器</p>
+                <p class="product-meta">作者：<span class="author">吴晨</span> | 出版社：<span class="publisher">青石大学出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-06-30">2025-06-30</time></p>
+                <p class="price"><strong>¥49.90</strong><del>¥59.00</del><span>8.5折</span></p>
+                <p class="rating">评分：<b>4.4</b> / 5.0，评论 191 条</p>
+                <p class="stock">库存：有货，成都仓，34 本</p>
+                <p class="coupon">优惠券：暂无</p>
+                <div class="tags"><span>html</span><span>DOM</span><span>解析</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0006" data-sku="CB-2026-0006" data-category="Crawler" data-level="入门" data-price="46.00" data-rating="4.3" data-stock="0" data-sales="760">
+              <div class="product-cover cover-crawler"><span>Re</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0006 | ISBN: 978-7-115-26006-6</p>
+                <h3 class="product-title">正则表达式任务书</h3>
+                <p class="product-subtitle">编号、价格、日期和链接的模式提取</p>
+                <p class="product-meta">作者：<span class="author">高屿</span> | 出版社：<span class="publisher">星河科技出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-12-02">2025-12-02</time></p>
+                <p class="price"><strong>¥46.00</strong><del>¥58.00</del><span>7.9折</span></p>
+                <p class="rating">评分：<b>4.3</b> / 5.0，评论 96 条</p>
+                <p class="stock">库存：预售，预售仓，0 本</p>
+                <p class="coupon">优惠券：REGEX12 立减 12 元</p>
+                <div class="tags"><span>regex</span><span>re</span><span>文本提取</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0007" data-sku="CB-2026-0007" data-category="AI" data-level="通识" data-price="79.00" data-rating="4.7" data-stock="18" data-sales="1330">
+              <div class="product-cover cover-ai"><span>AI</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0007 | ISBN: 978-7-115-26007-3</p>
+                <h3 class="product-title">AI 资料检索与整理</h3>
+                <p class="product-subtitle">用公开资料构建学习清单</p>
+                <p class="product-meta">作者：<span class="author">韩知远</span> | 出版社：<span class="publisher">未来学习出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2026-02-14">2026-02-14</time></p>
+                <p class="price"><strong>¥79.00</strong><del>¥99.00</del><span>8.0折</span></p>
+                <p class="rating">评分：<b>4.7</b> / 5.0，评论 177 条</p>
+                <p class="stock">库存：有货，成都仓，18 本</p>
+                <p class="coupon">优惠券：AI2026 立减 20 元</p>
+                <div class="tags"><span>AI</span><span>资料整理</span><span>检索</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0008" data-sku="CB-2026-0008" data-category="Security" data-level="通识" data-price="55.00" data-rating="4.9" data-stock="12" data-sales="520">
+              <div class="product-cover cover-security"><span>Et</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0008 | ISBN: 978-7-115-26008-0</p>
+                <h3 class="product-title">公开数据采集规范</h3>
+                <p class="product-subtitle">合规边界、访问频率与数据保存</p>
+                <p class="product-meta">作者：<span class="author">刘安</span> | 出版社：<span class="publisher">法智科技出版中心</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-10-10">2025-10-10</time></p>
+                <p class="price"><strong>¥55.00</strong><del>¥68.00</del><span>8.1折</span></p>
+                <p class="rating">评分：<b>4.9</b> / 5.0，评论 64 条</p>
+                <p class="stock">库存：有货，成都仓，12 本</p>
+                <p class="coupon">优惠券：暂无</p>
+                <div class="tags"><span>合规</span><span>robots</span><span>公开数据</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0009" data-sku="CB-2026-0009" data-category="Crawler" data-level="入门" data-price="42.50" data-rating="4.2" data-stock="43" data-sales="980">
+              <div class="product-cover cover-crawler"><span>Ht</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0009 | ISBN: 978-7-115-26009-7</p>
+                <h3 class="product-title">HTTP 协议速查手册</h3>
+                <p class="product-subtitle">请求方法、状态码与响应头</p>
+                <p class="product-meta">作者：<span class="author">顾北</span> | 出版社：<span class="publisher">云岭工业出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-09-16">2025-09-16</time></p>
+                <p class="price"><strong>¥42.50</strong><del>¥52.00</del><span>8.2折</span></p>
+                <p class="rating">评分：<b>4.2</b> / 5.0，评论 132 条</p>
+                <p class="stock">库存：有货，武汉仓，43 本</p>
+                <p class="coupon">优惠券：HTTP09 立减 9 元</p>
+                <div class="tags"><span>HTTP</span><span>状态码</span><span>Headers</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0010" data-sku="CB-2026-0010" data-category="Data" data-level="进阶" data-price="73.50" data-rating="4.6" data-stock="26" data-sales="1510">
+              <div class="product-cover cover-data"><span>Pd</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0010 | ISBN: 978-7-115-26010-3</p>
+                <h3 class="product-title">Pandas 表格处理课堂练习</h3>
+                <p class="product-subtitle">从爬取结果到 DataFrame</p>
+                <p class="product-meta">作者：<span class="author">孙澜</span> | 出版社：<span class="publisher">湖畔教育出版中心</span></p>
+                <p class="product-date">出版日期：<time datetime="2026-04-01">2026-04-01</time></p>
+                <p class="price"><strong>¥73.50</strong><del>¥86.00</del><span>8.5折</span></p>
+                <p class="rating">评分：<b>4.6</b> / 5.0，评论 208 条</p>
+                <p class="stock">库存：有货，上海仓，26 本</p>
+                <p class="coupon">优惠券：PANDAS15 立减 15 元</p>
+                <div class="tags"><span>pandas</span><span>DataFrame</span><span>csv</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0011" data-sku="CB-2026-0011" data-category="Database" data-level="入门" data-price="54.00" data-rating="4.5" data-stock="31" data-sales="1040">
+              <div class="product-cover cover-database"><span>DB</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0011 | ISBN: 978-7-115-26011-0</p>
+                <h3 class="product-title">SQLite 本地数据库入门</h3>
+                <p class="product-subtitle">把采集结果放进轻量数据库</p>
+                <p class="product-meta">作者：<span class="author">唐简</span> | 出版社：<span class="publisher">极光软件出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-07-21">2025-07-21</time></p>
+                <p class="price"><strong>¥54.00</strong><del>¥66.00</del><span>8.2折</span></p>
+                <p class="rating">评分：<b>4.5</b> / 5.0，评论 155 条</p>
+                <p class="stock">库存：有货，成都仓，31 本</p>
+                <p class="coupon">优惠券：SQL12 立减 12 元</p>
+                <div class="tags"><span>sqlite</span><span>数据库</span><span>保存</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0012" data-sku="CB-2026-0012" data-category="HTML" data-level="入门" data-price="39.90" data-rating="4.1" data-stock="52" data-sales="670">
+              <div class="product-cover cover-html"><span>Cs</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0012 | ISBN: 978-7-115-26012-7</p>
+                <h3 class="product-title">CSS 选择器训练营</h3>
+                <p class="product-subtitle">从标签选择到复杂组合选择器</p>
+                <p class="product-meta">作者：<span class="author">许临风</span> | 出版社：<span class="publisher">青石大学出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-05-19">2025-05-19</time></p>
+                <p class="price"><strong>¥39.90</strong><del>¥49.00</del><span>8.1折</span></p>
+                <p class="rating">评分：<b>4.1</b> / 5.0，评论 88 条</p>
+                <p class="stock">库存：有货，广州仓，52 本</p>
+                <p class="coupon">优惠券：CSS08 立减 8 元</p>
+                <div class="tags"><span>CSS</span><span>Selector</span><span>DOM</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0013" data-sku="CB-2026-0013" data-category="Automation" data-level="进阶" data-price="82.00" data-rating="4.4" data-stock="14" data-sales="430">
+              <div class="product-cover cover-auto"><span>Pw</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0013 | ISBN: 978-7-115-26013-4</p>
+                <h3 class="product-title">Playwright 自动化初探</h3>
+                <p class="product-subtitle">现代浏览器自动化工具入门</p>
+                <p class="product-meta">作者：<span class="author">罗星</span> | 出版社：<span class="publisher">极光软件出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2026-02-03">2026-02-03</time></p>
+                <p class="price"><strong>¥82.00</strong><del>¥96.00</del><span>8.5折</span></p>
+                <p class="rating">评分：<b>4.4</b> / 5.0，评论 77 条</p>
+                <p class="stock">库存：有货，西安仓，14 本</p>
+                <p class="coupon">优惠券：PLAY14 立减 14 元</p>
+                <div class="tags"><span>playwright</span><span>browser</span><span>自动化</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0014" data-sku="CB-2026-0014" data-category="Python" data-level="进阶" data-price="62.80" data-rating="4.6" data-stock="24" data-sales="870">
+              <div class="product-cover cover-python"><span>Lg</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0014 | ISBN: 978-7-115-26014-1</p>
+                <h3 class="product-title">Python 异常与日志实战</h3>
+                <p class="product-subtitle">让爬虫程序更稳定</p>
+                <p class="product-meta">作者：<span class="author">叶青</span> | 出版社：<span class="publisher">星河科技出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-12-22">2025-12-22</time></p>
+                <p class="price"><strong>¥62.80</strong><del>¥76.00</del><span>8.3折</span></p>
+                <p class="rating">评分：<b>4.6</b> / 5.0，评论 121 条</p>
+                <p class="stock">库存：有货，成都仓，24 本</p>
+                <p class="coupon">优惠券：LOG13 立减 13 元</p>
+                <div class="tags"><span>异常处理</span><span>logging</span><span>稳定性</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0015" data-sku="CB-2026-0015" data-category="Crawler" data-level="通识" data-price="51.00" data-rating="4.4" data-stock="37" data-sales="720">
+              <div class="product-cover cover-crawler"><span>AP</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0015 | ISBN: 978-7-115-26015-8</p>
+                <h3 class="product-title">API 数据接口设计基础</h3>
+                <p class="product-subtitle">理解 JSON 接口为什么这样返回</p>
+                <p class="product-meta">作者：<span class="author">冯骁</span> | 出版社：<span class="publisher">云岭工业出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-04-28">2025-04-28</time></p>
+                <p class="price"><strong>¥51.00</strong><del>¥62.00</del><span>8.2折</span></p>
+                <p class="rating">评分：<b>4.4</b> / 5.0，评论 109 条</p>
+                <p class="stock">库存：有货，武汉仓，37 本</p>
+                <p class="coupon">优惠券：API11 立减 11 元</p>
+                <div class="tags"><span>API</span><span>JSON</span><span>REST</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0016" data-sku="CB-2026-0016" data-category="Data" data-level="项目" data-price="69.00" data-rating="4.7" data-stock="7" data-sales="650">
+              <div class="product-cover cover-data"><span>Cl</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0016 | ISBN: 978-7-115-26016-5</p>
+                <h3 class="product-title">网页数据清洗案例集</h3>
+                <p class="product-subtitle">空值、重复、编码和异常数据处理</p>
+                <p class="product-meta">作者：<span class="author">沈若溪</span> | 出版社：<span class="publisher">湖畔教育出版中心</span></p>
+                <p class="product-date">出版日期：<time datetime="2026-01-06">2026-01-06</time></p>
+                <p class="price"><strong>¥69.00</strong><del>¥83.00</del><span>8.3折</span></p>
+                <p class="rating">评分：<b>4.7</b> / 5.0，评论 98 条</p>
+                <p class="stock">库存：少量库存，成都仓，7 本</p>
+                <p class="coupon">优惠券：CLEAN14 立减 14 元</p>
+                <div class="tags"><span>清洗</span><span>缺失值</span><span>编码</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0017" data-sku="CB-2026-0017" data-category="Security" data-level="通识" data-price="58.00" data-rating="4.8" data-stock="20" data-sales="390">
+              <div class="product-cover cover-security"><span>Sc</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0017 | ISBN: 978-7-115-26017-2</p>
+                <h3 class="product-title">网络安全通识与数据边界</h3>
+                <p class="product-subtitle">爬虫课程必须知道的边界意识</p>
+                <p class="product-meta">作者：<span class="author">程予</span> | 出版社：<span class="publisher">法智科技出版中心</span></p>
+                <p class="product-date">出版日期：<time datetime="2025-03-15">2025-03-15</time></p>
+                <p class="price"><strong>¥58.00</strong><del>¥70.00</del><span>8.3折</span></p>
+                <p class="rating">评分：<b>4.8</b> / 5.0，评论 73 条</p>
+                <p class="stock">库存：有货，成都仓，20 本</p>
+                <p class="coupon">优惠券：SAFE12 立减 12 元</p>
+                <div class="tags"><span>安全</span><span>隐私</span><span>合规</span></div>
+              </div>
+            </article>
+
+            <article class="product-card" id="CB-2026-0018" data-sku="CB-2026-0018" data-category="AI" data-level="进阶" data-price="96.00" data-rating="4.6" data-stock="15" data-sales="560">
+              <div class="product-cover cover-ai"><span>ML</span></div>
+              <div class="product-info">
+                <p class="product-sku">SKU: CB-2026-0018 | ISBN: 978-7-115-26018-9</p>
+                <h3 class="product-title">机器学习数据准备</h3>
+                <p class="product-subtitle">从公开数据到训练样本</p>
+                <p class="product-meta">作者：<span class="author">贺川</span> | 出版社：<span class="publisher">未来学习出版社</span></p>
+                <p class="product-date">出版日期：<time datetime="2026-04-18">2026-04-18</time></p>
+                <p class="price"><strong>¥96.00</strong><del>¥116.00</del><span>8.3折</span></p>
+                <p class="rating">评分：<b>4.6</b> / 5.0，评论 84 条</p>
+                <p class="stock">库存：有货，上海仓，15 本</p>
+                <p class="coupon">优惠券：ML20 立减 20 元</p>
+                <div class="tags"><span>机器学习</span><span>数据集</span><span>样本</span></div>
+              </div>
+            </article>
+          </div>
+
+          <nav class="pagination" aria-label="分页导航">
+            <a class="is-current" href="./books_static.html?page=1">1</a>
+            <a href="./books_static.html?page=2">2</a>
+            <a href="./books_static.html?page=3">3</a>
+            <a href="./books_static.html?page=2">下一页</a>
+          </nav>
+        </section>
+      </section>
+    </main>
+
+    <footer class="mall-footer">
+      <div>
+        <strong>CampusBook 技术书店</strong>
+        <p>本页面为 Python 第七章本地练习站。商品、价格、库存和评论均为教学模拟数据。</p>
+      </div>
+      <div>
+        <strong>适合练习</strong>
+        <p>BeautifulSoup 选择器、属性提取、文本清洗、正则表达式、分页链接解析。</p>
+      </div>
+    </footer>
+
+    <script src="./practice_site.js" defer></script>
+  </body>
+</html>

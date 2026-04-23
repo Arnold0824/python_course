@@ -46,5 +46,12 @@ export const pythonCourse = {
       path: "/python/chapter/6",
       component: () => import("./views/ChapterSixView.vue"),
     },
+    {
+      no: "07",
+      id: "7",
+      label: "第七章 网络数据爬取",
+      path: "/python/chapter/7",
+      component: () => import("./views/ChapterSevenView.vue"),
+    },
   ],
 };
