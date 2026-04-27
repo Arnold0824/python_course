@@ -15,7 +15,6 @@ import IconGlobe from "../../../assets/lucide-icons/globe.svg";
 import IconHistory from "../../../assets/lucide-icons/history.svg";
 import IconLink from "../../../assets/lucide-icons/link.svg";
 import IconListTree from "../../../assets/lucide-icons/list-tree.svg";
-import IconMousePointer from "../../../assets/lucide-icons/mouse-pointer.svg";
 import IconNetwork from "../../../assets/lucide-icons/network.svg";
 import IconRoute from "../../../assets/lucide-icons/route.svg";
 import IconSearch from "../../../assets/lucide-icons/search.svg";
@@ -27,24 +26,22 @@ const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef)
 
 const sampleJsonHref = "/courses/python/ch07/sample_books.json";
 const staticHtmlHref = "/courses/python/ch07/books_static.html";
-const dynamicHtmlHref = "/courses/python/ch07/search_demo.html";
-const kugouRankHref = "https://www.kugou.com/yy/rank/home/1-8888.html?from=rank";
-const kugouReportTemplateHref = "/courses/python/exp_reports/实验报告4：爬取酷狗音乐TOP500歌曲信息，并存储到文本文件（理实课程实验部分）-学生姓名.docx";
-const kugouReportSubmitHref = "https://f.wps.cn/g/UOG49Aft/";
+const courseSpiderHref = "/courses/python/ch07/course_spider.py";
+const jwCourseHref = "https://jw.guc.edu.cn/yethan/CourseAction?setAction=queryCourseList&selectTableType=History";
 
 const learningGoals = [
   "理解浏览器访问网页背后的请求、响应、状态码、HTML 与 JSON。",
   "能用 requests 获取网页或接口数据，并处理编码、参数、请求头和异常。",
-  "能分别使用 JSON、BeautifulSoup、正则表达式和 Selenium 完成不同类型的数据提取。",
+  "能围绕一个登录态课表页面，完成诊断、解析、分页、去重和 CSV 保存。",
 ];
 
 const roadmap = [
   "requests：发送网络请求",
-  "JSON：读取接口数据",
-  "BeautifulSoup：解析网页结构",
-  "re：提取局部文本模式",
-  "Selenium：模拟浏览器操作",
-  "综合项目：完成酷狗音乐 TOP500 采集实验",
+  "Headers 与 Cookie：理解登录态",
+  "Session：复用会话设置",
+  "BeautifulSoup：解析课表结构",
+  "分页与去重：采集多页记录",
+  "CSV：保存全校课表",
 ];
 
 const foundationMap = [
@@ -124,8 +121,8 @@ const requestFlowCards = [
   {
     title: "第 6 步：解析并保存",
     icon: IconCode,
-    text: "爬虫不会自动理解页面含义。必须根据正文格式选择 JSON、BeautifulSoup、正则或 Selenium 继续处理。",
-    example: "JSON 用 response.json()；HTML 用 BeautifulSoup；动态页面用 Selenium。",
+    text: "爬虫不会自动理解页面含义。必须根据正文格式选择 JSON、BeautifulSoup、字符串清洗或 CSV 保存继续处理。",
+    example: "JSON 用 response.json()；HTML 表格用 BeautifulSoup；整理后的字典列表用 csv 保存。",
   },
 ];
 
@@ -173,10 +170,10 @@ const webConceptCards = [
     example: "JSON 用字典和列表访问字段；HTML 用标签、class、id 和 CSS 选择器定位节点。",
   },
   {
-    title: "静态页与动态页",
-    icon: IconMousePointer,
-    text: "静态页的关键信息直接在 HTML 源码中；动态页往往先加载空壳，再由 JavaScript 请求数据并渲染。",
-    example: "requests 看不到动态结果时，不一定是失败，可能是内容需要浏览器执行 JavaScript 后才出现。",
+    title: "登录态页面",
+    icon: IconShield,
+    text: "有些页面只有登录后才能看到具体数据。程序请求必须携带合法的会话信息，服务器才会返回对应内容。",
+    example: "浏览器能看到课表，requests 却看到登录页，常见原因就是缺少 Cookie。",
   },
 ];
 
@@ -206,10 +203,10 @@ const dataFormatCards = [
     example: "下载图片通常写入 open(\"cover.jpg\", \"wb\")。",
   },
   {
-    title: "动态页面：浏览器看到的不一定在源码里",
-    icon: IconMousePointer,
-    text: "页面如果由 JavaScript 渲染，requests 拿到的源码可能缺少最终内容。此时要找接口或使用 Selenium。",
-    example: "搜索结果由 JS 加载时，BeautifulSoup 解析初始 HTML 可能得到空列表。",
+    title: "登录页：最常见的误判",
+    icon: IconShield,
+    text: "状态码 200 只表示服务器返回了页面，不表示返回的一定是目标数据。登录页、提示页和错误页也可能是 200。",
+    example: "正文预览里出现“登录”时，应先解决登录态，而不是继续写表格解析。",
   },
   {
     title: "判断顺序：先看响应，再选工具",
@@ -241,8 +238,8 @@ const crawlerWorkflowCards = [
   {
     title: "4. 解析页面或接口",
     icon: IconCode,
-    text: "根据数据格式选择工具。JSON 走字典列表，HTML 走选择器，动态页面走浏览器自动化。",
-    example: "接口数据用 json；静态卡片用 BeautifulSoup；动态搜索用 Selenium。",
+    text: "根据数据格式选择工具。JSON 走字典列表，HTML 表格走 BeautifulSoup，整理后的记录再写入 CSV。",
+    example: "教务课表页通常先保存 HTML，再用 BeautifulSoup 定位 table、tr、td。",
   },
   {
     title: "5. 清洗、去重、补字段",
@@ -301,12 +298,6 @@ const crawlerHistoryCards = [
     icon: IconArchive,
     text: "Internet Archive 从 1996 年开始做网页归档，Wayback Machine 在 2001 年开放，让爬虫成为保存网页历史的工具。",
   },
-  {
-    year: "2004",
-    title: "Selenium：浏览器自动化",
-    icon: IconMousePointer,
-    text: "Selenium 最初是 ThoughtWorks 的内部测试工具。后来它成为自动化浏览器操作的重要工具，也适合处理动态网页。",
-  },
 ];
 
 const crawlerEvolutionCards = [
@@ -331,9 +322,9 @@ const crawlerEvolutionCards = [
     text: "随着爬虫增多，robots.txt、访问频率控制、User-Agent 标识、超时和重试策略逐渐成为工程习惯。",
   },
   {
-    title: "动态网页时代",
-    icon: IconMousePointer,
-    text: "越来越多网页由 JavaScript 渲染，requests 只能拿到骨架，Selenium、Playwright 这类浏览器自动化工具开始变重要。",
+    title: "数据权限时代",
+    icon: IconShield,
+    text: "越来越多数据位于登录态页面、权限接口或业务系统中。采集前必须确认账号权限、数据用途和访问频率。",
   },
   {
     title: "今天的爬虫",
@@ -413,11 +404,6 @@ const crawlerSourceCards = [
     href: "https://en.wikipedia.org/wiki/History_of_Google",
   },
   {
-    title: "Selenium History",
-    icon: IconExternalLink,
-    href: "https://www.selenium.dev/history/",
-  },
-  {
     title: "Wayback Machine",
     icon: IconExternalLink,
     href: "https://en.wikipedia.org/wiki/Wayback_Machine",
@@ -463,556 +449,744 @@ const materialCards = [
     href: staticHtmlHref,
   },
   {
-    title: "动态搜索练习页",
-    icon: IconMousePointer,
-    desc: "页面由 JavaScript 读取 JSON 后动态渲染结果，适合 Selenium。",
-    href: dynamicHtmlHref,
+    title: "教务课表目标页",
+    icon: IconShield,
+    desc: "真实登录态页面，用于学习 Cookie、Session、HTML 表格解析、分页和 CSV 保存。",
+    href: jwCourseHref,
   },
 ];
 
 const codePracticeMap = [
-  { title: "5.1 首次请求", icon: IconNetwork, text: "访问线上 JSON 接口，观察状态码、响应头和正文预览。" },
-  { title: "5.2 参数与请求头", icon: IconLink, text: "理解 params、headers、User-Agent 和最终请求地址。" },
-  { title: "5.3 Session 会话", icon: IconShield, text: "用 Session 复用请求头和连接，为需要连续访问的任务做准备。" },
-  { title: "5.4 POST 请求", icon: IconCode, text: "理解表单提交、JSON 提交和接口回显这类常见 POST 场景。" },
-  { title: "5.5 异常处理", icon: IconCircleAlert, text: "解决请求失败时怎么办，让程序在超时、断网和坏响应面前不失控。" },
-  { title: "5.6 限速与重试", icon: IconRoute, text: "解决请求成功后怎么礼貌访问，把日志、间隔和有限重试组织起来。" },
-  { title: "5.7 JSON 结构观察", icon: IconBraces, text: "先看顶层字段、分页信息和第一条记录，再写提取规则。" },
-  { title: "5.8 分页抓取", icon: IconListTree, text: "按 page、has_next、next_url 的思想组织多页采集。" },
-  { title: "5.9 JSON 筛选统计", icon: IconDatabase, text: "把 JSON 整理成统一记录列表，再做筛选、排序和基础统计。" },
-  { title: "5.10 BeautifulSoup 速查", icon: IconBookOpen, text: "先用表格认识 BeautifulSoup 的常用对象和方法。" },
-  { title: "5.11 HTML 初次解析", icon: IconFileSearch, text: "用 BeautifulSoup 定位商品卡片并提取可见字段。" },
-  { title: "5.12 HTML 字段清洗", icon: IconCode, text: "把 HTML 属性和文本清洗成结构化记录，为后续保存和统计做准备。" },
-  { title: "5.13 正则速查", icon: IconBookOpen, text: "先用表格认识 re 模块的常见函数和匹配写法。" },
-  { title: "5.14 正则提取", icon: IconSearch, text: "从稳定文本中提取编号、评分、评论数、仓库和库存。" },
-  { title: "5.15 URL 与去重", icon: IconRoute, text: "把相对链接转成绝对链接，并用唯一编号去重。" },
-  { title: "5.16 Selenium 速查", icon: IconBookOpen, text: "先用表格认识浏览器对象、定位、等待和关闭。" },
-  { title: "5.17 Selenium 等待", icon: IconMousePointer, text: "用显式等待处理 JavaScript 动态渲染页面。" },
-  { title: "5.18 保存数据", icon: IconArchive, text: "把结构化结果落盘成 CSV 和 JSON，得到可复查、可复用的中间成果。" },
-  { title: "5.19 生成报告", icon: IconBookOpen, text: "在保存后的数据基础上继续汇总，输出真正给人阅读的结果简报。" },
+  { title: "5.1 先搭最小骨架", icon: IconNetwork, text: "只写 URL、参数函数和 main()，先确认请求能发出去。" },
+  { title: "5.2 加响应诊断工具", icon: IconCircleAlert, text: "新增诊断函数，判断返回的是课表页还是登录页。" },
+  { title: "5.3 加浏览器请求头", icon: IconLink, text: "新增 build_headers()，再把请求语句改成携带 headers。" },
+  { title: "5.4 加 Cookie 登录态", icon: IconShield, text: "新增 COOKIE 和 parse_cookie()，让请求带上本人登录态。" },
+  { title: "5.5 合并成 Session", icon: IconRoute, text: "新增 build_session()，让后续所有请求复用 headers 和 Cookie。" },
+  { title: "5.6 封装页面获取", icon: IconArchive, text: "新增 fetch_course_page()，统一请求、检查和解码。" },
+  { title: "5.7 认识 BeautifulSoup", icon: IconBookOpen, text: "拆成 5.7.1-5.7.4，讲清楚它是什么、常用方法、定位方式和表格提取。" },
+  { title: "5.8 观察并定位表格", icon: IconFileSearch, text: "新增表格观察函数，先确认课表在哪个 table 里。" },
+  { title: "5.9 解析表格记录", icon: IconCode, text: "新增 parse_table_records()，把 table 转成字典列表。" },
+  { title: "5.10 固定网页表头字段", icon: IconDatabase, text: "按网页表头字段保存课程记录，不再猜测字段名。" },
+  { title: "5.11 确认分页参数", icon: IconListTree, text: "观察分页源码，确认真正起作用的是 jumpPage。" },
+  { title: "5.12 接入多页循环", icon: IconRoute, text: "在请求参数中加入 jumpPage，再逐页采集去重。" },
+  { title: "5.13 保存最终 CSV", icon: IconArchive, text: "新增 save_csv()，把最终记录写成表格文件。" },
+  { title: "5.14 完整代码下载", icon: IconExternalLink, text: "汇总完整 course_spider.py，并提供下载路径。" },
 ];
 
 const codeSlides = [
   {
     no: "01",
-    label: "requests 第一请求",
-    title: "代码段 1：用 requests 访问 niuniulab 的 JSON 练习接口",
-    code: `import requests  # 导入 requests 模块，用来发送 HTTP 请求
-BASE_URL = "https://niuniulab.com/courses/python/ch07"  # 设置第七章练习资源的根地址
-url = f"{BASE_URL}/sample_books.json"  # 拼接 JSON 练习接口的完整访问地址
-response = requests.get(url, timeout=10)  # 发送 GET 请求，timeout=10 表示最多等待 10 秒
-print("请求地址：", url)  # 打印实际访问的 URL，方便检查路径是否正确
-print("状态码：", response.status_code)  # 打印状态码，200 通常表示请求成功
-print("响应类型：", response.headers.get("Content-Type"))  # 打印 Content-Type，判断返回内容是不是 JSON
-print("响应编码：", response.encoding)  # 打印响应编码，排查中文乱码时很有用
-print("正文预览：", response.text[:200])  # 打印前 200 个字符，先观察数据长什么样`,
-    explain: "这一段展示 Python 也能像浏览器一样访问线上 URL。先不急着解析数据，先观察请求地址、状态码、响应头、编码和正文片段。",
-    key: "requests.get() 负责发送请求，response 是服务器返回给程序的响应对象。",
-    check: "如果状态码不是 200，先把请求地址复制到浏览器打开，再检查网络、路径和服务器是否可访问。",
+    label: "最小骨架",
+    title: "5.1 先搭最小骨架：URL、参数函数和 main()",
+    problem: "刚开始不要写解析、分页和保存。先确认：程序能访问目标地址，并能看到服务器返回了什么。",
+    change: "新建 course_spider.py，写入最小可运行骨架。后续所有小节都在这个文件上增量修改。",
+    code: `# 新建文件：course_spider.py
+# 目标：先让程序能发出一次请求，不处理登录态、不解析表格。
+
+import requests
+
+URL = "https://jw.guc.edu.cn/yethan/CourseAction"
+
+
+def build_params():
+    """返回课表页面需要的查询参数。"""
+    return {
+        "setAction": "queryCourseList",
+        "selectTableType": "History",
+    }
+
+
+def main():
+    response = requests.get(URL, params=build_params(), timeout=10)
+    print("最终请求地址：", response.url)
+    print("状态码：", response.status_code)
+    print("响应类型：", response.headers.get("Content-Type"))
+    print("正文预览：", response.text[:300].replace("\\n", " "))
+
+
+if __name__ == "__main__":
+    main()`,
+    explain: "这是全章实战的起点。此时文件只有一个配置常量、一个参数函数和一个 main() 主干。",
+    key: "先跑通请求，再逐步加能力。不要在第一步就写 Cookie、BeautifulSoup、CSV。",
+    check: "运行后如果正文预览里出现“登录”，这是正常现象，说明下一步要做响应诊断。",
   },
   {
     no: "02",
-    label: "参数与请求头",
-    title: "代码段 2：给请求添加参数和请求头",
-    code: `import requests
+    label: "响应诊断",
+    title: "5.2 增量添加：响应诊断和 HTML 保存",
+    problem: "状态码 200 不一定代表拿到了课表。服务器可能返回的是登录页，所以要把诊断动作固定下来。",
+    change: "添加 4 个诊断函数，并修改 main()。这些函数放在 build_params() 后、main() 前。",
+    code: `# 添加位置：build_params() 函数下面，main() 函数上面
+# 作用：把响应解码、登录页判断、HTML 保存、摘要打印封装起来。
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-url = f"{BASE_URL}/sample_books.json"
+from pathlib import Path  # 添加位置：文件顶部 import 区
 
-params = {"category": "Python", "sort": "rating_desc"}
-headers = {
-    "User-Agent": "Mozilla/5.0 (Python teaching crawler)",
-    "Accept": "application/json,text/html;q=0.9,*/*;q=0.8",
-}
 
-response = requests.get(url, params=params, headers=headers, timeout=10)
-print("最终请求地址：", response.url)
-print("状态码：", response.status_code)
-print("服务器返回类型：", response.headers.get("Content-Type"))`,
-    explain: "真实请求经常不只是一个 URL。params 会被拼到查询字符串里，headers 用来说明客户端身份和可接受的数据类型。",
-    key: "params 负责查询参数，headers 负责请求说明。它们是 requests 中最常用的两个参数。",
-    check: "打印 response.url 可以确认参数是否真的拼进了 URL。",
+def decode_response(response):
+    """根据网页内容自动判断编码，返回解码后的 HTML。"""
+    response.encoding = response.apparent_encoding
+    return response.text
+
+
+def is_login_page(html):
+    """粗略判断当前 HTML 是否仍然是登录页。"""
+    preview = html[:1000].lower()
+    return "登录" in html[:1000] or "login" in preview
+
+
+def save_html(html, filename):
+    """把响应正文保存下来，方便用浏览器和编辑器检查。"""
+    Path(filename).write_text(html, encoding="utf-8")
+
+
+def show_response_summary(response, html):
+    print("最终请求地址：", response.url)
+    print("状态码：", response.status_code)
+    print("响应编码：", response.encoding)
+    print("是否像登录页：", is_login_page(html))
+    print("table 标签数量：", html.lower().count("<table"))
+
+
+# 修改位置：main() 函数内部
+# - print("响应类型：", response.headers.get("Content-Type"))
+# - print("正文预览：", response.text[:300].replace("\\n", " "))
+# + html = decode_response(response)
+# + show_response_summary(response, html)
+# + save_html(html, "debug_response.html")
+# + print("已保存 debug_response.html")`,
+    explain: "这一页只新增诊断能力。以后不再只看状态码，而是统一判断登录页、table 数量，并保存 HTML 作为证据。",
+    key: "把诊断动作封装成函数，可以避免每一节都重复写一堆 print。",
+    check: "打开 debug_response.html。如果仍是登录页，说明下一步要改善请求条件。",
   },
   {
     no: "03",
-    label: "Session 会话",
-    title: "代码段 3：用 Session 复用请求设置",
-    code: `import requests
+    label: "请求头",
+    title: "5.3 增量添加：build_headers() 和 headers 参数",
+    problem: "普通 Python 请求不像浏览器。先补上常见浏览器请求头，但这一节仍然不处理登录态。",
+    change: "新增 build_headers()；然后把 main() 里的 requests.get() 改成携带 headers。",
+    code: `# 添加位置：build_params() 下面，诊断函数上面
+# 作用：集中管理普通请求头。这里不要放 Cookie。
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
 
-session = requests.Session()
-session.headers.update({
-    "User-Agent": "Mozilla/5.0 (Python teaching crawler)",
-    "Accept": "application/json,text/html;q=0.9,*/*;q=0.8",
-})
+def build_headers():
+    """返回普通浏览器请求头。这里还不包含 Cookie。"""
+    return {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/147.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.9",
+    }
 
-html_response = session.get(f"{BASE_URL}/books_static.html", timeout=10)
-json_response = session.get(f"{BASE_URL}/sample_books.json", timeout=10)
 
-print("HTML 状态码：", html_response.status_code)
-print("JSON 状态码：", json_response.status_code)
-print("当前 User-Agent：", session.headers["User-Agent"])`,
-    explain: "Session 可以在多次请求之间复用 headers、cookies 和底层连接。真实项目中，连续访问列表页、详情页、接口时经常使用它。",
-    key: "requests.Session() 适合组织一组相关请求，比每次都重新写 headers 更清晰。",
-    check: "Session 不是绕过登录限制的工具；涉及登录态和 Cookie 时必须确认来源和用途合法。",
+# 修改位置：main() 里的请求语句
+# 为什么改：让请求携带普通浏览器请求头。
+# - response = requests.get(URL, params=build_params(), timeout=10)
+# + response = requests.get(
+# +     URL,
+# +     params=build_params(),
+# +     headers=build_headers(),
+# +     timeout=10,
+# + )`,
+    explain: "build_headers() 是一个小函数，但它把请求头和主流程分离开了。后续 Session 也会复用它。",
+    key: "headers 只能说明客户端特征；如果仍然是登录页，问题通常是缺少 Cookie。",
+    check: "运行后如果还是登录页，不要继续加解析代码，进入 5.4 添加登录态。",
   },
   {
     no: "04",
-    label: "POST 请求",
-    title: "代码段 4：构造一个 POST JSON 请求",
-    code: `import requests
+    label: "Cookie",
+    title: "5.4 增量添加：COOKIE 和 parse_cookie()",
+    problem: "教务系统需要登录态。直接把 Cookie 硬塞进 headers 容易复制错格式，所以先封装解析函数。",
+    change: "在常量区新增 COOKIE；在函数区新增 parse_cookie()；修改请求语句，使用 cookies=parse_cookie(COOKIE)。",
+    code: `# 添加位置：URL 常量下面
+# 注意：只粘贴本人浏览器里的 Cookie，不要提交到仓库或截图。
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-post_url = f"{BASE_URL}/search_demo.html"
+COOKIE = ""  # 可以粘贴纯 Cookie，也可以粘贴 Cookie: 开头的一整行。
 
-payload = {
-    "keyword": "Python",
-    "max_price": 80,
-    "sort": "rating_desc",
-}
-headers = {
-    "User-Agent": "Mozilla/5.0 (Python teaching crawler)",
-    "Accept": "application/json",
-}
 
-request = requests.Request(
-    method="POST",
-    url=post_url,
-    json=payload,
-    headers=headers,
-)
-prepared = request.prepare()
+# 添加位置：build_headers() 下面
+# 作用：把浏览器复制出来的 Cookie 字符串拆成 requests 可用的字典。
 
-print("请求方法：", prepared.method)
-print("请求地址：", prepared.url)
-print("Content-Type：", prepared.headers.get("Content-Type"))
-print("请求体：", prepared.body.decode("utf-8"))`,
-    explain: "GET 常用于读取数据，POST 常用于提交表单或 JSON。练习站是静态站点，不能真正接收 POST，所以这里先构造请求并观察它会被如何发送。",
-    key: "requests.Request(..., json=payload) 会把字典序列化为 JSON，并自动设置合适的 Content-Type。",
-    check: "真实 POST 接口需要服务端支持和明确授权；静态 HTML 页面不能像后端接口一样接收并处理 POST 数据。",
+
+def parse_cookie(raw_cookie):
+    raw_cookie = raw_cookie.strip()
+    if not raw_cookie:
+        raise SystemExit("请先填写 COOKIE，例如 username=...; sl-session=...; JSESSIONID=...")
+
+    lines = [line.strip() for line in raw_cookie.replace("\\r", "\\n").split("\\n")]
+    cookie_lines = [line for line in lines if line.lower().startswith("cookie:")]
+    if cookie_lines:
+        raw_cookie = cookie_lines[-1].split(":", 1)[1].strip()
+    elif raw_cookie.lower().startswith("cookie:"):
+        raw_cookie = raw_cookie.split(":", 1)[1].strip()
+
+    cookies = {}
+    for item in raw_cookie.split(";"):
+        item = item.strip()
+        if item and "=" in item:
+            name, value = item.split("=", 1)
+            cookies[name.strip()] = value.strip()
+
+    required = ["username", "sl-session", "JSESSIONID"]
+    missing = [name for name in required if name not in cookies]
+    if missing:
+        raise SystemExit(f"Cookie 缺少关键字段：{missing}")
+    return cookies
+
+
+# 修改位置：main() 里的 requests.get(...)
+# 为什么改：Cookie 由 requests 的 cookies 参数发送，避免手写 Cookie header 出错。
+# - headers=build_headers(),
+# + headers=build_headers(),
+# + cookies=parse_cookie(COOKIE),
+
+# 添加位置：main() 打印诊断时，可以临时加一行，只打印字段名不打印值。
+# + print("Cookie 字段：", ", ".join(parse_cookie(COOKIE).keys()))`,
+    explain: "这一节只解决登录态格式。parse_cookie() 支持纯 Cookie，也支持从浏览器复制出的 Cookie: 请求头行。",
+    key: "Cookie 值不能打印给别人看。课堂上只打印字段名，用来确认格式是否正确。",
+    check: "如果字段齐全但仍然是登录页，通常是 Cookie 过期，或复制的不是课表页请求对应的 Cookie。",
   },
   {
     no: "05",
-    label: "请求异常处理",
-    title: "代码段 5：请求失败时及时停下并给出清楚提示",
-    code: `import requests
+    label: "Session",
+    title: "5.5 增量添加：build_session()，简化主流程",
+    problem: "后面会反复请求页面。每次都传 headers 和 cookies 会让 main() 越来越乱。",
+    change: "新增 build_session()；把 main() 里的 requests.get() 改成 session.get()。",
+    code: `# 添加位置：parse_cookie() 下面
+# 作用：创建一个已经带好 headers 和 Cookie 的会话对象。
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
 
-def fetch_json(path):
-    url = f"{BASE_URL}/{path}"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.Timeout:
-        print("请求超时：", url)
-    except requests.exceptions.HTTPError as error:
-        print("状态码错误：", error)
-    except requests.exceptions.RequestException as error:
-        print("网络请求失败：", error)
-    except ValueError:
-        print("响应内容不是合法 JSON：", url)
-    return None
+def build_session(cookie):
+    """创建一个带公共 headers 和登录 Cookie 的会话。"""
+    session = requests.Session()
+    session.headers.update(build_headers())
+    session.cookies.update(parse_cookie(cookie))
+    return session
 
-data = fetch_json("sample_books.json")
-if data:
-    print("接口名称：", data["api"]["name"])`,
-    explain: "这一页只解决一个问题：请求失败时怎么办。网络请求可能超时、断网、返回错误状态码，也可能返回的不是 JSON，程序必须先停下来并说明原因。",
-    key: "raise_for_status() 会把 4xx、5xx 状态码转成异常，便于把“失败请求”和“正常解析”分开处理。",
-    check: "不要在请求失败后继续进入数据提取环节，否则后面会出现更难理解的 KeyError 或 AttributeError。",
+
+# 修改位置：main() 开头和请求语句
+# 为什么改：后续所有请求都复用同一个 session。
+# - response = requests.get(
+# -     URL,
+# -     params=build_params(),
+# -     headers=build_headers(),
+# -     cookies=parse_cookie(COOKIE),
+# -     timeout=10,
+# - )
+# + session = build_session(COOKIE)
+# + response = session.get(URL, params=build_params(), timeout=10)`,
+    explain: "Session 把“这是一组相关请求”表达出来。后面分页时，不需要重复关心 headers 和 Cookie。",
+    key: "主干开始变清楚：创建 session，然后用 session 发请求。",
+    check: "运行结果应和 5.4 一致。如果突然变回登录页，检查 build_session() 是否调用了 parse_cookie(COOKIE)。",
   },
   {
     no: "06",
-    label: "日志限速重试",
-    title: "代码段 6：加入日志、访问间隔和有限重试",
-    code: `import logging
-import time
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+    label: "页面获取",
+    title: "5.6 增量添加：fetch_course_page()",
+    problem: "请求课表页后，每次都要 raise_for_status、设置编码、返回 HTML。这个动作可以封装。",
+    change: "新增 fetch_course_page()；main() 不再直接处理 response，而是拿到 html。",
+    code: `# 添加位置：build_session() 下面
+# 作用：统一完成请求、状态检查、编码设置，并返回 HTML 字符串。
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-session = requests.Session()
-retry = Retry(
-    total=3,
-    backoff_factor=0.8,
-    status_forcelist=[429, 500, 502, 503, 504],
-    allowed_methods=["GET"],
-)
-adapter = HTTPAdapter(max_retries=retry)
-session.mount("https://", adapter)
-session.mount("http://", adapter)
+def fetch_course_page(session, params):
+    """请求课表页面，返回解码后的 HTML。"""
+    response = session.get(URL, params=params, timeout=10)
+    response.raise_for_status()
+    response.encoding = response.apparent_encoding
+    return response.text
 
-urls = [
-    f"{BASE_URL}/sample_books.json",
-    f"{BASE_URL}/books_static.html",
-    f"{BASE_URL}/search_demo.html",
-]
 
-for url in urls:
-    logging.info("开始访问：%s", url)
-    response = session.get(url, timeout=10)
-    logging.info("完成访问：%s 状态码=%s 大小=%s", url, response.status_code, len(response.content))
-    time.sleep(1)`,
-    explain: "这一页处理的是另一个问题：请求已经会发了，怎样让访问更稳、更有礼貌。日志用于复盘，sleep 控制节奏，有限重试只处理短暂抖动。",
-    key: "Retry 解决的是“偶发失败再试一次”，不是“请求失败后一直硬冲”。",
-    check: "429 表示访问过快时，应降低频率，而不是加大并发或无限重试。",
+# 修改位置：main() 中获取 response/html 的部分
+# 为什么改：main() 只描述流程，把请求细节交给 fetch_course_page()。
+# - response = session.get(URL, params=build_params(), timeout=10)
+# - html = decode_response(response)
+# + html = fetch_course_page(session, build_params())
+
+# 保留位置：main() 中继续保存和检查 HTML
+# + save_html(html, "course_page.html")
+# + print("是否像登录页：", is_login_page(html))
+# + print("table 标签数量：", html.lower().count("<table"))`,
+    explain: "fetch_course_page() 以后会被分页循环反复调用，所以要尽早封装。",
+    key: "main() 现在更像流程表，而不是所有细节的堆叠。",
+    check: "如果 table 标签数量为 0，先确认是否仍是登录页，不要急着写 BeautifulSoup。",
   },
   {
     no: "07",
-    label: "JSON 结构观察",
-    title: "代码段 7：先观察 JSON 结构，再写提取规则",
-    code: `import pprint
-import requests
+    displayNo: "5.7",
+    label: "认识 BeautifulSoup",
+    title: "5.7 知识补充：BeautifulSoup 解决什么问题",
+    problem: "前面已经能拿到 HTML，但 HTML 不是表格文件，也不是 Python 字典。程序需要一个工具把网页源码变成可查找、可遍历的数据结构。",
+    change: "本节是进入真实课表解析前的知识补充，不修改 course_spider.py。先理解 BeautifulSoup 是什么，再学习常用方法和表格提取套路。",
+    code: `# 5.7 是 BeautifulSoup 入门，不急着修改主项目代码。
+# 这一组小节按四步学习：
+#
+# 5.7.1 先理解：BeautifulSoup 把 HTML 解析成标签树。
+# 5.7.2 再记方法：find、find_all、select、get、get_text。
+# 5.7.3 然后练定位：按标签、属性、CSS 选择器找到目标元素。
+# 5.7.4 最后做转换：把 HTML 表格转换成字典列表。
+#
+# 学完这四步，再进入 5.8 观察真实课表页面中的 table。`,
+    explain: "BeautifulSoup 不是负责下载网页的工具，下载由 requests 完成。它负责解析已经拿到的 HTML，让程序能像查字典和列表一样查找页面元素。",
+    key: "requests 负责获取 HTML；BeautifulSoup 负责解析 HTML；CSV 负责保存解析后的结构化记录。",
+    check: "能说清楚三句话再往下走：HTML 是标签结构；BeautifulSoup 能查标签；最终要把标签内容整理成字典列表。",
+    notes: [
+      "requests 负责把网页拿回来；BeautifulSoup 负责读懂网页结构。",
+      "这一组小节先补基础知识，暂时不改主项目，避免一边学库一边排查真实页面。",
+    ],
+  },
+  {
+    no: "07-1",
+    displayNo: "5.7.1",
+    outlineLevel: 3,
+    label: "BS4 是什么",
+    title: "5.7.1 BeautifulSoup 是什么：把 HTML 变成可查询的结构",
+    problem: "网页不是一整段普通文字。HTML 由一层一层标签组成，直接用字符串切割很容易切错。",
+    change: "本页先不修改 course_spider.py。先用一个小网页理解：BeautifulSoup 会把 HTML 字符串解析成可以查找、遍历、取文字的对象。",
+    code: `# 本页是知识补充：先不要修改 course_spider.py
+# 目标：理解 BeautifulSoup 解决的核心问题。
+# 如果运行时提示 No module named 'bs4'，先执行：
+# python -m pip install beautifulsoup4
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-data = requests.get(f"{BASE_URL}/sample_books.json", timeout=10).json()
+from bs4 import BeautifulSoup
 
-print("顶层字段：", data.keys())
-print("分页信息：", data["pagination"])
-print("可用分类：", data["filters"]["categories"])
+html = """
+<html>
+  <body>
+    <h1>课表</h1>
+    <table id="courses" class="data-table">
+      <tr><th>课程</th><th>教师</th></tr>
+      <tr><td>Python程序设计</td><td>张老师</td></tr>
+    </table>
+  </body>
+</html>
+"""
 
-first_book = data["books"][0]
-print("第一本书的字段：", first_book.keys())
-pprint.pprint(first_book, sort_dicts=False)`,
-    explain: "JSON 解析最容易出错的地方是没看清层级。先观察顶层字段、分页信息和第一条记录，再决定怎么取值。",
-    key: "字典用 key 取值，列表用下标取值。复杂 JSON 通常是字典和列表的嵌套。",
-    check: "遇到 KeyError 时，先打印 keys()，不要凭感觉猜字段名。",
+soup = BeautifulSoup(html, "html.parser")
+
+print(type(soup))                 # soup 是整个 HTML 文档的解析对象
+print(soup.h1)                    # 可以像访问属性一样找到第一个 h1 标签
+print(soup.h1.get_text(strip=True))
+
+table = soup.table                # 找到第一个 table 标签
+print(table.get("id"))            # 读取标签属性
+print(table.get("class"))`,
+    explain: "BeautifulSoup 是 HTML 解析库。它把网页源码转换成一棵标签树，程序就可以按标签名、属性、层级和选择器去找内容。",
+    key: "soup 表示整份 HTML 文档；Tag 表示一个标签；标签可以继续 find、find_all，也可以 get_text() 取文字。",
+    check: "运行后应看到 soup 类型、h1 标签、课表标题、table 的 id 和 class。先理解结构，再进入方法速查。",
+    notes: [
+      "先把 HTML 看成一棵树：soup 是整棵树，table、tr、td 是树上的节点。",
+      "能取文字、取属性、继续向下找标签，就具备了解析课表表格的基础。",
+    ],
+  },
+  {
+    no: "07-2",
+    displayNo: "5.7.2",
+    outlineLevel: 3,
+    kind: "table",
+    label: "BS4 方法速查",
+    title: "5.7.2 BeautifulSoup 常用对象和方法速查",
+    problem: "学生第一次接触 BeautifulSoup 时，最容易把 find、find_all、select、get_text 混在一起。",
+    change: "本页用表格整理常用写法。先记住“解析、定位、取值、取文本”四类动作，后面解析课表时按需选择。",
+    tableRows: [
+      { name: 'BeautifulSoup(html, "html.parser")', usage: "把 HTML 字符串解析成 soup 对象", example: 'soup = BeautifulSoup(html, "html.parser")' },
+      { name: 'soup.find("table")', usage: "找到第一个匹配的标签", example: 'table = soup.find("table")' },
+      { name: 'soup.find_all("tr")', usage: "找到所有匹配的标签，返回列表", example: 'rows = table.find_all("tr")' },
+      { name: 'tag.find("td")', usage: "在某个标签内部继续找第一个子标签", example: 'first_cell = row.find("td")' },
+      { name: 'tag.find_all(["th", "td"])', usage: "一次查找多种标签", example: 'cells = row.find_all(["th", "td"])' },
+      { name: 'tag.get_text(strip=True)', usage: "提取标签内部文字，并去掉两边空白", example: 'title = cell.get_text(strip=True)' },
+      { name: 'tag.get("href", "")', usage: "读取标签属性，属性不存在时返回默认值", example: 'href = link.get("href", "")' },
+      { name: 'tag["href"]', usage: "读取一定存在的属性；不存在会报错", example: 'href = link["href"]' },
+      { name: 'soup.select("table tr")', usage: "用 CSS 选择器找到所有匹配元素", example: 'rows = soup.select("table tr")' },
+      { name: 'soup.select_one("#courses")', usage: "用 CSS 选择器找到第一个匹配元素", example: 'table = soup.select_one("#courses")' },
+    ],
+    explain: "BeautifulSoup 的核心动作很少：先解析 HTML，再定位标签，最后从标签中取属性或文字。复杂页面只是这些动作的组合。",
+    key: "find 找一个，find_all 找一组；get 取属性，get_text 取文本；select 使用 CSS 选择器。",
+    check: "读表时重点区分：返回单个 Tag 的方法可以继续点方法；返回列表的方法通常要用 for 循环逐个处理。",
+    notes: [
+      "查找用 find、find_all、select；取值用 get、get_text。表中方法按这两类记。",
+      "返回列表的方法需要循环处理，返回单个标签的方法可以继续向下查找。",
+    ],
+  },
+  {
+    no: "07-3",
+    displayNo: "5.7.3",
+    outlineLevel: 3,
+    label: "定位元素",
+    title: "5.7.3 怎么用：按标签、属性和 CSS 选择器定位元素",
+    problem: "真实网页里标签很多。只写 find('table') 可能拿到第一个无关表格，所以要学会按 id、class 和层级缩小范围。",
+    change: "本页继续不修改 course_spider.py。用同一段 HTML 演示三种定位方式：标签名、属性条件、CSS 选择器。",
+    code: `# 本页是知识补充：练习定位元素的不同写法。
+
+from bs4 import BeautifulSoup
+
+html = """
+<table id="courses" class="data-table">
+  <tr class="header">
+    <th>课程</th><th>教师</th><th>地点</th>
+  </tr>
+  <tr class="course-row">
+    <td class="name">Python程序设计</td>
+    <td class="teacher">张老师</td>
+    <td class="room">A101</td>
+  </tr>
+  <tr class="course-row">
+    <td class="name">大学英语</td>
+    <td class="teacher">李老师</td>
+    <td class="room">B203</td>
+  </tr>
+</table>
+"""
+
+soup = BeautifulSoup(html, "html.parser")
+
+table1 = soup.find("table")                         # 按标签名找
+table2 = soup.find("table", id="courses")           # 按属性找
+table3 = soup.select_one("#courses")                # CSS 选择器：# 表示 id
+
+print(table1 is table2 is table3)
+
+rows = soup.select("#courses tr.course-row")        # 只找课程数据行
+for row in rows:
+    name = row.select_one(".name").get_text(strip=True)
+    teacher = row.select_one(".teacher").get_text(strip=True)
+    room = row.select_one(".room").get_text(strip=True)
+    print(name, teacher, room)`,
+    explain: "定位元素时不要只依赖标签名。可以用 id、class、层级关系逐步缩小范围，让代码更接近“我要找课表里的课程行”。",
+    key: "#courses 表示 id 为 courses 的元素；.course-row 表示 class 包含 course-row 的元素；空格表示后代层级。",
+    check: "运行后第一行应为 True，后面打印两条课程。能解释每个选择器的含义，才算真正会用。",
+    notes: [
+      "真实网页先缩小范围：优先用 id，其次 class，再用层级选择器。",
+      "不要直接解析全页面所有 td，否则容易把导航、按钮、分页文字混进课程数据。",
+    ],
+  },
+  {
+    no: "07-4",
+    displayNo: "5.7.4",
+    outlineLevel: 3,
+    label: "提取表格",
+    title: "5.7.4 怎么用：把 HTML 表格提取成字典列表",
+    problem: "课程表最终不能只打印一堆标签。程序需要把表头和单元格对应起来，变成后续能保存的字典列表。",
+    change: "本页仍不修改 course_spider.py。先用小表格演示“表头 + 数据行 = 字典列表”的转换过程，为 5.8 和 5.9 做准备。",
+    code: `# 本页是知识补充：理解表格解析的基本套路。
+
+from bs4 import BeautifulSoup
+
+html = """
+<table>
+  <tr><th>课程</th><th>教师</th><th>地点</th></tr>
+  <tr><td>Python程序设计</td><td>张老师</td><td>A101</td></tr>
+  <tr><td>大学英语</td><td>李老师</td><td>B203</td></tr>
+</table>
+"""
+
+soup = BeautifulSoup(html, "html.parser")
+table = soup.find("table")
+rows = table.find_all("tr")
+
+headers = [cell.get_text(strip=True) for cell in rows[0].find_all(["th", "td"])]
+print("表头：", headers)
+
+records = []
+for row in rows[1:]:
+    cells = row.find_all("td")
+    values = [cell.get_text(strip=True) for cell in cells]
+    record = dict(zip(headers, values))
+    records.append(record)
+
+for record in records:
+    print(record)`,
+    explain: "表格解析通常分三步：先取表头，再遍历数据行，最后把表头和单元格值配对成字典。",
+    key: "rows[0] 是表头行，rows[1:] 是数据行；zip(headers, values) 可以把两组列表按位置配对。",
+    check: "运行后应得到两个字典，每个字典都有课程、教师、地点三个字段。下一节再把这个套路迁移到真实课表页面。",
+    notes: [
+      "课表解析的目标不是打印标签，而是得到字典列表。",
+      "表头决定字典的 key，数据行决定 value；后面的字段清洗和 CSV 保存都依赖这个结构。",
+    ],
   },
   {
     no: "08",
-    label: "分页抓取",
-    title: "代码段 8：按分页思想组织多页采集",
-    code: `import requests
+    label: "表格定位",
+    title: "5.8 增量添加：观察并定位课表 table",
+    problem: "页面可能有多个 table。解析前要知道哪一个最像课表。",
+    change: "新增 BeautifulSoup 导入、describe_tables() 和 find_course_table()；main() 临时改为读取本地 HTML 做结构观察。",
+    code: `# 添加位置：文件顶部 import 区
+from bs4 import BeautifulSoup
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
 
-def fetch_page(page):
-    response = requests.get(
-        f"{BASE_URL}/sample_books.json",
-        params={"page": page},
-        timeout=10,
-    )
-    response.raise_for_status()
-    return response.json()
+# 添加位置：工具函数区
+# 作用：观察页面中有哪些表格，以及选择最可能的课表表格。
 
-all_books = []
-page = 1
 
-while True:
-    data = fetch_page(page)
-    page_info = data["pagination"]
-    all_books.extend(data["books"])
+def describe_tables(html):
+    soup = BeautifulSoup(html, "html.parser")
+    tables = soup.find_all("table")
+    print("表格数量：", len(tables))
+    for index, table in enumerate(tables, start=1):
+        rows = table.find_all("tr")
+        preview = table.get_text(" ", strip=True)[:120]
+        print(f"第 {index} 个表格：{len(rows)} 行")
+        print("预览：", preview)
+        print("-" * 40)
 
-    print(f"已读取第 {page_info['page']} 页，累计 {len(all_books)} 条")
-    if not page_info["has_next"]:
-        break
-    page += 1
 
-print("最终采集数量：", len(all_books))`,
-    explain: "很多接口不是一次返回所有数据，而是分页返回。即使本练习接口只有一页，也要掌握 has_next、page、next_url 这类分页思想。",
-    key: "分页抓取的核心是循环请求、累计结果、判断是否还有下一页。",
-    check: "真实分页中要设置最大页数或最大记录数，避免因为接口异常进入无限循环。",
+def find_course_table(html):
+    """返回行数最多的 table，作为课表候选表格。"""
+    soup = BeautifulSoup(html, "html.parser")
+    tables = soup.find_all("table")
+    if not tables:
+        return None
+    return max(tables, key=lambda table: len(table.find_all("tr")))
+
+
+# 修改位置：main()，本节先读取上一步保存的 course_page.html 做观察。
+# - html = fetch_course_page(session, build_params())
+# + html = Path("course_page.html").read_text(encoding="utf-8")
+# + describe_tables(html)
+# + table = find_course_table(html)
+# + print("是否找到候选课表：", table is not None)`,
+    explain: "这一节故意不请求网站，而是读取本地 HTML。学生可以反复观察结构，不会频繁访问服务器。",
+    key: "先观察，再解析。BeautifulSoup 的第一步不是提字段，而是定位结构。",
+    check: "如果表格数量为 0，说明 course_page.html 不是课表页，要回到 Cookie 登录态步骤。",
   },
   {
     no: "09",
-    label: "JSON 筛选统计",
-    title: "代码段 9：把 JSON 整理成记录列表，再筛选、排序和统计",
-    code: `import requests
+    label: "表格解析",
+    title: "5.9 增量添加：parse_table_records()",
+    problem: "找到 table 后，还要把 tr、th、td 转成 Python 的字典列表。",
+    change: "新增 clean_text()、clean_header() 和 parse_table_records()；main() 打印前 5 条原始记录。",
+    code: `# 添加位置：find_course_table() 下面
+# 作用：清洗表头和单元格文本，并把 table 解析成字典列表。
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-data = requests.get(f"{BASE_URL}/sample_books.json", timeout=10).json()
 
-rows = []
-for book in data["books"]:
-    rows.append({
-        "id": book["id"],
-        "title": book["title"],
-        "category": book["category"],
-        "price": book["pricing"]["sale_price"],
-        "rating": book["rating"]["score"],
-        "stock": book["stock"]["quantity"],
-    })
+def clean_text(text):
+    """压缩多余空白，让单元格文本更干净。"""
+    return " ".join(text.split())
 
-available = [row for row in rows if row["stock"] > 0]
-top_books = sorted(available, key=lambda row: row["rating"], reverse=True)[:5]
 
-print("有库存图书数量：", len(available))
-for row in top_books:
-    print(row["title"], row["category"], row["price"], row["rating"])`,
-    explain: "这一页面对的是结构化接口数据。目标不是清洗网页文本，而是把嵌套 JSON 摊平成统一的 rows 列表，方便后续筛选、排序和统计。",
-    key: "把复杂 JSON 变成统一记录列表，是接口采集走向分析和落盘的关键中间层。",
-    check: "价格、评分、库存应当是数字类型，否则后续排序和统计会出错。",
+def clean_header(text):
+    """网页表头里有换行时，去掉空白，保留原始字段名称。"""
+    return "".join(text.split())
+
+
+def parse_table_records(table):
+    """把 table 解析成字典列表。"""
+    rows = table.find_all("tr")
+    if not rows:
+        return []
+
+    headers = [clean_header(cell.get_text(" ", strip=True)) for cell in rows[0].find_all(["th", "td"])]
+    records = []
+    for row in rows[1:]:
+        values = [clean_text(cell.get_text(" ", strip=True)) for cell in row.find_all(["td", "th"])]
+        if not any(values):
+            continue
+
+        record = {}
+        for index, value in enumerate(values):
+            key = headers[index] if index < len(headers) and headers[index] else f"字段{index + 1}"
+            record[key] = value
+        records.append(record)
+    return records
+
+
+# 修改位置：main() 的表格观察后面
+# + records = parse_table_records(table) if table else []
+# + print("提取记录数：", len(records))
+# + for record in records[:5]:
+# +     print(record)`,
+    explain: "parse_table_records() 是从 HTML 结构到数据结构的转换层。表头中的换行会被去掉，所以“课程 代码”会保存成“课程代码”。",
+    key: "每一行变成一个 dict，网页表头是 key，单元格是 value。",
+    check: "如果字段名很奇怪，说明表头识别不准，需要根据真实 HTML 调整解析规则。",
   },
   {
     no: "10",
-    kind: "table",
-    label: "BeautifulSoup 速查",
-    title: "工具速查：BeautifulSoup 常用函数和对象",
-    tableRows: [
-      { name: "BeautifulSoup(html, \"html.parser\")", usage: "把 HTML 字符串解析成可查询的对象", example: "soup = BeautifulSoup(html, \"html.parser\")" },
-      { name: "soup.select(css)", usage: "用 CSS 选择器查找一组节点", example: "soup.select(\".product-card\")" },
-      { name: "node.select_one(css)", usage: "在当前节点内部查找第一个匹配节点", example: "card.select_one(\".product-title\")" },
-      { name: "node.get_text(strip=True)", usage: "提取节点中的可见文本，并去掉首尾空白", example: "title.get_text(strip=True)" },
-      { name: "node[\"属性名\"]", usage: "读取标签属性，常用于 href、src、data-*", example: "card[\"data-sku\"]" },
-      { name: "find() / find_all()", usage: "按标签名或属性查找节点", example: "soup.find_all(\"article\")" },
-    ],
-    explain: "BeautifulSoup 的核心是把 HTML 当成树结构来查找。先定位大容器，再在容器内部提取字段。",
-    key: "select、select_one、get_text、读取属性，是本章最常用的四类操作。",
-    check: "如果选择器没有结果，先确认目标文字是否存在于 response.text 中。",
+    label: "网页表头字段",
+    title: "5.10 增量添加：按网页表头固定保存字段",
+    problem: "课表网页已经给出了明确表头，不应该再用关键词猜字段名。保存结果应和网页表头一致，便于学生核对。",
+    change: "新增 COURSE_FIELDS 和 normalize_course()；normalize_course() 只按网页表头补齐字段，不改名、不猜测。",
+    code: `# 添加位置：parse_table_records() 下面
+# 作用：按网页表头顺序固定输出字段。
+
+COURSE_FIELDS = [
+    "序号",
+    "选课编号",
+    "课程代码",
+    "课程名称",
+    "教学班号",
+    "学分",
+    "性质",
+    "开课院系",
+    "教师",
+    "职称",
+    "时间地点",
+    "优选",
+    "状态",
+    "校区",
+    "选课名单",
+    "学期",
+]
+
+
+def normalize_course(record):
+    """按网页课表表头保存字段，不猜测、不改名。"""
+    return {field: record.get(field, "") for field in COURSE_FIELDS}
+
+
+# 修改位置：main() 中 records 打印后面
+# - for record in records[:5]:
+# -     print(record)
+# + courses = [normalize_course(record) for record in records]
+# + print("清洗后记录数：", len(courses))
+# + for course in courses[:5]:
+# +     print(course)`,
+    explain: "这一节不再创造新的字段名，而是严格使用网页表头。缺失字段统一补空字符串，CSV 的列顺序也由 COURSE_FIELDS 控制。",
+    key: "网页表头就是最终字段名。normalize_course() 只做字段补齐，不做字段猜测。",
+    check: "打印 courses[0].keys()，应看到序号、选课编号、课程代码、课程名称、教学班号等网页表头字段。",
   },
   {
     no: "11",
-    label: "BeautifulSoup",
-    title: "代码段 11：用 BeautifulSoup 从 HTML 卡片里提取图书信息",
-    code: `import requests
-from bs4 import BeautifulSoup
+    label: "分页参数",
+    title: "5.11 观察分页源码：确认 jumpPage 是页码参数",
+    problem: "第一页只能拿到前 50 条课程。要抓多页，先确认网页换页时到底给服务器传了什么参数。",
+    change: "本节不新增函数，只观察 course_page.html 中的分页源码，把结论写下来：页码参数是 jumpPage。",
+    code: `# 本节不修改 course_spider.py，只观察 course_page.html。
+# 在 course_page.html 中搜索 gotoPage 和 jumpPage，可以看到：
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-html_url = f"{BASE_URL}/books_static.html"
-html = requests.get(html_url, timeout=10).text
-soup = BeautifulSoup(html, "html.parser")
+# 1. 分页链接不是普通 URL，而是 JavaScript 调用。
+# <a href="javascript:gotoPage(2)">下一页</a>
 
-cards = soup.select(".product-card")
-print("商品卡片数量：", len(cards))
+# 2. 页面里有一个叫 jumpPage 的页码字段。
+# <select name="jumpPage"> ... </select>
 
-for card in cards[:5]:
-    sku = card["data-sku"]
-    category = card["data-category"]
-    title = card.select_one(".product-title").get_text(strip=True)
-    price = card.select_one(".price strong").get_text(strip=True)
-    coupon = card.select_one(".coupon").get_text(strip=True)
-    print(sku, category, title, price, coupon)`,
-    explain: "BeautifulSoup 适合处理结构清晰的 HTML。先定位商品卡片，再在每个卡片内部提取字段。",
-    key: "select() 返回一组节点，select_one() 返回第一个匹配节点。",
-    check: "如果 cards 数量为 0，先确认目标内容是否真的存在于 HTML 源码中。",
+# 3. gotoPage() 做的事情很简单：把 jumpPage 改成目标页码，然后提交表单。
+# function gotoPage(pagenum){
+#     document.pageForm.jumpPage.value = pagenum;
+#     document.pageForm.submit();
+# }
+
+# 结论：
+# Python 不需要执行 JavaScript。
+# 下一节只要在请求参数里加入 jumpPage=2、jumpPage=3，就可以尝试切换页码。`,
+    explain: "这一节的目标是降低不确定性：不用写通用搜索函数，只通过源码观察确认当前网站的分页参数。",
+    key: "看到 javascript:gotoPage(n) 时，重点不是执行 JavaScript，而是找到它最终修改的表单字段。这里就是 jumpPage。",
+    check: "能在 HTML 里找到 gotoPage(pagenum) 和 jumpPage，就可以进入 5.12 写最简单的翻页请求。",
   },
   {
     no: "12",
-    label: "HTML 字段清洗",
-    title: "代码段 12：把 HTML 属性和文本清洗成结构化记录",
-    code: `import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+    label: "多页循环",
+    title: "5.12 增量添加：用 jumpPage 实现多页采集",
+    problem: "已经知道 jumpPage 是页码参数。现在不要把代码写复杂，先把页码参数加到请求里，验证第 1 页和第 2 页是否不同。",
+    change: "新增 MAX_PAGE、build_page_params()、make_course_key()、fetch_all_courses()；main() 改为调用多页采集。",
+    code: `# 添加位置：常量区
+MAX_PAGE = 2  # 先采集 2 页验证逻辑；确认无误后再改大。
 
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-html_url = f"{BASE_URL}/books_static.html"
-soup = BeautifulSoup(requests.get(html_url, timeout=10).text, "html.parser")
 
-records = []
-for card in soup.select(".product-card"):
-    record = {
-        "id": card["data-sku"],
-        "title": card.select_one(".product-title").get_text(strip=True),
-        "category": card["data-category"],
-        "price": float(card["data-price"]),
-        "rating": float(card["data-rating"]),
-        "stock": int(card["data-stock"]),
-        "detail_url": urljoin(html_url, f"#{card['id']}"),
-    }
-    records.append(record)
+# 添加位置：build_params() 下面
 
-for record in records[:5]:
-    print(record)`,
-    explain: "这一页和前面的 JSON 不同，它处理的是网页里拿到的属性和文本。目标是把 HTML 中分散的字符串字段整理成结构化 record，便于保存、统计和复用。",
-    key: "data-* 属性和可见文本结合起来，才能把 HTML 页面真正转换成程序可用的结构化记录。",
-    check: "清洗后可以用 type(record['price'])、type(record['stock']) 检查字段是否已经转成数字。",
+def build_page_params(page):
+    """在原始查询参数基础上添加 jumpPage，实现翻页。"""
+    params = build_params()
+    params["jumpPage"] = str(page)
+    return params
+
+
+# 添加位置：normalize_course() 下面
+
+def make_course_key(record):
+    """用整行内容做去重键。"""
+    return "|".join(record.get(field, "") for field in COURSE_FIELDS)
+
+
+def fetch_all_courses(session):
+    """逐页请求、解析、清洗并去重。"""
+    all_records = []
+    seen = set()
+
+    for page in range(1, MAX_PAGE + 1):
+        html = fetch_course_page(session, build_page_params(page))
+        table = find_course_table(html)
+        raw_records = parse_table_records(table) if table else []
+        page_courses = [normalize_course(record) for record in raw_records]
+        print(f"第 {page} 页：{len(page_courses)} 条")
+
+        for record in page_courses:
+            key = make_course_key(record)
+            if key not in seen:
+                seen.add(key)
+                all_records.append(record)
+    return all_records
+
+
+# 修改位置：main() 主干
+# - html = Path("course_page.html").read_text(encoding="utf-8")
+# - ...前面用于观察单页的代码...
+# + session = build_session(COOKIE)
+# + records = fetch_all_courses(session)
+# + print("去重后记录数：", len(records))`,
+    explain: "这一节只做最小可行翻页：原来请求第一页，现在多加一个 jumpPage 参数，让服务器返回指定页。",
+    key: "先让 jumpPage 生效，再考虑总页数、限速和保存文件。不要把所有问题挤进第一版循环。",
+    check: "先把 MAX_PAGE 设为 2。若第 1 页和第 2 页课程不同，说明分页生效；确认后再逐步调大。",
   },
   {
     no: "13",
-    kind: "table",
-    label: "正则速查",
-    title: "工具速查：re 模块常用函数和写法",
-    tableRows: [
-      { name: "re.search(pattern, text)", usage: "从文本中找第一个匹配项", example: "re.search(r\"\\d+\", text)" },
-      { name: "re.findall(pattern, text)", usage: "找出所有匹配结果", example: "re.findall(r\"¥\\d+\\.\\d{2}\", text)" },
-      { name: "match.group()", usage: "获取完整匹配文本", example: "match.group()" },
-      { name: "match.group(1)", usage: "获取第一个括号捕获的内容", example: "re.search(r\"价格：(.*)\", text).group(1)" },
-      { name: "re.sub(pattern, repl, text)", usage: "替换符合模式的内容，常用于清洗", example: "re.sub(r\"\\s+\", \"\", text)" },
-      { name: "r\"...\"", usage: "原始字符串，避免反斜杠被 Python 提前转义", example: "r\"\\d{4}-\\d{2}-\\d{2}\"" },
-    ],
-    explain: "正则适合从短文本里提取格式稳定的内容，不适合直接解析整页 HTML。",
-    key: "search、findall、group、sub 和原始字符串 r\"\" 是入门必须掌握的组合。",
-    check: "正则复杂时，先从最小模式开始验证，再逐步增加限制条件。",
+    label: "保存 CSV",
+    title: "5.13 增量添加：save_csv()，形成最终主干",
+    problem: "打印在终端里的数据不能复查和提交。最终结果应该保存成 CSV 表格。",
+    change: "新增 csv 导入、OUTPUT_FILE 常量和 save_csv()；main() 最后调用 save_csv()。",
+    code: `# 添加位置：文件顶部 import 区
+import csv
+
+# 添加位置：常量区
+OUTPUT_FILE = "school_courses.csv"
+
+
+# 添加位置：fetch_all_courses() 下面
+# 作用：把字典列表保存成 Excel 友好的 CSV。
+
+def save_csv(records, filename):
+    with open(filename, "w", encoding="utf-8-sig", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=COURSE_FIELDS)
+        writer.writeheader()
+        writer.writerows(records)
+
+
+# 修改位置：main() 最后几行
+# - print("去重后记录数：", len(records))
+# + if not records:
+# +     raise SystemExit("没有提取到课程记录，请检查登录态、分页参数和表格结构。")
+# + save_csv(records, OUTPUT_FILE)
+# + print(f"已保存 {len(records)} 条记录到 {OUTPUT_FILE}")
+
+# 最终 main() 应该像这样简洁：
+# def main():
+#     session = build_session(COOKIE)
+#     records = fetch_all_courses(session)
+#     if not records:
+#         raise SystemExit("没有提取到课程记录，请检查登录态、分页参数和表格结构。")
+#     save_csv(records, OUTPUT_FILE)
+#     print(f"已保存 {len(records)} 条记录到 {OUTPUT_FILE}")`,
+    explain: "这一节只新增保存能力。最终 main() 不再展示底层细节，而是清楚表达完整流程：建会话、采集、检查、保存。",
+    key: "CSV 使用 utf-8-sig，方便 Excel 打开中文。DictWriter 的 fieldnames 直接使用 COURSE_FIELDS，列名和网页表头一致。",
+    check: "打开 school_courses.csv，检查表头、中文、行数和前几条课程记录是否符合预期。",
   },
   {
     no: "14",
-    label: "正则表达式",
-    title: "代码段 14：用正则表达式提取局部文本模式",
-    code: `import re
-
-book_id_text = "编号 CB-2026-0007，ISBN 978-7-115-26007-3"
-rating_text = "评分：4.7 / 5.0，评论 177 条"
-stock_text = "库存：有货，成都仓，18 本"
-
-book_id = re.search(r"CB-\\d{4}-\\d{4}", book_id_text).group()
-isbn = re.search(r"ISBN\\s+([\\d-]+)", book_id_text).group(1)
-score = float(re.search(r"评分：([\\d.]+)", rating_text).group(1))
-comments = int(re.search(r"评论\\s*(\\d+)\\s*条", rating_text).group(1))
-stock_match = re.search(r"库存：([^，]+)，([^，]+)，(\\d+) 本", stock_text)
-
-print(book_id, isbn, score, comments)
-print("库存状态：", stock_match.group(1))
-print("仓库：", stock_match.group(2))
-print("库存数量：", int(stock_match.group(3)))`,
-    explain: "正则表达式适合处理一小段格式稳定的文本，例如编号、ISBN、评分、评论数和库存数量。",
-    key: "正则表达式解决的是文本模式匹配，不要用它替代完整 HTML 解析器。",
-    check: "如果匹配失败，先打印原始文本，再逐步缩短正则表达式。",
-  },
-  {
-    no: "15",
-    label: "URL 与去重",
-    title: "代码段 15：把相对链接转成绝对链接，并按编号去重",
-    code: `import requests
-from urllib.parse import urljoin
-
-SITE_ROOT = "https://niuniulab.com"
-BASE_URL = f"{SITE_ROOT}/courses/python/ch07"
-data = requests.get(f"{BASE_URL}/sample_books.json", timeout=10).json()
-
-unique_books = {}
-for book in data["books"]:
-    absolute_url = urljoin(SITE_ROOT, book["detail_url"])
-    book_id = book["id"]
-    if book_id not in unique_books:
-        unique_books[book_id] = {
-            "id": book_id,
-            "title": book["title"],
-            "detail_url": absolute_url,
-        }
-
-print("去重后数量：", len(unique_books))
-for book in list(unique_books.values())[:5]:
-    print(book["id"], book["title"], book["detail_url"])`,
-    explain: "真实采集中，同一条记录可能从搜索页、分类页、排行榜页重复出现。保存前要用唯一编号或详情链接去重。",
-    key: "urljoin() 可以把相对链接转换成绝对链接，字典可以按唯一键去重。",
-    check: "唯一键要稳定，优先选择 id、sku、ISBN 或详情页 URL。",
-  },
-  {
-    no: "16",
-    kind: "table",
-    label: "Selenium 速查",
-    title: "工具速查：Selenium 常用对象和方法",
-    tableRows: [
-      { name: "python -m pip install selenium", usage: "安装 Selenium 库，运行前还需要本机安装 Chrome 或 Edge 浏览器", example: "只需安装一次" },
-      { name: "webdriver.Chrome()", usage: "启动 Chrome 浏览器，由程序控制页面", example: "driver = webdriver.Chrome()" },
-      { name: "driver.get(url)", usage: "打开指定网页", example: "driver.get(search_url)" },
-      { name: "find_element(By.ID, value)", usage: "定位一个页面元素", example: "driver.find_element(By.ID, \"keyword\")" },
-      { name: "find_elements(By.CSS_SELECTOR, value)", usage: "定位一组页面元素", example: "driver.find_elements(By.CSS_SELECTOR, \".product-card\")" },
-      { name: "WebDriverWait(driver, 10)", usage: "显式等待某个元素或条件出现", example: "wait.until(EC.presence_of_element_located(...))" },
-      { name: "send_keys() / click()", usage: "模拟键盘输入和鼠标点击", example: "search_box.send_keys(\"Python\")" },
-      { name: "driver.quit()", usage: "关闭浏览器并释放资源", example: "finally: driver.quit()" },
-    ],
-    explain: "Selenium 操作的是真实浏览器。它适合必须经过 JavaScript 渲染或用户交互后才出现的内容。",
-    key: "浏览器对象、元素定位、显式等待、输入点击、退出浏览器，是 Selenium 的基本链条。",
-    check: "不要忘记 driver.quit()，否则浏览器进程可能一直留在后台。",
-  },
-  {
-    no: "17",
-    label: "Selenium 显式等待",
-    title: "代码段 17：用 Selenium 等待动态搜索结果出现",
-    code: `from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-
-driver = webdriver.Chrome()
-wait = WebDriverWait(driver, 10)
-
-try:
-    driver.get(f"{BASE_URL}/search_demo.html")
-    search_box = wait.until(EC.presence_of_element_located((By.ID, "keyword")))
-    search_box.clear()
-    search_box.send_keys("Python")
-    search_box.send_keys(Keys.ENTER)
-
-    wait.until(lambda page: len(page.find_elements(By.CSS_SELECTOR, "#dynamicResults .product-card")) > 0)
-    cards = driver.find_elements(By.CSS_SELECTOR, "#dynamicResults .product-card")
-    for card in cards[:5]:
-        title = card.find_element(By.CSS_SELECTOR, ".product-title").text
-        price = card.find_element(By.CSS_SELECTOR, ".price strong").text
-        print(title, price)
-finally:
-    driver.quit()`,
-    explain: "动态页面需要等待 JavaScript 渲染完成。显式等待比 sleep 更稳，因为它等待的是具体元素或条件。",
-    key: "WebDriverWait + expected_conditions 是 Selenium 处理动态页面的常用组合。",
-    check: "如果找不到元素，先确认页面是否打开成功，再检查选择器是否正确。",
-  },
-  {
-    no: "18",
-    label: "保存结果",
-    title: "代码段 18：把结构化结果落盘成 CSV 与 JSON",
-    code: `import csv
-import json
-import requests
-
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-data = requests.get(f"{BASE_URL}/sample_books.json", timeout=10).json()
-
-records = []
-for book in data["books"]:
-    records.append({
-        "id": book["id"],
-        "title": book["title"],
-        "category": book["category"],
-        "price": book["pricing"]["sale_price"],
-        "rating": book["rating"]["score"],
-        "stock": book["stock"]["quantity"],
-    })
-
-fieldnames = ["id", "title", "category", "price", "rating", "stock"]
-with open("books.csv", "w", encoding="utf-8-sig", newline="") as file:
-    writer = csv.DictWriter(file, fieldnames=fieldnames)
-    writer.writeheader()
-    writer.writerows(records)
-
-with open("books.json", "w", encoding="utf-8") as file:
-    json.dump(records, file, ensure_ascii=False, indent=2)`,
-    explain: "这一页只负责把已经整理好的 records 保存成文件。它产出的是中间成果，便于下次继续分析，而不是直接面向读者的最终结论。",
-    key: "CSV 适合表格查看，JSON 适合保留结构并供程序继续读取；两者解决的是“保存数据”，不是“解释数据”。",
-    check: "CSV 在 Excel 中打开乱码时，优先使用 utf-8-sig 编码。",
-  },
-  {
-    no: "19",
-    label: "生成报告",
-    title: "代码段 19：根据采集结果生成给人阅读的网络数据简报",
-    code: `from collections import Counter
-from pathlib import Path
-import requests
-
-BASE_URL = "https://niuniulab.com/courses/python/ch07"
-data = requests.get(f"{BASE_URL}/sample_books.json", timeout=10).json()
-books = data["books"]
-
-category_counter = Counter(book["category"] for book in books)
-avg_price = sum(book["pricing"]["sale_price"] for book in books) / len(books)
-low_stock = [book for book in books if 0 < book["stock"]["quantity"] <= 10]
-top_book = max(books, key=lambda book: book["rating"]["score"])
-
-lines = [
-    "CampusBook 网络数据简报",
-    f"图书总数：{len(books)}",
-    f"平均售价：{avg_price:.2f} 元",
-    f"评分最高：{top_book['title']}（{top_book['rating']['score']} 分）",
-    f"低库存图书：{len(low_stock)} 本",
-    "分类统计：",
-]
-
-for category, count in category_counter.most_common():
-    lines.append(f"- {category}: {count} 本")
-
-Path("summary_report.txt").write_text("\\n".join(lines), encoding="utf-8")
-print("\\n".join(lines))`,
-    explain: "这一页是在保存之后继续前进，把原始 records 转换成结论和摘要。报告不是再存一份数据，而是把数据解释成人能快速读懂的信息。",
-    key: "Counter、sum、max、列表推导式可以把“保存好的数据”进一步变成摘要结论和文字报告。",
-    check: "报告生成后要打开 summary_report.txt，检查中文、数字和换行是否正常，确认它真的适合直接阅读。",
+    label: "完整代码",
+    title: "5.14 完整代码：course_spider.py",
+    problem: "前面每一节都是增量代码。学完后需要一份完整文件，方便学生对照自己的版本检查缺漏。",
+    change: "完整代码已经整理为 public/courses/python/ch07/course_spider.py。COOKIE 保持空字符串，由学生填写自己的 Cookie。",
+    downloadHref: courseSpiderHref,
+    code: `# 完整代码下载路径：
+# /courses/python/ch07/course_spider.py
+#
+# 使用方式：
+# 1. 下载 course_spider.py。
+# 2. 安装依赖：python -m pip install requests beautifulsoup4
+# 3. 填写 COOKIE = ""。
+# 4. 先保持 MAX_PAGE = 2，确认分页生效。
+# 5. 确认 CSV 正常后，再逐步调大 MAX_PAGE。`,
+    explain: "完整代码把本节实战的请求、登录态、解析、分页、字段整理和 CSV 保存合并到一个文件。",
+    key: "最终 CSV 字段使用网页原始表头：序号、选课编号、课程代码、课程名称、教学班号等。",
+    check: "不要把填写了个人 Cookie 的文件提交或发送给别人。公开下载版本必须保持 COOKIE 为空。",
   },
 ];
 
@@ -1043,35 +1217,32 @@ const capstoneCards = [
   {
     title: "实验目标",
     icon: IconNetwork,
-    text: "使用 requests 访问酷狗音乐排行榜页面，采集 TOP500 歌曲的排名、歌曲名、演唱者和歌曲时长，并保存到 songTop500.csv 文本文件。",
+    text: "使用 requests 访问教务课表页面，采集课程表格中的课程、教师、时间、地点等字段，并保存到 school_courses.csv。",
   },
   {
-    title: "页面规律",
+    title: "登录态规律",
     icon: IconRoute,
-    text: "排行榜 URL 中的页码遵循 /home/1-8888.html 这种模式。每页约 22 首歌曲，因此需要用循环组织 1 到 23 页的地址。",
-    href: kugouRankHref,
+    text: "浏览器已经登录时能看到课表，Python 初次请求却可能拿到登录页。关键差异通常是 Cookie 和会话状态。",
   },
   {
     title: "解析重点",
     icon: IconFileSearch,
-    text: "页面榜单位于 class 为 pc_temp_songlist 的区域中。每条 li 里可以拿到 title、排名 span.pc_temp_num 和时长 span.pc_temp_time，再拆分出演唱者与歌曲名。",
+    text: "先保存 HTML，再用 BeautifulSoup 定位 table、tr、th、td。不要直接猜字段，先打印表头和前几条记录。",
   },
   {
-    title: "输出文件",
+    title: "分页与去重",
+    icon: IconListTree,
+    text: "检查页码链接、隐藏字段或分页参数。循环抓取时要设置页数边界、访问间隔和去重规则。",
+  },
+  {
+    title: "输出表格",
     icon: IconArchive,
-    text: "将结果按“排名 歌曲名称 演唱者 歌曲长度”的顺序逐行写入 songTop500.csv。CSV 本质上也是文本文件，便于后续用 Excel、记事本或 Python 再处理。",
+    text: "将结构化记录写入 school_courses.csv，使用 utf-8-sig 编码，方便 Excel 直接打开中文表格。",
   },
   {
-    title: "实验报告模板",
-    icon: IconBookOpen,
-    text: "下载实验四报告模板，按模板填写实验目的、核心代码、运行结果、结果分析和实验收获。",
-    href: kugouReportTemplateHref,
-  },
-  {
-    title: "提交方式",
-    icon: IconExternalLink,
-    text: "按照实验报告模板提交实验四结果。正文应包含实验目的、核心代码、运行结果、结果分析和实验收获。",
-    href: kugouReportSubmitHref,
+    title: "合规边界",
+    icon: IconShield,
+    text: "只使用本人账号和课程授权范围内的数据做练习；Cookie 不提交、不截图、不传播；请求频率保持克制。",
   },
 ];
 
@@ -1084,12 +1255,12 @@ const summaryCards = [
   {
     title: "解析层",
     icon: IconCode,
-    text: "JSON、BeautifulSoup、正则表达式分别处理不同形态的数据。",
+    text: "BeautifulSoup 负责把课表 HTML 表格转换成字典列表，清洗函数负责统一字段。",
   },
   {
-    title: "浏览器层",
-    icon: IconMousePointer,
-    text: "Selenium 用来处理必须由真实浏览器交互和渲染后才能得到的数据。",
+    title: "保存层",
+    icon: IconArchive,
+    text: "CSV 把采集结果变成可复查、可提交、可继续分析的数据文件。",
   },
 ];
 </script>
@@ -1123,12 +1294,12 @@ const summaryCards = [
         <h1>网络数据爬取：<br />让 Python 学会从互联网获取信息</h1>
         <p class="hero-intro">
           第七章把前面学过的数据类型、文件操作和模块能力串起来。
-          本章不再只处理本地文件，而是从网页和接口获取公开数据，再完成解析、提取、保存和简要分析。
+          本章不再只处理本地文件，而是围绕教务课表页面完成请求诊断、登录态访问、结构解析、分页采集和表格保存。
         </p>
         <ul class="hero-checklist">
           <li>从最简单的 <code>requests.get()</code> 开始，理解请求和响应。</li>
-          <li>同时覆盖 JSON、HTML、正则表达式和 Selenium 四类典型解析场景。</li>
-          <li>使用可复现的练习素材，降低真实网站变化带来的干扰。</li>
+          <li>用同一个课表采集任务逐步遇到问题、定位原因、修改代码。</li>
+          <li>把 HTML 表格整理成 CSV，形成可以复查的数据文件。</li>
         </ul>
         <div class="goal-cards fly-in-seq">
           <article v-for="goal in learningGoals" :key="goal">
@@ -1145,8 +1316,8 @@ const summaryCards = [
       >
         <h2>2 本章路线：从一次请求，走到一个完整爬虫实验</h2>
         <p class="section-note">
-          学习顺序按照真实数据采集流程展开：先发出请求，再识别数据格式，然后选择解析工具，
-          最后把结果保存为可以复用的数据文件，并迁移到真实课程实验场景。
+          学习顺序按照真实数据采集流程展开：先发出请求，再识别登录态问题，然后解析表格和分页，
+          最后把课表记录保存为可以复用的数据文件。
         </p>
         <div class="chapter-seven-rhythm">
           <span v-for="item in roadmap" :key="item">{{ item }}</span>
@@ -1160,11 +1331,11 @@ const summaryCards = [
       >
         <div class="section-head">
           <p class="kicker">PRACTICE SITE</p>
-          <h2>3 练习数据入口：JSON、静态网页、动态网页</h2>
+          <h2>3 练习与目标入口：从练习素材走向教务课表</h2>
         </div>
         <p class="section-note">
-          三个入口对应三类常见采集场景：接口数据、服务端渲染页面、浏览器动态渲染页面。
-          CSS 和 JavaScript 作为页面资源自动加载，不作为单独采集目标。
+          前两个入口用于练习 JSON 和静态 HTML 的基本解析。第三个入口是本章代码实战的目标页面，
+          用来学习登录态、表格解析、分页和 CSV 保存。
         </p>
         <div class="chapter-seven-grid chapter-seven-link-grid">
           <article class="chapter-seven-card" v-for="item in materialCards" :key="item.href">
@@ -1275,7 +1446,7 @@ const summaryCards = [
           <h2>4.3 数据格式：先判断内容，再选择解析工具</h2>
         </div>
         <p class="chapter-seven-cue">
-          解析工具不能乱用。JSON、HTML、纯文本、二进制文件和动态页面的处理方式不同。
+          解析工具不能乱用。JSON、HTML、纯文本、二进制文件和登录态页面的处理方式不同。
           爬虫的第一条经验是：先看响应内容，再写解析代码。
         </p>
 
@@ -1355,7 +1526,7 @@ const summaryCards = [
           <h2>4.6 技术演变：从早期爬虫到现代采集工具</h2>
         </div>
         <p class="chapter-seven-cue">
-          requests、BeautifulSoup、正则表达式和 Selenium，正好对应了爬虫从简单访问到复杂页面解析的演变路线。
+          requests、Cookie、Session、BeautifulSoup 和 CSV，正好对应了本章从请求页面到保存课表的完整路线。
         </p>
         <div class="chapter-seven-grid chapter-seven-quad-grid">
           <article class="chapter-seven-card" v-for="item in crawlerEvolutionCards" :key="item.title">
@@ -1433,8 +1604,8 @@ const summaryCards = [
           <h2>5 代码实战：每页只解决一个采集动作</h2>
         </div>
         <p class="chapter-seven-cue">
-          代码实战按“会发请求、会处理失败、会整理 JSON/HTML 记录、会处理动态页面、会输出文件与结论”的顺序推进。
-          每段代码都只解决一个采集动作，既能单独运行观察，也能逐步拼成完整项目。
+          代码实战围绕“爬取全校课表”这一目标渐进展开。每一页先说明遇到的问题，
+          再明确本节只改哪里，最后给出增量代码和检查方式。
         </p>
         <div class="chapter-seven-grid chapter-seven-foundation-map">
           <article
@@ -1453,11 +1624,11 @@ const summaryCards = [
         v-for="slide in codeSlides"
         :key="slide.no"
         class="section reveal chapter-seven-code-page"
-        data-outline-level="2"
+        :data-outline-level="slide.outlineLevel || 2"
         :data-outline-label="slide.label"
       >
         <div class="section-head">
-          <p class="kicker">5.{{ Number(slide.no) }} CODE PRACTICE</p>
+          <p class="kicker">{{ slide.displayNo || `5.${Number(slide.no)}` }} CODE PRACTICE</p>
           <h2>{{ slide.title }}</h2>
         </div>
         <div v-if="slide.kind === 'table'" class="chapter-seven-table-card">
@@ -1481,7 +1652,26 @@ const summaryCards = [
         <div v-else class="chapter-seven-code-shell">
           <pre><code class="python">{{ slide.code }}</code></pre>
         </div>
-        <div class="chapter-seven-grid chapter-seven-2plus1">
+        <a
+          v-if="slide.downloadHref"
+          class="chapter-seven-download-link"
+          :href="slide.downloadHref"
+          download
+        >
+          下载完整代码：{{ slide.downloadHref }}
+        </a>
+        <div v-if="slide.notes" class="chapter-seven-plain-notes">
+          <p v-for="note in slide.notes" :key="note">{{ note }}</p>
+        </div>
+        <div v-else class="chapter-seven-grid chapter-seven-2plus1">
+          <article v-if="slide.problem" class="chapter-seven-card">
+            <h3>遇到的问题</h3>
+            <p>{{ slide.problem }}</p>
+          </article>
+          <article v-if="slide.change" class="chapter-seven-card">
+            <h3>本节修改</h3>
+            <p>{{ slide.change }}</p>
+          </article>
           <article class="chapter-seven-card">
             <h3>这一段在做什么</h3>
             <p>{{ slide.explain }}</p>
@@ -1524,13 +1714,12 @@ const summaryCards = [
       >
         <div class="section-head">
           <p class="kicker">CAPSTONE</p>
-          <h2>7 综合项目：实验四 爬取酷狗音乐 TOP500 歌曲信息</h2>
+          <h2>7 综合项目：爬取全校课表并保存为 CSV</h2>
         </div>
         <p class="chapter-seven-cue">
-          最终项目切换为课程实验四：使用 <code>requests</code> 抓取酷狗音乐排行榜页面，
-          用 <code>BeautifulSoup</code> 解析榜单结构，提取歌曲排名、歌曲名称、演唱者和歌曲时长，
-          再把全部 TOP500 结果保存成 <code>songTop500.csv</code>。前面第 5 节学过的请求、解析和文件保存，
-          在这里会合并成一个完整实验流程。
+          最终项目不是另起一个无关案例，而是把第 5 节逐步完成的代码合并成完整流程：
+          使用 <code>requests</code> 携带本人登录态访问教务课表页面，用 <code>BeautifulSoup</code>
+          解析表格和分页，再把课表记录保存成 <code>school_courses.csv</code>。
         </p>
         <div class="chapter-seven-grid chapter-seven-quad-grid">
           <article class="chapter-seven-card" v-for="item in capstoneCards" :key="item.title">
@@ -1817,6 +2006,30 @@ const summaryCards = [
 .page.is-slide-deck .chapter-seven-code-shell code {
   color: #f4f8ff;
   line-height: 1.75;
+}
+
+.page.is-slide-deck .chapter-seven-plain-notes {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-left: 4px solid #0b62b3;
+  border-radius: 12px;
+  background: rgba(232, 244, 255, 0.72);
+  color: #24435f;
+  line-height: 1.7;
+}
+
+.page.is-slide-deck .chapter-seven-plain-notes p {
+  margin: 0;
+}
+
+.page.is-slide-deck .chapter-seven-download-link {
+  display: inline-flex;
+  margin-top: 14px;
+  color: #0a5eaf;
+  font-weight: 900;
+  text-decoration: underline;
 }
 
 .page.is-slide-deck .chapter-seven-link {
