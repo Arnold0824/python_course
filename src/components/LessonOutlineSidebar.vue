@@ -12,7 +12,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: "卡片大纲",
+    default: "小节大纲",
   },
 });
 
@@ -22,7 +22,7 @@ const current = computed(() => props.items[props.activeIndex] || null);
 </script>
 
 <template>
-  <aside v-if="items.length" class="lesson-outline-sidebar" aria-label="卡片大纲">
+  <aside v-if="items.length" class="lesson-outline-sidebar" aria-label="小节大纲">
     <section class="slide-outline">
       <h3>{{ title }}</h3>
       <div class="outline-current" v-if="current">
@@ -30,15 +30,16 @@ const current = computed(() => props.items[props.activeIndex] || null);
       </div>
       <ol class="outline-list">
         <li v-for="item in items" :key="item.index">
-          <button
-            type="button"
+          <a
+            :href="item.href || item.hash"
             class="outline-btn"
             :class="[`level-${Math.min(item.level, 3)}`, { 'is-active': item.index === activeIndex }]"
-            @click="emit('jump', item.index)"
+            :aria-current="item.index === activeIndex ? 'location' : null"
+            @click.prevent="emit('jump', item.index)"
           >
             <span class="outline-no">{{ item.number }}</span>
             <span class="outline-text">{{ item.label }}</span>
-          </button>
+          </a>
         </li>
       </ol>
     </section>

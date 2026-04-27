@@ -159,7 +159,7 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
         <h2>CARLA 是什么，为什么这一章要把安装和连接放在一起讲</h2>
         <p class="carla-cue">
           <strong>先记住一句话：</strong>CARLA 是面向自动驾驶研发、训练、测试和验证的开源仿真平台。
-          如果只讲“它是什么”而不把环境和首次连接一并打通，学生很容易停留在概念层，无法真正进入后续实验。
+          如果只讲“它是什么”而不把环境和首次连接一并打通，就很容易停留在概念层，无法真正进入后续实验。
         </p>
         <div class="command-layout carla-2plus1">
           <article class="command-card">
@@ -199,7 +199,7 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
           </article>
           <article class="concept-card">
             <h3>推荐版本</h3>
-            <p>课堂统一使用 CARLA 0.9.15，Python 统一使用 3.10，减少版本不一致导致的兼容问题。</p>
+            <p>本课程统一使用 CARLA 0.9.15，Python 统一使用 3.10，减少版本不一致导致的兼容问题。</p>
           </article>
           <article class="concept-card">
             <h3>编辑器</h3>
@@ -221,7 +221,7 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
         <div class="command-layout carla-link-grid">
           <article class="command-card carla-highlight-card">
             <h3>Windows 下载地址</h3>
-            <p>课堂统一版本。下载后解压到一个英文路径目录，例如 <code>D:\\CARLA_0.9.15</code>。</p>
+            <p>统一版本。下载后解压到一个英文路径目录，例如 <code>D:\\CARLA_0.9.15</code>。</p>
             <a
               class="carla-link"
               :href="carla0915WindowsDownload"
@@ -249,8 +249,8 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
       >
         <h3>步骤 2：安装 Python 3.10</h3>
         <p class="carla-cue">
-          本章统一指定 <strong>Python 3.10</strong>。原因很简单：课堂环境要可控，CARLA 0.9.15 的 PyPI 页面提供了
-          <code>cp310</code> 的 Windows wheel，课堂部署更稳。
+          本章统一指定 <strong>Python 3.10</strong>。原因很简单：实验环境要可控，CARLA 0.9.15 的 PyPI 页面提供了
+          <code>cp310</code> 的 Windows wheel，环境部署更稳。
         </p>
         <div class="command-layout carla-link-grid">
           <article class="command-card carla-highlight-card">
@@ -292,7 +292,7 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
         <div class="command-layout carla-link-grid">
           <article class="command-card carla-highlight-card">
             <h3>VS Code 官方下载</h3>
-            <p>建议直接选择 Windows x64 User Installer，课堂环境更统一。</p>
+            <p>建议直接选择 Windows x64 User Installer，安装环境更统一。</p>
             <a class="carla-link" :href="vscodeDownload" target="_blank" rel="noopener noreferrer">
               {{ vscodeDownload }}
             </a>
@@ -347,13 +347,13 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
       >
         <h3>步骤 5：安装 CARLA Python 包和 Notebook 运行依赖</h3>
         <p class="carla-cue">
-          Quickstart 文档给出的正式发布版安装方式是通过 PIP 安装 Python client library。课堂统一使用 PowerShell 执行下面这组命令。
+          Quickstart 文档给出的正式发布版安装方式是通过 PIP 安装 Python client library。本课程统一使用 PowerShell 执行下面这组命令。
         </p>
         <div class="command-layout carla-single-code">
           <article class="command-card">
             <h3>推荐命令</h3>
             <pre><code class="bash">python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple carla==0.9.15 jupyter ipykernel</code></pre>
-            <p>这一条命令会通过清华源一次性安装 CARLA、Jupyter 和 ipykernel，适合课堂环境直接使用。</p>
+            <p>这一条命令会通过清华源一次性安装 CARLA、Jupyter 和 ipykernel，适合统一实验环境直接使用。</p>
           </article>
         </div>
         <p class="carla-inline-link">
@@ -400,7 +400,7 @@ const chapterAllCodeHref = "/courses/carla/ch01/carla_ch01_all_examples.py";
           <h2>启动 CARLA 服务端时直接使用低画质参数</h2>
         </div>
         <p class="carla-cue">
-          这一条命令必须直接放进课堂主线。大部分机器显卡性能不足，如果默认高画质启动，最先出现的问题不是 Python 代码报错，而是服务端窗口本身打不开或运行不稳定。
+          这一条命令必须直接放进本章主线。大部分机器显卡性能不足，如果默认高画质启动，最先出现的问题不是 Python 代码报错，而是服务端窗口本身打不开或运行不稳定。
         </p>
         <div class="command-layout carla-single-code">
           <article class="command-card carla-highlight-card">
@@ -556,7 +556,7 @@ except Exception as error:
         <div class="command-layout carla-2plus1">
           <article class="command-card">
             <h3>服务端未启动</h3>
-            <p>如果 CARLA 窗口还没打开，连接请求会失败。异常信息能直接告诉你问题发生在“连不上”，而不是后面的 world 逻辑。</p>
+            <p>如果 CARLA 窗口还没打开，连接请求会失败。异常信息能直接指出问题发生在“连不上”，而不是后面的 world 逻辑。</p>
           </article>
           <article class="command-card">
             <h3>端口或超时问题</h3>
@@ -617,7 +617,7 @@ except Exception as error:
           </article>
           <article class="command-card">
             <h3><code>client.set_timeout</code></h3>
-            <p>限制网络调用最长等待时间。课堂脚本里必须保留，避免“看起来像死机”。</p>
+            <p>限制网络调用最长等待时间。练习脚本里必须保留，避免“看起来像死机”。</p>
           </article>
           <article class="command-card">
             <h3><code>client.get_world</code></h3>
@@ -655,7 +655,7 @@ except Exception as error:
           </article>
           <article class="command-card">
             <h3>为什么这一章代码都按代码段组织</h3>
-            <p>因为课堂和实验都会用到 Jupyter 风格的逐段执行。每段代码只完成一个动作，更适合观察“这一段做了什么”。</p>
+            <p>因为后续实验会用到 Jupyter 风格的逐段执行。每段代码只完成一个动作，更适合观察“这一段做了什么”。</p>
           </article>
         </div>
       </section>
@@ -712,7 +712,7 @@ except Exception as error:
           </article>
           <article class="command-card">
             <h3>本章结论 2</h3>
-            <p>先搭好 Windows 环境，再启动低画质服务端，再写连接检测脚本，这才是课堂最稳的顺序。</p>
+            <p>先搭好 Windows 环境，再启动低画质服务端，再写连接检测脚本，这是最稳的入门顺序。</p>
           </article>
           <article class="command-card">
             <h3>本章结论 3</h3>

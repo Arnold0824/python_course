@@ -1,4 +1,4 @@
-export const chapter04Docs = [
+export const chapter03Docs = [
   {
     title: "文档首页",
     text: "先确认课程使用的 CARLA 版本。",
@@ -26,20 +26,28 @@ export const chapter04Docs = [
   },
 ];
 
-export const chapter04AlignmentCards = [
+export const chapter03AlignmentCards = [
   { title: "同一车辆", text: "两路相机都挂在同一个 ego_vehicle 上。" },
   { title: "同一位姿", text: "两路相机共用同一个 camera_transform。" },
   { title: "同一内参", text: "image_size_x、image_size_y、fov 必须一致。" },
   { title: "同一帧号", text: "最终判断标准是 rgb.frame == seg.frame。" },
 ];
 
-export const chapter04Slides = [
+export const chapter03Slides = [
   {
     no: "01",
-    outline: "代码段 1 常量",
-    title: "代码段 1：先把实验参数集中定义",
-    lead: "第一段不做连接，也不做采集。它的任务只有一个：把整章实验的关键参数全部锁定到一个地方。",
-    code: String.raw`# 输出目录：按双通道数据集方式组织
+    outline: "代码段 1 依赖与常量",
+    title: "代码段 1：先导入依赖，再把实验参数集中定义",
+    lead: "第一段不做连接，也不做采集。它先补齐后续代码会用到的模块，再把整章实验的关键参数全部锁定到一个地方。",
+    code: String.raw`import json
+import queue
+import random
+import time
+from pathlib import Path
+
+import carla
+
+# 输出目录：按双通道数据集方式组织
 OUTPUT_ROOT = Path("output/exp02")
 RGB_DIR = OUTPUT_ROOT / "rgb"
 SEG_DIR = OUTPUT_ROOT / "seg"
@@ -59,18 +67,18 @@ SYNC_DELTA = 0.05
 # Traffic Manager 的端口号
 TRAFFIC_MANAGER_PORT = 8000
 
-# 让自动驾驶无视红灯，课堂演示更连续
+# 让自动驾驶无视红灯，采集过程更连续
 IGNORE_LIGHTS_PERCENTAGE = 100.0
 
 # 两路相机必须保持完全相同的成像参数
 IMAGE_SIZE_X = "800"
 IMAGE_SIZE_Y = "600"
 CAMERA_FOV = "90"`,
-    explain: "这一段统一管理输出目录、采集数量、自动驾驶热身时间、采样间隔、同步步长、TM 端口、忽略红灯比例和相机参数。后面所有逻辑都引用这些常量。",
-    why: "教学里最怕参数散落各处。学生如果只改这一段，就能直接看到样本数量、采样节奏和自动驾驶效果的变化。",
+    explain: "这一段先导入 json、queue、random、time、Path 和 carla，再统一管理输出目录、采集数量、采样间隔、同步步长、TM 端口、忽略红灯比例和相机参数。后面所有逻辑都引用这些依赖和常量。",
+    why: "参数散落会让调试变困难。只改这一段，就能直接看到样本数量、采样节奏和自动驾驶效果的变化。",
     points: [
       "CAPTURE_INTERVAL_TICKS 控制“隔几帧再存一对”。",
-      "IGNORE_LIGHTS_PERCENTAGE=100.0 让课堂演示更连续。",
+      "IGNORE_LIGHTS_PERCENTAGE=100.0 让采集过程更连续。",
       "IMAGE_SIZE 和 FOV 决定两路图像能否严格对应。",
     ],
     terms: [
@@ -126,7 +134,7 @@ ego_vehicle = None`,
     no: "03",
     outline: "代码段 3 小工具",
     title: "代码段 3：先把实验的小工具函数写好",
-    lead: "这一段是整章最值得学生仔细看的地方。主流程短不代表实验简单，真正稳定运行靠的是这些工具函数。",
+    lead: "这一段是整章最值得仔细看的地方。主流程短不代表实验简单，真正稳定运行靠的是这些工具函数。",
     code: String.raw`def safe_destroy(actor):
     # 统一封装 destroy，避免个别 actor 已失效时直接中断实验
     if actor is None:
@@ -192,8 +200,8 @@ def cleanup():
 
     actor_list.clear()
     world.apply_settings(original_settings)`,
-    explain: "这一页把整章最关键的辅助函数一次性补齐：safe_destroy 负责安全销毁，push_latest 负责保留最新帧，wait_for_image 负责追帧，wait_for_aligned_pair 负责同帧对齐，cleanup 负责最后恢复现场。",
-    why: "如果没有这组函数，主流程里会充满重复逻辑。更重要的是，错帧问题、清理问题和异常退出问题都会很难排查，因为你不知道自己拿到的是不是旧图像，也不知道环境有没有恢复干净。",
+    explain: "这一段把整章最关键的辅助函数一次性补齐：safe_destroy 负责安全销毁，push_latest 负责保留最新帧，wait_for_image 负责追帧，wait_for_aligned_pair 负责同帧对齐，cleanup 负责最后恢复现场。",
+    why: "如果没有这组函数，主流程里会充满重复逻辑。更重要的是，错帧问题、清理问题和异常退出问题都会很难排查，因为程序拿到的可能是旧图像，环境也可能没有恢复干净。",
     points: [
       "push_latest 的核心是丢掉旧帧。",
       "wait_for_aligned_pair 才是双通道对齐的关键。",
@@ -237,10 +245,10 @@ if ego_vehicle is None:
 # 主车也要加入 actor_list，方便最后统一清理
 actor_list.append(ego_vehicle)`,
     explain: "先让世界进入同步模式和固定步长，再选择主车 blueprint，最后在多个出生点里循环尝试，直到成功生成一辆主车，并把它登记到 actor_list 中。",
-    why: "如果不先打开同步模式，后面所有 tick、相机帧号和采样节奏都不好解释；如果只试一个出生点，课堂里很容易因为碰撞而生成失败。",
+    why: "如果不先打开同步模式，后面所有 tick、相机帧号和采样节奏都不好解释；如果只试一个出生点，很容易因为碰撞而生成失败。",
     points: [
       "synchronous_mode=True 表示后面每一步都由 world.tick() 驱动。",
-      "try_spawn_actor 比直接 spawn_actor 更适合课堂实验。",
+      "try_spawn_actor 比直接 spawn_actor 更适合反复运行的实验。",
       "actor_list.append(ego_vehicle) 说明车辆也属于后面要回收的资源。",
     ],
     terms: [
@@ -292,7 +300,7 @@ actor_list.extend([rgb_camera, seg_camera])`,
     points: [
       "RGB 相机提供真实视觉外观。",
       "语义分割相机提供像素级语义标签。",
-      "CAMERA_TRANSFORM 和 actor_list.extend 都是这一页必须讲透的细节。",
+      "CAMERA_TRANSFORM 和 actor_list.extend 都是这一段必须明确的细节。",
     ],
     terms: [
       { title: "CAMERA_TRANSFORM", text: "明确把双相机安装在同一辆车的同一位置。" },
@@ -304,7 +312,7 @@ actor_list.extend([rgb_camera, seg_camera])`,
     no: "06",
     outline: "代码段 6 监听与自动驾驶",
     title: "代码段 6：注册双监听，再让主车自动驾驶并无视红灯",
-    lead: "这一段让整章真正“动起来”。相机开始持续送图，主车开始自动驾驶，无视红灯则让演示过程更连续。",
+    lead: "这一段让整章真正“动起来”。相机开始持续送图，主车开始自动驾驶，无视红灯则让采集过程更连续。",
     code: String.raw`# 两路相机开始持续回调，把最新图像推进各自队列
 rgb_camera.listen(lambda image: push_latest(rgb_queue, image))
 seg_camera.listen(lambda image: push_latest(seg_queue, image))
@@ -319,7 +327,7 @@ ego_vehicle.set_autopilot(True, traffic_manager.get_port())
 # 设置主车无视红灯，提高样本变化速度
 traffic_manager.ignore_lights_percentage(ego_vehicle, IGNORE_LIGHTS_PERCENTAGE)`,
     explain: "先让两路相机开始把最新图像推进各自队列，再获取 Traffic Manager，把它切到同步模式，并把主车注册进自动驾驶系统，最后设置无视红灯。",
-    why: "如果车不动，30 对图像差异会很小；如果车老在路口停住，课堂演示节奏也会被打断。让它自动驾驶并无视红灯，会更适合教学展示。",
+    why: "如果车不动，30 对图像差异会很小；如果车老在路口停住，采集节奏也会被打断。让它自动驾驶并无视红灯，会更适合完成连续采集。",
     points: [
       "listen 只是开始接图，不等于图像已经对齐。",
       "Traffic Manager 也要同步，否则节奏会错位。",
@@ -335,7 +343,7 @@ traffic_manager.ignore_lights_percentage(ego_vehicle, IGNORE_LIGHTS_PERCENTAGE)`
     no: "07",
     outline: "代码段 7 热身",
     title: "代码段 7：先热身，让车和双相机一起稳定下来",
-    lead: "第七段不保存正式样本，而是给系统一个稳定期。课堂上这一步很重要，因为它能让学生真正看到‘世界在跑、相机在追帧’。",
+    lead: "第七段不保存正式样本，而是给系统一个稳定期。这一步用于确认世界在持续推进，相机也在追随帧号。",
     code: String.raw`# 正式采样前，先让车辆在自动驾驶状态下热身
 for warmup_index in range(AUTOPILOT_WARMUP_TICKS):
     # 推进世界一帧
@@ -344,7 +352,7 @@ for warmup_index in range(AUTOPILOT_WARMUP_TICKS):
     # 即使是热身阶段，也要确保双通道已经追到同一帧
     rgb_image, seg_image = wait_for_aligned_pair(frame_id)
 
-    # 每 5 帧打印一次，便于课堂观察
+    # 每 5 帧打印一次，便于观察运行状态
     if (warmup_index + 1) % 5 == 0:
         print(
             f"warmup {warmup_index + 1}/{AUTOPILOT_WARMUP_TICKS}: "
@@ -355,19 +363,19 @@ for warmup_index in range(AUTOPILOT_WARMUP_TICKS):
     points: [
       "热身阶段也必须坚持做同帧校验。",
       "不是只有正式采样才关心 frame。",
-      "每 5 帧打印一次，更适合课堂观察。",
+      "每 5 帧打印一次，便于观察运行状态。",
     ],
     terms: [
       { title: "AUTOPILOT_WARMUP_TICKS", text: "控制正式采样前的热身长度。" },
       { title: "world.tick()", text: "同步模式下推进世界一帧的唯一入口。" },
-      { title: "print 调试", text: "让学生真正看见帧号变化，是理解同步模式的关键。" },
+      { title: "print 调试", text: "直接观察帧号变化，是理解同步模式的关键。" },
     ],
   },
   {
     no: "08",
     outline: "代码段 8 间隔采样",
     title: "代码段 8：车辆持续前进，但只每隔几帧保存一对图像",
-    lead: "第八段就是这章最有‘效果’的部分。世界在持续往前走，但我们只在合适的节奏点保存一对图像。",
+    lead: "第八段就是这章最有“效果”的部分。世界在持续往前走，程序只在合适的节奏点保存一对图像。",
     code: String.raw`# 记录已经成功保存的帧号
 captured_frames = []
 
@@ -408,7 +416,7 @@ while len(captured_frames) < TARGET_PAIRS:
     no: "09",
     outline: "代码段 9 报告输出",
     title: "代码段 9：输出参数记录和对齐报告",
-    lead: "第九段把‘看起来跑通了’变成‘别人可以复查这次实验到底怎么做的’。这一步是实验指导书明确要求的。",
+    lead: "第九段把“看起来跑通了”变成“能够复查这次实验到底怎么做的”。这一步是实验指导书明确要求的。",
     code: String.raw`# 读取两个目录下的所有帧号
 rgb_frames = {path.stem for path in RGB_DIR.glob("*.png")}
 seg_frames = {path.stem for path in SEG_DIR.glob("*.png")}
@@ -443,7 +451,7 @@ report = {
     encoding="utf-8",
 )`,
     explain: "这一段先统计 rgb 和 seg 目录里的帧号集合，再求交集得到真正匹配成功的样本数。随后构造 params 和 report 两个字典，并真正写入 `params.json` 与 `alignment_report.json`。",
-    why: "实验不应该只交图片。别人如果想复现，必须知道同步步长、采样间隔、是否忽略红灯、到底保存了多少对以及有没有缺失帧。",
+    why: "实验不应该只交图片。后续复现时，必须知道同步步长、采样间隔、是否忽略红灯、到底保存了多少对以及有没有缺失帧。",
     points: [
       "params.json 负责记录实验条件。",
       "alignment_report.json 负责记录结果是否对齐。",
@@ -459,11 +467,11 @@ report = {
     no: "10",
     outline: "代码段 10 清理",
     title: "代码段 10：实验结束时，按顺序清理资源",
-    lead: "最后一段不是收尾点缀，而是整章实验能不能长期复用的关键。很多课堂问题都不是代码不会写，而是环境没清干净。",
+    lead: "最后一段不是收尾点缀，而是整章实验能不能长期复用的关键。很多运行问题都不是代码不会写，而是环境没清干净。",
     code: String.raw`# 调用统一清理函数，关闭自动驾驶并恢复世界设置
 cleanup()
 
-# 给出完成提示，方便课堂观察脚本结束位置
+# 给出完成提示，方便确认脚本结束位置
 print("第三章示例代码已清理完成")`,
     explain: "这一段调用 cleanup()，把自动驾驶、Traffic Manager、传感器、车辆和世界设置都恢复回实验前的状态。",
     why: "如果实验结束后还残留同步模式、自动驾驶车辆或相机 actor，下一次运行代码时就会出现很多连锁问题，而且很难解释。",
@@ -480,14 +488,14 @@ print("第三章示例代码已清理完成")`,
   },
 ];
 
-export const chapter04Pitfalls = [
+export const chapter03Pitfalls = [
   { title: "只看图片像不像", text: "相似不代表同帧，对齐最终还是要看 frame 和文件名。" },
   { title: "让车动了，但没做对齐", text: "车辆运动越明显，错帧问题反而越容易暴露。" },
-  { title: "每 tick 都存", text: "能运行，但 30 对样本变化不明显，课堂效果并不好。" },
+  { title: "每 tick 都存", text: "能运行，但 30 对样本变化不明显，采集效果并不好。" },
   { title: "忘了清理环境", text: "同步模式、TM、传感器残留，会直接影响下次实验。" },
 ];
 
-export const chapter04Resources = [
+export const chapter03Resources = [
   {
     title: "实验报告下载",
     text: "第三章对应第二份实验报告模板。",
@@ -502,21 +510,21 @@ export const chapter04Resources = [
   },
   {
     title: "实验模板",
-    text: "按网页顺序补全空位即可。",
-    href: "/courses/carla/ch04/exp02_rgb_seg_alignment_template.py",
+    text: "按代码段顺序补全空位即可。",
+    href: "/courses/carla/ch03/exp02_rgb_seg_alignment_template.py",
     download: "exp02_rgb_seg_alignment_template.py",
   },
   {
     title: "实验答案",
     text: "完整可运行脚本，建议最后再对照。",
-    href: "/courses/carla/ch04/exp02_rgb_seg_alignment_answer.py",
+    href: "/courses/carla/ch03/exp02_rgb_seg_alignment_answer.py",
     download: "exp02_rgb_seg_alignment_answer.py",
   },
   {
     title: "整章总代码",
     text: "按 notebook 风格组织好的整章示例。",
-    href: "/courses/carla/ch04/carla_ch04_all_examples.py",
-    download: "carla_ch04_all_examples.py",
+    href: "/courses/carla/ch03/carla_ch03_all_examples.py",
+    download: "carla_ch03_all_examples.py",
   },
   {
     title: "实验报告提交",

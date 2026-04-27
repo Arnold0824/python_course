@@ -1,6 +1,5 @@
 import os
 import queue
-import random
 import time
 
 import carla
@@ -60,16 +59,10 @@ def main():
         vehicle_bp.set_attribute("role_name", "hero")
 
         spawn_points = world.get_map().get_spawn_points()
-        random.shuffle(spawn_points)
-
-        ego_vehicle = None
-        for sp in spawn_points:
-            ego_vehicle = world.try_spawn_actor(vehicle_bp, sp)
-            if ego_vehicle is not None:
-                break
+        ego_vehicle = world.try_spawn_actor(vehicle_bp, spawn_points[0])
 
         if ego_vehicle is None:
-            raise RuntimeError("车辆生成失败")
+            raise RuntimeError("车辆生成失败：请更换出生点或重试")
 
         actor_list.append(ego_vehicle)
 

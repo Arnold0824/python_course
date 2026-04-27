@@ -1,32 +1,64 @@
 # %% [markdown]
-# 第三章 车辆生成、传感器挂载与自动采图
+# 第三章 RGB 与语义分割双通道采集对齐
 # 建议在 Jupyter / IPython Notebook 中按顺序逐段执行。
-# 每个代码段只做一个动作，先看现象，再继续下一段。
+# 这一章的主线非常明确：
+# 1. 开启同步模式
+# 2. 生成主车
+# 3. 挂 RGB 和语义分割双相机
+# 4. 等待同一帧的两路图像
+# 5. 按帧号配对保存
+# 6. 输出参数记录和对齐报告
 
-# %% Cell 1: 导入依赖并连接 CARLA
-import os
+# %% Cell 1: 导入依赖并定义实验常量
+import json
 import queue
 import random
 import time
+from pathlib import Path
 
 import carla
 
+OUTPUT_ROOT = Path("output/exp02")
+RGB_DIR = OUTPUT_ROOT / "rgb"
+SEG_DIR = OUTPUT_ROOT / "seg"
+
+TARGET_PAIRS = 30
+AUTOPILOT_WARMUP_TICKS = 20
+CAPTURE_INTERVAL_TICKS = 8
+SYNC_DELTA = 0.05
+TRAFFIC_MANAGER_PORT = 8000
+IGNORE_LIGHTS_PERCENTAGE = 100.0
+IMAGE_SIZE_X = "800"
+IMAGE_SIZE_Y = "600"
+CAMERA_FOV = "90"
+
+CAMERA_TRANSFORM = carla.Transform(
+    carla.Location(x=1.5, y=0.0, z=2.4),
+    carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0),
+)
+
+
+# %% Cell 2: 连接 CARLA，准备输出目录和共享变量
 client = carla.Client("localhost", 2000)
 client.set_timeout(10.0)
 world = client.get_world()
+bp_lib = world.get_blueprint_library()
 
-print("当前地图：", world.get_map().name)
-
-
-# %% Cell 2: 准备共享变量和清理函数
-os.makedirs("output/ch03", exist_ok=True)
+RGB_DIR.mkdir(parents=True, exist_ok=True)
+SEG_DIR.mkdir(parents=True, exist_ok=True)
 
 actor_list = []
-image_queue = queue.Queue(maxsize=1)
 original_settings = world.get_settings()
+rgb_queue = queue.Queue(maxsize=1)
+seg_queue = queue.Queue(maxsize=1)
 traffic_manager = None
+ego_vehicle = None
+
+print("当前地图：", world.get_map().name)
+print("输出目录：", OUTPUT_ROOT.resolve())
 
 
+# %% Cell 3: 准备小工具函数
 def safe_destroy(actor):
     if actor is None:
         return
@@ -36,8 +68,66 @@ def safe_destroy(actor):
         pass
 
 
+def push_latest(channel_queue, image):
+    """只保留最新帧，避免旧帧在队列中堆积。"""
+    while not channel_queue.empty():
+        try:
+            channel_queue.get_nowait()
+        except queue.Empty:
+            break
+
+    try:
+        channel_queue.put_nowait(image)
+    except queue.Full:
+        pass
+
+
+def wait_for_image(channel_queue, target_frame, timeout=2.0):
+    """等待某一路图像追上目标帧号。"""
+    deadline = time.time() + timeout
+
+    while time.time() < deadline:
+        remaining = max(0.0, deadline - time.time())
+        try:
+            image = channel_queue.get(timeout=remaining)
+        except queue.Empty as exc:
+            raise TimeoutError(f"未在 {timeout:.1f} 秒内收到目标图像") from exc
+
+        if image.frame >= target_frame:
+            return image
+
+    raise TimeoutError(f"等待目标帧 {target_frame} 超时")
+
+
+def wait_for_aligned_pair(target_frame, timeout=3.0):
+    """等待同一帧的 RGB 与语义分割图像。"""
+    deadline = time.time() + timeout
+    rgb_image = wait_for_image(rgb_queue, target_frame, timeout=timeout)
+    seg_image = wait_for_image(seg_queue, target_frame, timeout=timeout)
+
+    while time.time() < deadline:
+        if rgb_image.frame == seg_image.frame:
+            return rgb_image, seg_image
+
+        remaining = max(0.1, deadline - time.time())
+        if rgb_image.frame < seg_image.frame:
+            rgb_image = wait_for_image(rgb_queue, seg_image.frame, timeout=remaining)
+        else:
+            seg_image = wait_for_image(seg_queue, rgb_image.frame, timeout=remaining)
+
+    raise TimeoutError("两路图像未能在规定时间内对齐到同一帧")
+
+
 def cleanup():
-    global traffic_manager
+    if traffic_manager is not None and ego_vehicle is not None:
+        try:
+            ego_vehicle.set_autopilot(False, traffic_manager.get_port())
+        except RuntimeError:
+            pass
+        try:
+            traffic_manager.set_synchronous_mode(False)
+        except RuntimeError:
+            pass
 
     for actor in reversed(actor_list):
         if isinstance(actor, carla.Sensor):
@@ -47,210 +137,169 @@ def cleanup():
     actor_list.clear()
     world.apply_settings(original_settings)
 
-    if traffic_manager is not None:
-        traffic_manager.set_synchronous_mode(False)
-        traffic_manager = None
 
+# %% Cell 4: 开启同步模式并生成主车
+settings = world.get_settings()
+settings.synchronous_mode = True
+settings.fixed_delta_seconds = SYNC_DELTA
+world.apply_settings(settings)
 
-def push_latest_image(image):
-    while not image_queue.empty():
-        try:
-            image_queue.get_nowait()
-        except queue.Empty:
-            break
-
-    try:
-        image_queue.put_nowait(image)
-    except queue.Full:
-        pass
-
-
-def wait_for_image(target_frame, timeout=2.0):
-    deadline = time.time() + timeout
-    latest_image = None
-
-    while time.time() < deadline:
-        remaining = max(0.0, deadline - time.time())
-        try:
-            image = image_queue.get(timeout=remaining)
-        except queue.Empty:
-            break
-
-        latest_image = image
-        if image.frame >= target_frame:
-            return image
-
-    if latest_image is not None:
-        return latest_image
-
-    raise TimeoutError(f"未在 {timeout} 秒内收到目标图像帧")
-
-
-print("输出目录已准备：output/ch03")
-
-
-# %% Cell 3: 获取蓝图库
-bp_lib = world.get_blueprint_library()
-print(bp_lib)
-
-
-# %% Cell 4: 选择车辆蓝图并查看出生点
 vehicle_bp = bp_lib.find("vehicle.tesla.model3")
 vehicle_bp.set_attribute("role_name", "hero")
 
 spawn_points = world.get_map().get_spawn_points()
-print("出生点数量：", len(spawn_points))
-print("第一个出生点：", spawn_points[0])
-
-
-# %% Cell 5: 先用第一个出生点尝试一次
-ego_vehicle = world.try_spawn_actor(vehicle_bp, spawn_points[0])
-print("ego_vehicle =", ego_vehicle)
-
-if ego_vehicle is not None:
-    actor_list.append(ego_vehicle)
-
-
-# %% Cell 6: 升级成稳妥版主车生成逻辑
-if ego_vehicle is not None:
-    safe_destroy(ego_vehicle)
-    actor_list.clear()
-
 random.shuffle(spawn_points)
 
 ego_vehicle = None
-for sp in spawn_points:
-    ego_vehicle = world.try_spawn_actor(vehicle_bp, sp)
+for spawn_point in spawn_points:
+    ego_vehicle = world.try_spawn_actor(vehicle_bp, spawn_point)
     if ego_vehicle is not None:
         break
 
 if ego_vehicle is None:
-    raise RuntimeError("车辆生成失败：请更换地图或重试")
+    raise RuntimeError("主车生成失败，请更换地图或重新运行")
 
 actor_list.append(ego_vehicle)
-print("ego_vehicle =", ego_vehicle)
-print("车辆位姿：", ego_vehicle.get_transform())
+print("主车已生成：", ego_vehicle.type_id)
+print("主车位姿：", ego_vehicle.get_transform())
 
 
-# %% Cell 7: 准备 RGB 相机蓝图
-sensor_bp = bp_lib.find("sensor.camera.rgb")
-sensor_bp.set_attribute("image_size_x", "800")
-sensor_bp.set_attribute("image_size_y", "600")
-sensor_bp.set_attribute("fov", "90")
-sensor_bp.set_attribute("sensor_tick", "0.0")
+# %% Cell 5: 准备双通道相机蓝图并挂载到主车
+rgb_bp = bp_lib.find("sensor.camera.rgb")
+seg_bp = bp_lib.find("sensor.camera.semantic_segmentation")
 
+for bp in (rgb_bp, seg_bp):
+    bp.set_attribute("image_size_x", IMAGE_SIZE_X)
+    bp.set_attribute("image_size_y", IMAGE_SIZE_Y)
+    bp.set_attribute("fov", CAMERA_FOV)
+    bp.set_attribute("sensor_tick", "0.0")
 
-# %% Cell 8: 定义相机安装位姿
-camera_transform = carla.Transform(
-    carla.Location(x=1.5, y=0.0, z=2.4),
-    carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0),
+rgb_camera = world.spawn_actor(
+    rgb_bp,
+    CAMERA_TRANSFORM,
+    attach_to=ego_vehicle,
+    attachment_type=carla.AttachmentType.Rigid,
 )
-
-
-# %% Cell 9: 把相机挂到主车上
-camera = world.spawn_actor(
-    sensor_bp,
-    camera_transform,
+seg_camera = world.spawn_actor(
+    seg_bp,
+    CAMERA_TRANSFORM,
     attach_to=ego_vehicle,
     attachment_type=carla.AttachmentType.Rigid,
 )
 
-actor_list.append(camera)
-print("camera =", camera)
+actor_list.extend([rgb_camera, seg_camera])
+print("RGB 相机：", rgb_camera.type_id)
+print("语义分割相机：", seg_camera.type_id)
 
 
-# %% Cell 10: 最小监听，先打印帧号
-camera.listen(lambda image: print("frame =", image.frame))
+# %% Cell 6: 注册双监听，并让主车进入自动驾驶
+rgb_camera.listen(lambda image: push_latest(rgb_queue, image))
+seg_camera.listen(lambda image: push_latest(seg_queue, image))
 
-
-# %% Cell 11: 先观察几帧，再停止预览监听
-settings = world.get_settings()
-print("synchronous_mode =", settings.synchronous_mode)
-
-if settings.synchronous_mode:
-    for _ in range(5):
-        world.tick()
-else:
-    time.sleep(1.0)
-
-camera.stop()
-print("帧号预览结束，准备切换到队列模式")
-
-
-# %% Cell 12: 切换到“只保留最新帧”的队列模式
-image_queue = queue.Queue(maxsize=1)
-camera.listen(push_latest_image)
-print("相机已切换到队列模式")
-
-
-# %% Cell 13: 进入同步模式并稳定取一帧
-settings = world.get_settings()
-settings.synchronous_mode = True
-settings.fixed_delta_seconds = 0.05
-world.apply_settings(settings)
-
-latest_image = None
-for _ in range(5):
-    frame_id = world.tick()
-    latest_image = wait_for_image(frame_id)
-
-image = latest_image
-print("当前图像帧号：", image.frame)
-
-
-# %% Cell 14: 保存一张当前图像
-os.makedirs("output/ch03", exist_ok=True)
-filename = f"output/ch03/frame_{image.frame:06d}.png"
-image.save_to_disk(filename)
-print("已保存：", filename)
-
-
-# %% Cell 15: 准备天气预设列表
-weather_presets = [
-    ("ClearNoon", carla.WeatherParameters.ClearNoon),
-    ("CloudySunset", carla.WeatherParameters.CloudySunset),
-    ("WetCloudyNoon", carla.WeatherParameters.WetCloudyNoon),
-    ("HardRainNoon", carla.WeatherParameters.HardRainNoon),
-]
-
-
-# %% Cell 16: 定义“切天气 + tick 几帧 + 保存一张图”的函数
-def capture_weather_frame(label, weather):
-    world.set_weather(weather)
-
-    latest_image = None
-    for _ in range(6):
-        frame_id = world.tick()
-        latest_image = wait_for_image(frame_id)
-
-    path = f"output/ch03/{label}_{latest_image.frame:06d}.png"
-    latest_image.save_to_disk(path)
-    print(f"{label} 已保存：{path}")
-
-
-# %% Cell 17: 依次采集多种天气下的图像
-for label, weather in weather_presets:
-    capture_weather_frame(label, weather)
-
-
-# %% Cell 18: 可选扩展，让主车自动驾驶并继续采图
-traffic_manager = client.get_trafficmanager(8000)
+traffic_manager = client.get_trafficmanager(TRAFFIC_MANAGER_PORT)
 traffic_manager.set_synchronous_mode(True)
 ego_vehicle.set_autopilot(True, traffic_manager.get_port())
+traffic_manager.ignore_lights_percentage(ego_vehicle, IGNORE_LIGHTS_PERCENTAGE)
 
-for step in range(20):
+print("Traffic Manager 端口：", traffic_manager.get_port())
+print("主车已切入自动驾驶，并设置为无视红绿灯")
+print("ignore_lights_percentage =", IGNORE_LIGHTS_PERCENTAGE)
+print("准备先热身再间隔采样")
+
+
+# %% Cell 7: 先让车辆跑起来，再每隔几帧保存一对图像
+for warmup_index in range(AUTOPILOT_WARMUP_TICKS):
     frame_id = world.tick()
-    image = wait_for_image(frame_id)
-    if step % 5 == 0:
-        path = f"output/ch03/autopilot_{image.frame:06d}.png"
-        image.save_to_disk(path)
-        print("自动驾驶采图：", path)
+    rgb_image, seg_image = wait_for_aligned_pair(frame_id)
+    if (warmup_index + 1) % 5 == 0:
+        print(
+            f"warmup {warmup_index + 1}/{AUTOPILOT_WARMUP_TICKS}: "
+            f"rgb={rgb_image.frame}, seg={seg_image.frame}"
+        )
 
-ego_vehicle.set_autopilot(False, traffic_manager.get_port())
-traffic_manager.set_synchronous_mode(False)
-traffic_manager = None
+captured_frames = []
+drive_ticks = 0
+
+while len(captured_frames) < TARGET_PAIRS:
+    frame_id = world.tick()
+    drive_ticks += 1
+    rgb_image, seg_image = wait_for_aligned_pair(frame_id)
+
+    if drive_ticks % CAPTURE_INTERVAL_TICKS != 0:
+        continue
+
+    frame_name = f"{rgb_image.frame:06d}.png"
+    rgb_path = RGB_DIR / frame_name
+    seg_path = SEG_DIR / frame_name
+
+    rgb_image.save_to_disk(str(rgb_path))
+    seg_image.save_to_disk(str(seg_path))
+    captured_frames.append(rgb_image.frame)
+
+    print(
+        f"pair {len(captured_frames):02d}/{TARGET_PAIRS}: "
+        f"tick={drive_ticks}, frame={rgb_image.frame}, "
+        f"rgb={rgb_path.name}, seg={seg_path.name}"
+    )
 
 
-# %% Cell 19: 清理资源
+# %% Cell 8: 统计结果并输出参数记录
+rgb_frames = {path.stem for path in RGB_DIR.glob("*.png")}
+seg_frames = {path.stem for path in SEG_DIR.glob("*.png")}
+matched_frames = sorted(rgb_frames & seg_frames)
+
+params = {
+    "map": world.get_map().name,
+    "vehicle_blueprint": vehicle_bp.id,
+    "rgb_blueprint": rgb_bp.id,
+    "seg_blueprint": seg_bp.id,
+    "image_size_x": int(IMAGE_SIZE_X),
+    "image_size_y": int(IMAGE_SIZE_Y),
+    "fov": int(CAMERA_FOV),
+    "fixed_delta_seconds": SYNC_DELTA,
+    "traffic_manager_port": traffic_manager.get_port() if traffic_manager else None,
+    "ignore_lights_percentage": IGNORE_LIGHTS_PERCENTAGE,
+    "autopilot_warmup_ticks": AUTOPILOT_WARMUP_TICKS,
+    "capture_interval_ticks": CAPTURE_INTERVAL_TICKS,
+    "capture_interval_seconds": CAPTURE_INTERVAL_TICKS * SYNC_DELTA,
+    "target_pairs": TARGET_PAIRS,
+    "captured_pairs": len(captured_frames),
+    "camera_transform": {
+        "x": CAMERA_TRANSFORM.location.x,
+        "y": CAMERA_TRANSFORM.location.y,
+        "z": CAMERA_TRANSFORM.location.z,
+        "pitch": CAMERA_TRANSFORM.rotation.pitch,
+        "yaw": CAMERA_TRANSFORM.rotation.yaw,
+        "roll": CAMERA_TRANSFORM.rotation.roll,
+    },
+}
+
+report = {
+    "rgb_count": len(rgb_frames),
+    "seg_count": len(seg_frames),
+    "matched_count": len(matched_frames),
+    "missing_in_seg": sorted(rgb_frames - seg_frames),
+    "missing_in_rgb": sorted(seg_frames - rgb_frames),
+    "captured_frame_min": min(captured_frames) if captured_frames else None,
+    "captured_frame_max": max(captured_frames) if captured_frames else None,
+    "total_drive_ticks_after_warmup": drive_ticks,
+    "is_aligned": len(rgb_frames) == len(seg_frames) == len(matched_frames),
+}
+
+(OUTPUT_ROOT / "params.json").write_text(
+    json.dumps(params, indent=2, ensure_ascii=False),
+    encoding="utf-8",
+)
+(OUTPUT_ROOT / "alignment_report.json").write_text(
+    json.dumps(report, indent=2, ensure_ascii=False),
+    encoding="utf-8",
+)
+
+print("参数记录已输出：", OUTPUT_ROOT / "params.json")
+print("对齐报告已输出：", OUTPUT_ROOT / "alignment_report.json")
+print(report)
+
+
+# %% Cell 9: 清理资源
 cleanup()
-print("第三章示例资源已清理")
+print("第三章示例代码已清理完成")

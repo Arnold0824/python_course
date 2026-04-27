@@ -9,6 +9,7 @@ import css from "highlight.js/lib/languages/css";
 import sql from "highlight.js/lib/languages/sql";
 import yaml from "highlight.js/lib/languages/yaml";
 import { nextTick, onMounted, onUnmounted, ref } from "vue";
+import { useRoute } from "vue-router";
 
 hljs.registerLanguage("python", python);
 hljs.registerLanguage("javascript", javascript);
@@ -42,6 +43,7 @@ const CONFIG = {
   slideModeBodyClass: "lesson-slide-mode",
   sidebarBodyClass: "lesson-sidebar-enabled",
   slideDeckSelector: ".page.is-slide-deck",
+  pagedNavigation: false,
   slideTransitionLockMs: 700,
   codeSelector: "pre > code",
   codeCopyButtonText: "复制代码",
@@ -158,6 +160,7 @@ function inferAutoTipMessage(label) {
 }
 
 export function useLessonDeck(rootRef) {
+  const route = useRoute();
   const outlineItems = ref([]);
   const activeOutlineIndex = ref(0);
 
@@ -172,6 +175,10 @@ export function useLessonDeck(rootRef) {
   let navLinks = [];
   let sectionTargets = [];
   let sectionFragments = new Map();
+  let activeSectionId = "";
+  let pendingHashScrollFrame = 0;
+  let hashSyncTimer = null;
+  let suppressScrollHashSync = false;
 
   function addCleanup(fn) {
     cleanupFns.push(fn);
@@ -370,6 +377,12 @@ export function useLessonDeck(rootRef) {
     sections.forEach((section, index) => {
       const fragments = Array.from(section.querySelectorAll(CONFIG.fragmentSelector));
       if (!fragments.length) return;
+      if (!CONFIG.pagedNavigation) {
+        fragments.forEach((frag) => {
+          frag.classList.add(CONFIG.fragmentVisibleClass);
+        });
+        return;
+      }
       fragments.forEach((frag) => {
         frag.classList.remove("visible");
         frag.classList.remove("current-fragment");
@@ -385,6 +398,54 @@ export function useLessonDeck(rootRef) {
     return Math.min(6, Math.max(1, Math.round(raw)));
   }
 
+  function getCurrentRoutePath() {
+    return (route.fullPath || "/").split("#")[0] || "/";
+  }
+
+  function decodeHashValue(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (error) {
+      return value;
+    }
+  }
+
+  function getSectionIdFromLocation() {
+    const raw = window.location.hash || "";
+    if (!raw.startsWith("#/")) return "";
+    const body = raw.slice(1);
+    const sectionHashIndex = body.indexOf("#");
+    if (sectionHashIndex < 0) return "";
+    return decodeHashValue(body.slice(sectionHashIndex + 1));
+  }
+
+  function writeSectionHash(sectionId, mode = "replace") {
+    if (!sectionId) return;
+    const encodedId = encodeURIComponent(sectionId);
+    const targetUrl = `${window.location.pathname}${window.location.search}#${getCurrentRoutePath()}#${encodedId}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (targetUrl === currentUrl) return;
+    const method = mode === "push" ? "pushState" : "replaceState";
+    window.history[method](window.history.state, "", targetUrl);
+  }
+
+  function uniqueSectionId(base, usedIds) {
+    const normalized = String(base || "section")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const fallback = normalized || "section";
+    let candidate = fallback;
+    let suffix = 2;
+    while (usedIds.has(candidate)) {
+      candidate = `${fallback}-${suffix}`;
+      suffix += 1;
+    }
+    usedIds.add(candidate);
+    return candidate;
+  }
+
   function resolveOutlineLabel(section, index) {
     const custom = section.getAttribute("data-outline-label");
     if (custom && custom.trim()) return custom.trim();
@@ -395,14 +456,24 @@ export function useLessonDeck(rootRef) {
 
   function buildOutline() {
     const counters = [];
+    const usedIds = new Set();
     outlineItems.value = sections.map((section, index) => {
       const level = parseOutlineLevel(section);
       counters[level - 1] = (counters[level - 1] || 0) + 1;
       counters.length = level;
+      const number = counters.join(".");
+      const id =
+        section.id && !usedIds.has(section.id)
+          ? uniqueSectionId(section.id, usedIds)
+          : uniqueSectionId(`section-${number.replace(/\./g, "-")}`, usedIds);
+      section.id = id;
       return {
         index,
         level,
-        number: counters.join("."),
+        id,
+        hash: `#${id}`,
+        href: `#${getCurrentRoutePath()}#${encodeURIComponent(id)}`,
+        number,
         label: resolveOutlineLabel(section, index),
       };
     });
@@ -436,6 +507,14 @@ export function useLessonDeck(rootRef) {
 
   function getClosestSlideIndex() {
     const marker = window.scrollY + (topNavEl ? topNavEl.offsetHeight + 12 : CONFIG.navOffset);
+    if (!CONFIG.pagedNavigation) {
+      let activeIndex = 0;
+      sections.forEach((section, index) => {
+        if (section.offsetTop <= marker) activeIndex = index;
+      });
+      return activeIndex;
+    }
+
     let closestIndex = 0;
     let closestDistance = Number.POSITIVE_INFINITY;
     sections.forEach((section, index) => {
@@ -448,8 +527,27 @@ export function useLessonDeck(rootRef) {
     return closestIndex;
   }
 
-  function updateActiveOutline() {
-    activeOutlineIndex.value = getClosestSlideIndex();
+  function syncUrlToActiveSection(index, mode = "replace") {
+    const section = sections[index];
+    if (!section || !section.id) return;
+    if (activeSectionId === section.id && getSectionIdFromLocation() === section.id) return;
+    activeSectionId = section.id;
+    writeSectionHash(section.id, mode);
+  }
+
+  function pauseScrollHashSync() {
+    suppressScrollHashSync = true;
+    window.clearTimeout(hashSyncTimer);
+    hashSyncTimer = window.setTimeout(() => {
+      suppressScrollHashSync = false;
+      updateActiveOutline();
+    }, CONFIG.slideTransitionLockMs);
+  }
+
+  function updateActiveOutline({ syncHash = true } = {}) {
+    const nextIndex = getClosestSlideIndex();
+    activeOutlineIndex.value = nextIndex;
+    if (syncHash && !suppressScrollHashSync) syncUrlToActiveSection(nextIndex, "replace");
   }
 
   function resetSlideCardScroll(index) {
@@ -475,11 +573,34 @@ export function useLessonDeck(rootRef) {
     return false;
   }
 
-  function jumpToSlide(index) {
+  function jumpToSlide(index, options = {}) {
     if (!sections.length) return;
+    const { syncHash = true, hashMode = "push", behavior = "smooth" } = options;
     const safe = Math.max(0, Math.min(index, sections.length - 1));
     resetSlideCardScroll(safe);
-    sections[safe].scrollIntoView({ behavior: "smooth", block: "start" });
+    activeOutlineIndex.value = safe;
+    if (syncHash) {
+      syncUrlToActiveSection(safe, hashMode);
+      pauseScrollHashSync();
+    }
+    sections[safe].scrollIntoView({ behavior, block: "start" });
+  }
+
+  function scrollToSectionHash() {
+    const sectionId = getSectionIdFromLocation();
+    if (!sectionId) return false;
+    const index = sections.findIndex((section) => section.id === sectionId);
+    if (index < 0) return false;
+    activeSectionId = sectionId;
+    jumpToSlide(index, { syncHash: false, behavior: "auto" });
+    return true;
+  }
+
+  function scheduleHashScroll() {
+    window.cancelAnimationFrame(pendingHashScrollFrame);
+    pendingHashScrollFrame = window.requestAnimationFrame(() => {
+      scrollToSectionHash();
+    });
   }
 
   function jumpSlide(direction) {
@@ -507,6 +628,9 @@ export function useLessonDeck(rootRef) {
       direction > 0 ? Math.min(current + 1, sections.length - 1) : Math.max(current - 1, 0);
     if (target !== current) {
       resetSlideCardScroll(target);
+      activeOutlineIndex.value = target;
+      syncUrlToActiveSection(target, "push");
+      pauseScrollHashSync();
       sections[target].scrollIntoView({ behavior: "smooth", block: "start" });
     }
     window.clearTimeout(slideLockTimer);
@@ -541,9 +665,13 @@ export function useLessonDeck(rootRef) {
     syncSlideNavOffset();
     updateProgress();
     activateTopNav();
-    updateActiveOutline();
+    if (!scrollToSectionHash()) {
+      updateActiveOutline();
+    }
 
     addListener(window, "resize", syncSlideNavOffset, { passive: true });
+    addListener(window, "popstate", scheduleHashScroll);
+    addListener(window, "hashchange", scheduleHashScroll);
     addListener(
       window,
       "scroll",
@@ -554,30 +682,32 @@ export function useLessonDeck(rootRef) {
       },
       { passive: true }
     );
-    addListener(
-      window,
-      "wheel",
-      (event) => {
-        if (Math.abs(event.deltaY) < 24) return;
-        if (canScrollInsideCard(event.target, event.deltaY)) return;
-        event.preventDefault();
-        jumpSlide(event.deltaY > 0 ? 1 : -1);
-      },
-      { passive: false }
-    );
-    addListener(window, "keydown", (event) => {
-      if (event.defaultPrevented) return;
-      const tag = (event.target && event.target.tagName) || "";
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-      if (event.key === "ArrowDown" || event.key === "PageDown" || event.key === " ") {
-        event.preventDefault();
-        jumpSlide(1);
-      }
-      if (event.key === "ArrowUp" || event.key === "PageUp") {
-        event.preventDefault();
-        jumpSlide(-1);
-      }
-    });
+    if (CONFIG.pagedNavigation) {
+      addListener(
+        window,
+        "wheel",
+        (event) => {
+          if (Math.abs(event.deltaY) < 24) return;
+          if (canScrollInsideCard(event.target, event.deltaY)) return;
+          event.preventDefault();
+          jumpSlide(event.deltaY > 0 ? 1 : -1);
+        },
+        { passive: false }
+      );
+      addListener(window, "keydown", (event) => {
+        if (event.defaultPrevented) return;
+        const tag = (event.target && event.target.tagName) || "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        if (event.key === "ArrowDown" || event.key === "PageDown" || event.key === " ") {
+          event.preventDefault();
+          jumpSlide(1);
+        }
+        if (event.key === "ArrowUp" || event.key === "PageUp") {
+          event.preventDefault();
+          jumpSlide(-1);
+        }
+      });
+    }
     return true;
   }
 
@@ -596,11 +726,17 @@ export function useLessonDeck(rootRef) {
     }
     window.clearTimeout(toastTimer);
     window.clearTimeout(slideLockTimer);
+    window.clearTimeout(hashSyncTimer);
     toastTimer = null;
     slideLockTimer = null;
+    hashSyncTimer = null;
+    suppressScrollHashSync = false;
     slideLocked = false;
     sections = [];
     sectionFragments = new Map();
+    activeSectionId = "";
+    window.cancelAnimationFrame(pendingHashScrollFrame);
+    pendingHashScrollFrame = 0;
     outlineItems.value = [];
     activeOutlineIndex.value = 0;
     document.body.classList.remove(CONFIG.slideModeBodyClass, CONFIG.sidebarBodyClass);

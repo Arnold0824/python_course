@@ -36,12 +36,18 @@ const learningGoals = [
 ];
 
 const roadmap = [
-  "requests：发送网络请求",
-  "Headers 与 Cookie：理解登录态",
-  "Session：复用会话设置",
-  "BeautifulSoup：解析课表结构",
-  "分页与去重：采集多页记录",
-  "CSV：保存全校课表",
+  { no: "01", title: "requests", text: "发送网络请求，先看服务器返回了什么。" },
+  { no: "02", title: "Headers 与 Cookie", text: "理解浏览器请求头和登录态。" },
+  { no: "03", title: "Session", text: "复用会话设置，避免请求代码反复堆叠。" },
+  { no: "04", title: "BeautifulSoup", text: "解析 HTML 表格，提取课表结构。" },
+  { no: "05", title: "分页与去重", text: "使用 jumpPage 采集多页记录。" },
+  { no: "06", title: "CSV", text: "保存全校课表，形成可复查文件。" },
+];
+
+const chapterMetrics = [
+  { value: "14", label: "增量小节" },
+  { value: "16", label: "课表字段" },
+  { value: "CSV", label: "最终产出" },
 ];
 
 const foundationMap = [
@@ -142,7 +148,7 @@ const webConceptCards = [
   {
     title: "Request：请求",
     icon: IconSearch,
-    text: "请求是客户端发出的访问动作。它说明“我要什么、用什么方式要、我是谁、我能接受什么格式”。",
+    text: "请求是客户端发出的访问动作。它说明目标资源、访问方式、客户端身份和可接受的响应格式。",
     example: "请求可能包含 URL、Method、Headers、params、data、json 和 Cookie。",
   },
   {
@@ -641,7 +647,7 @@ def parse_cookie(raw_cookie):
 # 添加位置：main() 打印诊断时，可以临时加一行，只打印字段名不打印值。
 # + print("Cookie 字段：", ", ".join(parse_cookie(COOKIE).keys()))`,
     explain: "这一节只解决登录态格式。parse_cookie() 支持纯 Cookie，也支持从浏览器复制出的 Cookie: 请求头行。",
-    key: "Cookie 值不能打印给别人看。课堂上只打印字段名，用来确认格式是否正确。",
+    key: "Cookie 值不能公开展示。调试时只打印字段名，用来确认格式是否正确。",
     check: "如果字段齐全但仍然是登录页，通常是 Cookie 过期，或复制的不是课表页请求对应的 Cookie。",
   },
   {
@@ -784,7 +790,7 @@ print(table.get("class"))`,
     kind: "table",
     label: "BS4 方法速查",
     title: "5.7.2 BeautifulSoup 常用对象和方法速查",
-    problem: "学生第一次接触 BeautifulSoup 时，最容易把 find、find_all、select、get_text 混在一起。",
+    problem: "第一次接触 BeautifulSoup 时，最容易把 find、find_all、select、get_text 混在一起。",
     change: "本页用表格整理常用写法。先记住“解析、定位、取值、取文本”四类动作，后面解析课表时按需选择。",
     tableRows: [
       { name: 'BeautifulSoup(html, "html.parser")', usage: "把 HTML 字符串解析成 soup 对象", example: 'soup = BeautifulSoup(html, "html.parser")' },
@@ -850,7 +856,7 @@ for row in rows:
     teacher = row.select_one(".teacher").get_text(strip=True)
     room = row.select_one(".room").get_text(strip=True)
     print(name, teacher, room)`,
-    explain: "定位元素时不要只依赖标签名。可以用 id、class、层级关系逐步缩小范围，让代码更接近“我要找课表里的课程行”。",
+    explain: "定位元素时不要只依赖标签名。可以用 id、class、层级关系逐步缩小范围，让代码更准确地指向课表里的课程行。",
     key: "#courses 表示 id 为 courses 的元素；.course-row 表示 class 包含 course-row 的元素；空格表示后代层级。",
     check: "运行后第一行应为 True，后面打印两条课程。能解释每个选择器的含义，才算真正会用。",
     notes: [
@@ -943,7 +949,7 @@ def find_course_table(html):
 # + describe_tables(html)
 # + table = find_course_table(html)
 # + print("是否找到候选课表：", table is not None)`,
-    explain: "这一节故意不请求网站，而是读取本地 HTML。学生可以反复观察结构，不会频繁访问服务器。",
+    explain: "这一节故意不请求网站，而是读取本地 HTML。这样可以反复观察结构，也不会频繁访问服务器。",
     key: "先观察，再解析。BeautifulSoup 的第一步不是提字段，而是定位结构。",
     check: "如果表格数量为 0，说明 course_page.html 不是课表页，要回到 Cookie 登录态步骤。",
   },
@@ -1001,7 +1007,7 @@ def parse_table_records(table):
     no: "10",
     label: "网页表头字段",
     title: "5.10 增量添加：按网页表头固定保存字段",
-    problem: "课表网页已经给出了明确表头，不应该再用关键词猜字段名。保存结果应和网页表头一致，便于学生核对。",
+    problem: "课表网页已经给出了明确表头，不应该再用关键词猜字段名。保存结果应和网页表头一致，便于核对。",
     change: "新增 COURSE_FIELDS 和 normalize_course()；normalize_course() 只按网页表头补齐字段，不改名、不猜测。",
     code: `# 添加位置：parse_table_records() 下面
 # 作用：按网页表头顺序固定输出字段。
@@ -1172,8 +1178,8 @@ def save_csv(records, filename):
     no: "14",
     label: "完整代码",
     title: "5.14 完整代码：course_spider.py",
-    problem: "前面每一节都是增量代码。学完后需要一份完整文件，方便学生对照自己的版本检查缺漏。",
-    change: "完整代码已经整理为 public/courses/python/ch07/course_spider.py。COOKIE 保持空字符串，由学生填写自己的 Cookie。",
+    problem: "前面每一节都是增量代码。学完后需要一份完整文件，方便对照自己的版本检查缺漏。",
+    change: "完整代码已经整理为 public/courses/python/ch07/course_spider.py。COOKIE 保持空字符串，运行前填写自己的 Cookie。",
     downloadHref: courseSpiderHref,
     code: `# 完整代码下载路径：
 # /courses/python/ch07/course_spider.py
@@ -1186,7 +1192,7 @@ def save_csv(records, filename):
 # 5. 确认 CSV 正常后，再逐步调大 MAX_PAGE。`,
     explain: "完整代码把本节实战的请求、登录态、解析、分页、字段整理和 CSV 保存合并到一个文件。",
     key: "最终 CSV 字段使用网页原始表头：序号、选课编号、课程代码、课程名称、教学班号等。",
-    check: "不要把填写了个人 Cookie 的文件提交或发送给别人。公开下载版本必须保持 COOKIE 为空。",
+    check: "不要把填写了个人 Cookie 的文件提交或发送给他人。公开下载版本必须保持 COOKIE 为空。",
   },
 ];
 
@@ -1290,17 +1296,28 @@ const summaryCards = [
         data-outline-level="1"
         data-outline-label="章节封面"
       >
-        <p class="kicker">CHAPTER 07 WEB DATA CRAWLING</p>
-        <h1>网络数据爬取：<br />让 Python 学会从互联网获取信息</h1>
-        <p class="hero-intro">
-          第七章把前面学过的数据类型、文件操作和模块能力串起来。
-          本章不再只处理本地文件，而是围绕教务课表页面完成请求诊断、登录态访问、结构解析、分页采集和表格保存。
-        </p>
-        <ul class="hero-checklist">
-          <li>从最简单的 <code>requests.get()</code> 开始，理解请求和响应。</li>
-          <li>用同一个课表采集任务逐步遇到问题、定位原因、修改代码。</li>
-          <li>把 HTML 表格整理成 CSV，形成可以复查的数据文件。</li>
-        </ul>
+        <div class="lesson-hero-grid">
+          <div class="lesson-hero-copy">
+            <p class="kicker">CHAPTER 07 WEB DATA CRAWLING</p>
+            <h1>网络数据爬取：<br />让 Python 学会从互联网获取信息</h1>
+            <p class="hero-intro">
+              第七章把前面学过的数据类型、文件操作和模块能力串起来。
+              本章不再只处理本地文件，而是围绕教务课表页面完成请求诊断、登录态访问、结构解析、分页采集和表格保存。
+            </p>
+            <ul class="hero-checklist">
+              <li>从最简单的 <code>requests.get()</code> 开始，理解请求和响应。</li>
+              <li>围绕同一个课表采集任务，逐步发现问题、定位原因、修改代码。</li>
+              <li>把 HTML 表格整理成 CSV，形成可以复查的数据文件。</li>
+            </ul>
+          </div>
+          <aside class="lesson-hero-panel">
+            <span class="lesson-panel-label">全校课表采集实战</span>
+            <div class="lesson-metric" v-for="metric in chapterMetrics" :key="metric.label">
+              <strong>{{ metric.value }}</strong>
+              <span>{{ metric.label }}</span>
+            </div>
+          </aside>
+        </div>
         <div class="goal-cards fly-in-seq">
           <article v-for="goal in learningGoals" :key="goal">
             <h2>能力目标</h2>
@@ -1319,8 +1336,12 @@ const summaryCards = [
           学习顺序按照真实数据采集流程展开：先发出请求，再识别登录态问题，然后解析表格和分页，
           最后把课表记录保存为可以复用的数据文件。
         </p>
-        <div class="chapter-seven-rhythm">
-          <span v-for="item in roadmap" :key="item">{{ item }}</span>
+        <div class="lesson-phase-track">
+          <article class="lesson-phase-card" v-for="item in roadmap" :key="item.no">
+            <span>{{ item.no }}</span>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+          </article>
         </div>
       </section>
 
@@ -1365,7 +1386,7 @@ const summaryCards = [
           <p class="kicker">SECTION 04 FOUNDATIONS</p>
           <h2>4 基础概念：先理解网络访问，再学习爬虫工具</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           爬虫程序不是凭空“拿到数据”，而是沿着网络协议访问资源、接收响应、识别内容格式、
           解析目标字段。第 4 节先建立这些概念，再进入代码实战。
         </p>
@@ -1391,7 +1412,7 @@ const summaryCards = [
           <p class="kicker">4.1 FOUNDATIONS</p>
           <h2>4.1 一次网络访问：从 URL 到响应的完整过程</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           爬虫程序和浏览器做的是同一类事情：找到资源、发送请求、接收响应、解析内容。
           区别在于浏览器把结果显示成页面，爬虫把结果交给 Python 程序继续处理。
         </p>
@@ -1418,7 +1439,7 @@ const summaryCards = [
           <p class="kicker">4.2 FOUNDATIONS</p>
           <h2>4.2 请求与响应：读懂爬虫程序最常接触的对象</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           写爬虫时，最核心的对象不是“网页”，而是请求和响应。请求决定服务器返回什么，
           响应决定程序后续能不能解析、怎么解析。
         </p>
@@ -1445,7 +1466,7 @@ const summaryCards = [
           <p class="kicker">4.3 FOUNDATIONS</p>
           <h2>4.3 数据格式：先判断内容，再选择解析工具</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           解析工具不能乱用。JSON、HTML、纯文本、二进制文件和登录态页面的处理方式不同。
           爬虫的第一条经验是：先看响应内容，再写解析代码。
         </p>
@@ -1471,7 +1492,7 @@ const summaryCards = [
           <p class="kicker">4.4 FOUNDATIONS</p>
           <h2>4.4 爬虫流程：从采集目标到数据文件</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           完整爬虫不是一条 requests.get()。真正可用的采集程序需要目标、入口、请求、解析、
           清洗、去重、保存和错误处理。每一步都决定最终数据是否可靠。
         </p>
@@ -1497,7 +1518,7 @@ const summaryCards = [
           <p class="kicker">4.5 HISTORY</p>
           <h2>4.5 爬虫简史：技术是怎样出现的</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           最早的爬虫并不是为了商业化数据采集，而是为了理解互联网有多大、有哪些资源、如何让用户更快找到页面。
         </p>
         <div class="chapter-seven-grid chapter-seven-history-grid">
@@ -1525,7 +1546,7 @@ const summaryCards = [
           <p class="kicker">4.6 EVOLUTION</p>
           <h2>4.6 技术演变：从早期爬虫到现代采集工具</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           requests、Cookie、Session、BeautifulSoup 和 CSV，正好对应了本章从请求页面到保存课表的完整路线。
         </p>
         <div class="chapter-seven-grid chapter-seven-quad-grid">
@@ -1548,7 +1569,7 @@ const summaryCards = [
           <p class="kicker">4.7 CIVICS & LAW</p>
           <h2>4.7 个人隐私与法律风险：技术能力必须有边界</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           爬虫学习不能只追求“能不能抓到”。个人信息保护、平台规则、访问频率和数据用途同样重要。
           合格的程序员要把技术能力用于正当、合法、尊重他人的场景。
         </p>
@@ -1573,7 +1594,7 @@ const summaryCards = [
           <p class="kicker">4.8 SOURCES</p>
           <h2>4.8 资料来源：给历史节点和法律案例留下可追溯链接</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           技术学习不能只记结论。遇到历史节点、工具起源和法律案例时，要能回到原始资料或权威条目核对。
         </p>
         <div class="chapter-seven-grid chapter-seven-source-grid">
@@ -1603,87 +1624,84 @@ const summaryCards = [
           <p class="kicker">SECTION 05 CODE PRACTICE</p>
           <h2>5 代码实战：每页只解决一个采集动作</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           代码实战围绕“爬取全校课表”这一目标渐进展开。每一页先说明遇到的问题，
           再明确本节只改哪里，最后给出增量代码和检查方式。
         </p>
-        <div class="chapter-seven-grid chapter-seven-foundation-map">
-          <article
-            class="chapter-seven-card chapter-seven-map-card"
-            v-for="item in codePracticeMap"
-            :key="item.title"
-          >
-            <img class="chapter-seven-map-icon" :src="item.icon" alt="" aria-hidden="true" />
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.text }}</p>
-          </article>
+        <div class="lesson-step-list">
+          <span v-for="item in codePracticeMap" :key="item.title">
+            <strong>{{ item.title }}</strong><br />
+            {{ item.text }}
+          </span>
         </div>
       </section>
 
       <section
         v-for="slide in codeSlides"
         :key="slide.no"
-        class="section reveal chapter-seven-code-page"
+        class="section reveal lesson-code-page"
         :data-outline-level="slide.outlineLevel || 2"
         :data-outline-label="slide.label"
       >
-        <div class="section-head">
-          <p class="kicker">{{ slide.displayNo || `5.${Number(slide.no)}` }} CODE PRACTICE</p>
-          <h2>{{ slide.title }}</h2>
-        </div>
-        <div v-if="slide.kind === 'table'" class="chapter-seven-table-card">
-          <table>
-            <thead>
-              <tr>
-                <th>函数 / 写法</th>
-                <th>作用</th>
-                <th>示例</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in slide.tableRows" :key="row.name">
-                <td><code>{{ row.name }}</code></td>
-                <td>{{ row.usage }}</td>
-                <td><code>{{ row.example }}</code></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div v-else class="chapter-seven-code-shell">
-          <pre><code class="python">{{ slide.code }}</code></pre>
-        </div>
-        <a
-          v-if="slide.downloadHref"
-          class="chapter-seven-download-link"
-          :href="slide.downloadHref"
-          download
-        >
-          下载完整代码：{{ slide.downloadHref }}
-        </a>
-        <div v-if="slide.notes" class="chapter-seven-plain-notes">
-          <p v-for="note in slide.notes" :key="note">{{ note }}</p>
-        </div>
-        <div v-else class="chapter-seven-grid chapter-seven-2plus1">
-          <article v-if="slide.problem" class="chapter-seven-card">
-            <h3>遇到的问题</h3>
-            <p>{{ slide.problem }}</p>
-          </article>
-          <article v-if="slide.change" class="chapter-seven-card">
-            <h3>本节修改</h3>
-            <p>{{ slide.change }}</p>
-          </article>
-          <article class="chapter-seven-card">
-            <h3>这一段在做什么</h3>
-            <p>{{ slide.explain }}</p>
-          </article>
-          <article class="chapter-seven-card">
-            <h3>本页关键词</h3>
-            <p>{{ slide.key }}</p>
-          </article>
-          <article class="chapter-seven-card">
-            <h3>运行检查</h3>
-            <p>{{ slide.check }}</p>
-          </article>
+        <div class="lesson-slide-layout">
+          <div class="lesson-slide-notes">
+            <div class="section-head">
+              <p class="kicker">{{ slide.displayNo || `5.${Number(slide.no)}` }} CODE PRACTICE</p>
+              <h2>{{ slide.title }}</h2>
+            </div>
+            <p v-if="slide.problem" class="lesson-cue">{{ slide.problem }}</p>
+
+            <div class="lesson-teach-stack">
+              <article v-if="slide.change" class="command-card lesson-teach-card">
+                <h3>本节修改</h3>
+                <p>{{ slide.change }}</p>
+              </article>
+              <article class="command-card lesson-teach-card">
+                <h3>这一段在做什么</h3>
+                <p>{{ slide.explain }}</p>
+              </article>
+              <article class="command-card lesson-teach-card">
+                <h3>关键记忆点</h3>
+                <p>{{ slide.key }}</p>
+              </article>
+              <article class="command-card lesson-teach-card">
+                <h3>运行检查</h3>
+                <p>{{ slide.check }}</p>
+              </article>
+            </div>
+
+            <div v-if="slide.notes" class="lesson-plain-notes">
+              <p v-for="note in slide.notes" :key="note">{{ note }}</p>
+            </div>
+          </div>
+
+          <div v-if="slide.kind === 'table'" class="lesson-table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>函数 / 写法</th>
+                  <th>作用</th>
+                  <th>示例</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in slide.tableRows" :key="row.name">
+                  <td><code>{{ row.name }}</code></td>
+                  <td>{{ row.usage }}</td>
+                  <td><code>{{ row.example }}</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <pre v-else><code class="python">{{ slide.code }}</code></pre>
+          <a
+            v-if="slide.downloadHref"
+            class="lesson-download-link"
+            :href="slide.downloadHref"
+            download
+          >
+            下载完整代码：{{ slide.downloadHref }}
+          </a>
         </div>
       </section>
 
@@ -1716,7 +1734,7 @@ const summaryCards = [
           <p class="kicker">CAPSTONE</p>
           <h2>7 综合项目：爬取全校课表并保存为 CSV</h2>
         </div>
-        <p class="chapter-seven-cue">
+        <p class="lesson-cue">
           最终项目不是另起一个无关案例，而是把第 5 节逐步完成的代码合并成完整流程：
           使用 <code>requests</code> 携带本人登录态访问教务课表页面，用 <code>BeautifulSoup</code>
           解析表格和分页，再把课表记录保存成 <code>school_courses.csv</code>。
@@ -1775,41 +1793,11 @@ const summaryCards = [
 </template>
 
 <style scoped>
-.page.is-slide-deck .chapter-seven-rhythm,
 .page.is-slide-deck .chapter-seven-grid {
   margin-top: 16px;
   display: grid;
   gap: 12px;
   align-items: stretch;
-}
-
-.page.is-slide-deck .chapter-seven-rhythm {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.page.is-slide-deck .chapter-seven-rhythm span {
-  min-width: 0;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(11, 98, 179, 0.18);
-  background:
-    radial-gradient(circle at 18% 16%, rgba(91, 180, 255, 0.18), transparent 40%),
-    linear-gradient(180deg, rgba(248, 252, 255, 0.98), rgba(232, 244, 255, 0.92));
-  color: #0a5eaf;
-  font-size: 0.9rem;
-  font-weight: 800;
-  text-align: center;
-}
-
-.page.is-slide-deck .chapter-seven-cue {
-  margin: 12px 0 0;
-  padding: 14px 16px;
-  border: 1px solid rgba(11, 98, 179, 0.14);
-  border-left: 5px solid rgba(11, 98, 179, 0.55);
-  border-radius: 16px;
-  background: linear-gradient(90deg, rgba(11, 98, 179, 0.09), rgba(255, 255, 255, 0.76));
-  color: #274155;
-  line-height: 1.72;
 }
 
 .page.is-slide-deck .chapter-seven-block-title {
@@ -1950,88 +1938,6 @@ const summaryCards = [
   font-weight: 800;
 }
 
-.page.is-slide-deck .chapter-seven-code-shell {
-  margin-top: 18px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(8, 16, 29, 0.97), rgba(14, 28, 48, 0.98));
-  overflow: hidden;
-  box-shadow: 0 20px 34px rgba(7, 25, 52, 0.14);
-}
-
-.page.is-slide-deck .chapter-seven-table-card {
-  margin-top: 18px;
-  border-radius: 18px;
-  border: 1px solid rgba(9, 80, 150, 0.13);
-  background: rgba(255, 255, 255, 0.98);
-  overflow: hidden;
-  box-shadow: 0 16px 30px rgba(16, 53, 92, 0.08);
-}
-
-.page.is-slide-deck .chapter-seven-table-card table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-}
-
-.page.is-slide-deck .chapter-seven-table-card th,
-.page.is-slide-deck .chapter-seven-table-card td {
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(9, 80, 150, 0.1);
-  text-align: left;
-  vertical-align: top;
-}
-
-.page.is-slide-deck .chapter-seven-table-card th {
-  background: linear-gradient(180deg, rgba(232, 244, 255, 0.96), rgba(244, 249, 255, 0.96));
-  color: #123b61;
-  font-weight: 900;
-}
-
-.page.is-slide-deck .chapter-seven-table-card tr:last-child td {
-  border-bottom: 0;
-}
-
-.page.is-slide-deck .chapter-seven-table-card code {
-  color: #0a5eaf;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.page.is-slide-deck .chapter-seven-code-shell pre {
-  margin: 0;
-  padding: 18px;
-  overflow-x: auto;
-}
-
-.page.is-slide-deck .chapter-seven-code-shell code {
-  color: #f4f8ff;
-  line-height: 1.75;
-}
-
-.page.is-slide-deck .chapter-seven-plain-notes {
-  display: grid;
-  gap: 8px;
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-left: 4px solid #0b62b3;
-  border-radius: 12px;
-  background: rgba(232, 244, 255, 0.72);
-  color: #24435f;
-  line-height: 1.7;
-}
-
-.page.is-slide-deck .chapter-seven-plain-notes p {
-  margin: 0;
-}
-
-.page.is-slide-deck .chapter-seven-download-link {
-  display: inline-flex;
-  margin-top: 14px;
-  color: #0a5eaf;
-  font-weight: 900;
-  text-decoration: underline;
-}
-
 .page.is-slide-deck .chapter-seven-link {
   display: block;
   margin-top: auto;
@@ -2044,7 +1950,6 @@ const summaryCards = [
 }
 
 @media (max-width: 900px) {
-  .page.is-slide-deck .chapter-seven-rhythm,
   .page.is-slide-deck .chapter-seven-link-grid,
   .page.is-slide-deck .chapter-seven-source-grid,
   .page.is-slide-deck .chapter-seven-2plus1,
@@ -2055,3 +1960,4 @@ const summaryCards = [
   }
 }
 </style>
+

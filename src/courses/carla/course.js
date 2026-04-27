@@ -16,14 +16,14 @@ export const carlaCourse = {
       id: "2",
       label: "第二章 车辆生成、传感器挂载与自动采图",
       path: "/carla/chapter/2",
-      component: () => import("./views/Chapter03View.vue"),
+      component: () => import("./views/Chapter02View.vue"),
     },
     {
       no: "03",
       id: "3",
       label: "第三章 RGB与语义分割双通道采集对齐",
       path: "/carla/chapter/3",
-      component: () => import("./views/Chapter04View.vue"),
+      component: () => import("./views/Chapter03View.vue"),
     },
   ],
 };

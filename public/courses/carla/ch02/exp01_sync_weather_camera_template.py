@@ -1,6 +1,5 @@
 import os
 import queue
-import random
 import time
 
 import carla
@@ -65,15 +64,10 @@ def main():
         # vehicle_bp = ____________________________________
         # vehicle_bp.set_attribute("role_name", "hero")
 
-        # 第 5 步：从出生点中稳妥地生成主车
-        # 提示：可以先获取 spawn_points，再打乱顺序后循环尝试
+        # 第 5 步：使用第一个出生点生成主车
+        # 提示：先获取 spawn_points，再用 spawn_points[0] 尝试生成
         # spawn_points = __________________________________
-        # random.shuffle(spawn_points)
-        # ego_vehicle = None
-        # for sp in spawn_points:
-        #     ego_vehicle = _______________________________
-        #     if ego_vehicle is not None:
-        #         break
+        # ego_vehicle = _________________________________
 
         # if ego_vehicle is None:
         #     raise RuntimeError("车辆生成失败")
