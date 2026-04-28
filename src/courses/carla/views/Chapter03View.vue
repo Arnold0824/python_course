@@ -15,6 +15,33 @@ const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
 
 const chapterAllCodeHref = "/courses/carla/ch03/carla_ch03_all_examples.py";
+const exp02OutputZipHref = "/courses/carla/output/exp02.zip";
+
+const exp02ResultSamples = [
+  {
+    title: "样本 1：起始路段",
+    frame: "383767",
+    rgb: "/courses/carla/output/exp02/rgb/383767.png",
+    seg: "/courses/carla/output/exp02/seg/383767.png",
+  },
+  {
+    title: "样本 15：中段路口",
+    frame: "383879",
+    rgb: "/courses/carla/output/exp02/rgb/383879.png",
+    seg: "/courses/carla/output/exp02/seg/383879.png",
+  },
+  {
+    title: "样本 30：末段道路",
+    frame: "383999",
+    rgb: "/courses/carla/output/exp02/rgb/383999.png",
+    seg: "/courses/carla/output/exp02/seg/383999.png",
+  },
+];
+
+const exp02ResultStats = [
+  { title: "配对数量", text: "rgb 与 seg 目录各 30 张图像，文件名一一对应。" },
+  { title: "命名方式", text: "每一对样本都使用 CARLA frame 作为文件名，例如 383767.png。" },
+];
 
 const learningGoals = [
   "能说明双通道采集为什么必须做同帧对齐，而不是各自保存图片。",
@@ -293,6 +320,51 @@ seg/000123.png</code></pre>
           <article class="command-card">
             <h3>工程要求</h3>
             <p>实验结束要恢复 world settings、关闭自动驾驶、停止并销毁传感器。</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        id="run-results"
+        class="section reveal"
+        data-outline-level="1"
+        data-outline-label="运行结果"
+      >
+        <div class="section-head">
+          <p class="kicker">RESULTS</p>
+          <h2>运行结果：RGB 与语义分割样本已经成对生成</h2>
+        </div>
+        <p class="lesson-cue">
+          下面展示的是一次完整运行后得到的样本片段。每组样本使用同一个 frame 文件名，
+          左侧为 RGB 图像，右侧为对应的语义分割图像。
+        </p>
+        <div class="lesson-result-grid">
+          <article class="lesson-result-card" v-for="sample in exp02ResultSamples" :key="sample.frame">
+            <h3>{{ sample.title }}</h3>
+            <p>frame = {{ sample.frame }}</p>
+            <div class="lesson-result-images">
+              <figure>
+                <img :src="sample.rgb" :alt="`${sample.title} 的 RGB 图像`" loading="lazy" />
+                <figcaption>RGB</figcaption>
+              </figure>
+              <figure>
+                <img :src="sample.seg" :alt="`${sample.title} 的语义分割图像`" loading="lazy" />
+                <figcaption>Semantic Segmentation</figcaption>
+              </figure>
+            </div>
+          </article>
+        </div>
+        <div class="command-layout lesson-card-grid">
+          <article class="command-card" v-for="item in exp02ResultStats" :key="item.title">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+          </article>
+          <article class="command-card lesson-highlight-card">
+            <h3>结果文件下载</h3>
+            <p>下载完整 exp02 结果包，压缩包包含 rgb/ 与 seg/ 两个目录，可直接用于复查和后续分析。</p>
+            <a class="lesson-download-link" :href="exp02OutputZipHref" download="exp02.zip">
+              下载 exp02.zip（约 20.3 MB）
+            </a>
           </article>
         </div>
       </section>

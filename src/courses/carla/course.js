@@ -25,5 +25,12 @@ export const carlaCourse = {
       path: "/carla/chapter/3",
       component: () => import("./views/Chapter03View.vue"),
     },
+    {
+      no: "04",
+      id: "4",
+      label: "第四章 自动驾驶参数对比与统计分析",
+      path: "/carla/chapter/4",
+      component: () => import("./views/Chapter04View.vue"),
+    },
   ],
 };
