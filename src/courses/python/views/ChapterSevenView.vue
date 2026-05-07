@@ -37,6 +37,9 @@ const staticHtmlHref = "/courses/python/ch07/books_static.html";
 const courseSpiderHref = "/courses/python/ch07/course_spider.py";
 const doubanDemoHref = "/courses/python/ch07/douban_top250_demo.py";
 const lagouAntiBotImg = "/courses/python/ch07/lagou_anti_bot.png";
+const exp4ReportHref =
+  "/courses/python/exp_reports/实验报告4：爬取酷狗音乐TOP500歌曲信息，并存储到文本文件（理实课程实验部分）-学生姓名.docx";
+const exp4SubmitHref = "https://f.wps.cn/g/UOG49Aft/";
 const jwCourseHref = "https://jw.guc.edu.cn/yethan/CourseAction?setAction=queryCourseList&selectTableType=History";
 
 const learningGoals = [
@@ -1445,39 +1448,6 @@ const ethics = [
   },
 ];
 
-const capstoneCards = [
-  {
-    title: "实验目标",
-    icon: IconNetwork,
-    text: "使用 requests 访问教务课表页面，采集课程表格中的课程、教师、时间、地点等字段，并保存到 school_courses.csv。",
-  },
-  {
-    title: "登录态规律",
-    icon: IconRoute,
-    text: "浏览器已经登录时能看到课表，Python 初次请求却可能拿到登录页。关键差异通常是 Cookie 和会话状态。",
-  },
-  {
-    title: "解析重点",
-    icon: IconFileSearch,
-    text: "先保存 HTML，再用 BeautifulSoup 定位 table、tr、th、td。不要直接猜字段，先打印表头和前几条记录。",
-  },
-  {
-    title: "分页与去重",
-    icon: IconListTree,
-    text: "检查页码链接、隐藏字段或分页参数。循环抓取时要设置页数边界、访问间隔和去重规则。",
-  },
-  {
-    title: "输出表格",
-    icon: IconArchive,
-    text: "将结构化记录写入 school_courses.csv，使用 utf-8-sig 编码，方便 Excel 直接打开中文表格。",
-  },
-  {
-    title: "合规边界",
-    icon: IconShield,
-    text: "只使用本人账号和课程授权范围内的数据做练习；Cookie 不提交、不截图、不传播；请求频率保持克制。",
-  },
-];
-
 const summaryCards = [
   {
     title: "请求层",
@@ -2126,32 +2096,56 @@ const summaryCards = [
       <section
         class="section reveal"
         data-outline-level="1"
-        data-outline-label="综合项目"
+        data-outline-label="实验4报告与提交"
       >
         <div class="section-head">
-          <p class="kicker">CAPSTONE</p>
-          <h2>8 综合项目：爬取全校课表并保存为 CSV</h2>
+          <p class="kicker">EXPERIMENT 04</p>
+          <h2>8 实验报告 4：爬取酷狗音乐 TOP500 并保存为文本文件</h2>
         </div>
         <p class="lesson-cue">
-          最终项目不是另起一个无关案例，而是把第 5 节逐步完成的代码合并成完整流程：
-          使用 <code>requests</code> 携带本人登录态访问教务课表页面，用 <code>BeautifulSoup</code>
-          解析表格和分页，再把课表记录保存成 <code>school_courses.csv</code>。
+          这一章的实验对应实验指导书中的实验项目四：用爬虫采集酷狗音乐 TOP500 列表，把
+          歌曲信息（排名、歌名、歌手、时长等）保存为文本文件。综合运用本章的请求发送、
+          HTML 解析、字段整理和文件写入。先在浏览器里观察页面，再写代码；写完之后把
+          实验目的、过程、结果、分析整理到实验报告里。
         </p>
         <div class="chapter-seven-grid chapter-seven-quad-grid">
-          <article class="chapter-seven-card" v-for="item in capstoneCards" :key="item.title">
+          <article class="chapter-seven-card">
             <div class="chapter-seven-card-head">
-              <img class="chapter-seven-icon" :src="item.icon" alt="" aria-hidden="true" />
-              <h3>{{ item.title }}</h3>
+              <img class="chapter-seven-icon" :src="IconArchive" alt="" aria-hidden="true" />
+              <h3>实验报告 4 下载</h3>
             </div>
-            <p>{{ item.text }}</p>
+            <p>按实验要求完成代码、保存输出文件，并在报告里写清楚实验目的、过程、运行结果和分析。</p>
+            <a class="chapter-seven-link" :href="exp4ReportHref" download>
+              下载实验报告4：爬取酷狗音乐 TOP500
+            </a>
+          </article>
+          <article class="chapter-seven-card">
+            <div class="chapter-seven-card-head">
+              <img class="chapter-seven-icon" :src="IconRoute" alt="" aria-hidden="true" />
+              <h3>实验过程怎么写</h3>
+            </div>
+            <p>建议按"打开页面观察 → 找到列表节点 → 提取字段 → 翻页/分批 → 写入文本文件"的顺序描述。不要只贴代码，要写清楚每一步遇到什么、解决了什么。</p>
+          </article>
+          <article class="chapter-seven-card">
+            <div class="chapter-seven-card-head">
+              <img class="chapter-seven-icon" :src="IconFileSearch" alt="" aria-hidden="true" />
+              <h3>实验结果怎么分析</h3>
+            </div>
+            <p>重点不是凑够 500 条，而是字段是否完整、文本格式是否便于后续读取（建议每行一首，字段间用 Tab 分隔），以及面对反爬时是怎么处理的。</p>
+          </article>
+          <article class="chapter-seven-card">
+            <div class="chapter-seven-card-head">
+              <img class="chapter-seven-icon" :src="IconExternalLink" alt="" aria-hidden="true" />
+              <h3>实验报告提交</h3>
+            </div>
+            <p>完成代码、文本输出和分析后，将实验报告提交到 WPS 收集表。提交前先检查报告中的代码、运行结果截图、字段示例和分析结论是否完整。</p>
             <a
-              v-if="item.href"
               class="chapter-seven-link"
-              :href="item.href"
+              :href="exp4SubmitHref"
               target="_blank"
               rel="noopener noreferrer"
             >
-              {{ item.href }}
+              {{ exp4SubmitHref }}
             </a>
           </article>
         </div>
