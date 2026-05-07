@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"F:\\\\OneDrive\\\\吉利学院\\\\6-2025-2026第二学期\\\\python-202520262\\\\notebook\\\\python_course\" -Recurse -Name)",
+      "Bash(xargs ls -lh)"
+    ]
+  }
+}

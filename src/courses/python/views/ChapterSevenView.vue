@@ -7,18 +7,26 @@ import IconBookOpen from "../../../assets/lucide-icons/book-open.svg";
 import IconBot from "../../../assets/lucide-icons/bot.svg";
 import IconBraces from "../../../assets/lucide-icons/braces.svg";
 import IconCircleAlert from "../../../assets/lucide-icons/circle-alert.svg";
+import IconClapperboard from "../../../assets/lucide-icons/clapperboard.svg";
 import IconCode from "../../../assets/lucide-icons/code.svg";
+import IconCookie from "../../../assets/lucide-icons/cookie.svg";
 import IconDatabase from "../../../assets/lucide-icons/database.svg";
 import IconExternalLink from "../../../assets/lucide-icons/external-link.svg";
 import IconFileSearch from "../../../assets/lucide-icons/file-search.svg";
+import IconGauge from "../../../assets/lucide-icons/gauge.svg";
 import IconGlobe from "../../../assets/lucide-icons/globe.svg";
 import IconHistory from "../../../assets/lucide-icons/history.svg";
 import IconLink from "../../../assets/lucide-icons/link.svg";
 import IconListTree from "../../../assets/lucide-icons/list-tree.svg";
+import IconMonitor from "../../../assets/lucide-icons/monitor.svg";
+import IconMonitorCog from "../../../assets/lucide-icons/monitor-cog.svg";
+import IconMousePointerClick from "../../../assets/lucide-icons/mouse-pointer-click.svg";
 import IconNetwork from "../../../assets/lucide-icons/network.svg";
 import IconRoute from "../../../assets/lucide-icons/route.svg";
+import IconScanEye from "../../../assets/lucide-icons/scan-eye.svg";
 import IconSearch from "../../../assets/lucide-icons/search.svg";
 import IconShield from "../../../assets/lucide-icons/shield.svg";
+import IconTestTube from "../../../assets/lucide-icons/test-tube.svg";
 import { useLessonDeck } from "../../../composables/useLessonDeck";
 
 const rootRef = ref(null);
@@ -27,6 +35,8 @@ const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef)
 const sampleJsonHref = "/courses/python/ch07/sample_books.json";
 const staticHtmlHref = "/courses/python/ch07/books_static.html";
 const courseSpiderHref = "/courses/python/ch07/course_spider.py";
+const doubanDemoHref = "/courses/python/ch07/douban_top250_demo.py";
+const lagouAntiBotImg = "/courses/python/ch07/lagou_anti_bot.png";
 const jwCourseHref = "https://jw.guc.edu.cn/yethan/CourseAction?setAction=queryCourseList&selectTableType=History";
 
 const learningGoals = [
@@ -42,6 +52,7 @@ const roadmap = [
   { no: "04", title: "BeautifulSoup", text: "解析 HTML 表格，提取课表结构。" },
   { no: "05", title: "分页与去重", text: "使用 jumpPage 采集多页记录。" },
   { no: "06", title: "CSV", text: "保存全校课表，形成可复查文件。" },
+  { no: "07", title: "Selenium", text: "当 requests 拿到的是空 HTML 壳时，用浏览器自动化补位。" },
 ];
 
 const chapterMetrics = [
@@ -1196,6 +1207,221 @@ def save_csv(records, filename):
   },
 ];
 
+const seleniumWhenCards = [
+  {
+    title: "页面是 SPA（Vue / React / Nuxt）",
+    icon: IconMonitor,
+    text: "右键\"查看网页源代码\"几乎是空的，主体内容由 JS 异步渲染。requests 拿到的 HTML 里找不到目标数据。",
+  },
+  {
+    title: "数据要滚动 / 点击才出现",
+    icon: IconMousePointerClick,
+    text: "瀑布流、\"加载更多\"按钮、Tab 切换才请求接口。这些动作必须在浏览器里真实发生，requests 模拟成本很高。",
+  },
+  {
+    title: "登录态要靠浏览器维持",
+    icon: IconCookie,
+    text: "复杂的登录流程（扫码、滑块、短信验证）用 requests 极难复现，让人工在浏览器里登一次再交给 Selenium 是更稳的做法。",
+  },
+  {
+    title: "需要 JS 执行后的最终 DOM",
+    icon: IconScanEye,
+    text: "比如商品价格、库存、动态生成的图表数据。这些字段在初始 HTML 里完全不存在，必须等 JS 写到 DOM 之后才能读。",
+  },
+  {
+    title: "需要跨页面操作流程",
+    icon: IconRoute,
+    text: "搜索 → 进入详情 → 切换 Tab → 下载附件，这种多步流程用 requests 要追踪一堆 token，用 Selenium 像录脚本一样自然。",
+  },
+  {
+    title: "对方有强反爬",
+    icon: IconShield,
+    text: "Cloudflare、TLS 指纹、行为分析。Selenium + 反检测设置不是万能，但比 requests 多一层伪装。最终可能仍然被识别。",
+  },
+];
+
+const seleniumUseCases = [
+  {
+    title: "端到端自动化测试",
+    icon: IconTestTube,
+    text: "Selenium 最早就是为 QA 而生。今天大多数 Web 项目的回归测试、跨浏览器测试都跑在 WebDriver 协议上。",
+  },
+  {
+    title: "表单批量填报",
+    icon: IconCode,
+    text: "实验报告系统、问卷、政务表单。同一份数据填到多个不同表单时，自动化能把几小时缩短到几分钟。",
+  },
+  {
+    title: "网页截图归档",
+    icon: IconArchive,
+    text: "自动遍历指定页面列表，截图存档。新闻监测、合规留证、UI 回归对比都用得到。",
+  },
+  {
+    title: "性能与体验录制",
+    icon: IconGauge,
+    text: "结合 CDP（Chrome DevTools Protocol）收集 LCP、FID、CLS 等指标，做前端性能基线。",
+  },
+  {
+    title: "动态网站爬取",
+    icon: IconBot,
+    text: "本节的主线场景。当 requests 拿不到数据时，让浏览器替你把 JS 跑完再读 DOM。",
+  },
+  {
+    title: "数据导出工具",
+    icon: IconDatabase,
+    text: "把自己在某平台的笔记、订单、评论导出成 CSV/JSON。\"自己的数据\"是合法范围，且常没有官方导出按钮。",
+  },
+];
+
+const seleniumComparison = [
+  { dim: "速度", req: "毫秒级", sel: "秒级（启动 + 渲染）" },
+  { dim: "内存占用", req: "几 MB", sel: "几百 MB（一个浏览器实例）" },
+  { dim: "拿到 JS 渲染数据", req: "❌", sel: "✅" },
+  { dim: "维护登录态", req: "Session + Cookie 字典", sel: "浏览器原生 Cookie 池" },
+  { dim: "处理滚动 / 点击", req: "需要逆向接口", sel: "原生支持" },
+  { dim: "反爬抗性", req: "弱（请求头容易识别）", sel: "中（叠反检测可更高）" },
+  { dim: "适合的目标", req: "公开 API、静态 HTML、登录简单的页面", sel: "SPA、复杂交互、强 JS 渲染" },
+  { dim: "工程开销", req: "低", sel: "高（环境、driver 版本、稳定性）" },
+];
+
+const seleniumSlides = [
+  {
+    no: "01",
+    label: "第一个例子",
+    title: "6.4 第一个 Selenium 程序：打开页面 + 截图",
+    problem: "Selenium 概念听起来抽象。最快的入门是跑一个 5 行的程序，亲眼看到浏览器被代码控制起来。",
+    change: "新建 selenium_first.py，安装依赖后直接运行。Selenium 4 自带 Selenium Manager，会自动下载匹配的 chromedriver。",
+    code: `# pip install selenium
+from selenium import webdriver
+
+driver = webdriver.Chrome()
+driver.get("https://example.com")
+print("标题：", driver.title)
+driver.save_screenshot("example.png")
+driver.quit()`,
+    explain: "三件事：启动浏览器（webdriver.Chrome）、打开网页（get）、关闭（quit）。中间能做的所有事都是这三步之间的扩展。",
+    key: "Selenium 4 后不再需要手动下载 chromedriver。只要本机装了 Chrome，pip install selenium 就够。",
+    check: "运行后弹出 Chrome 窗口，访问 example.com，然后自动关闭。当前目录会出现 example.png。",
+  },
+  {
+    no: "02",
+    label: "反检测三件套",
+    title: "6.5 反检测：让自动化的浏览器看起来更像真人",
+    problem: "默认的 webdriver.Chrome 会暴露三个特征：window.navigator.webdriver = true、命令行带 --enable-automation、顶部有\"Chrome 正受到自动测试软件控制\"提示。这些都是反爬规则的入门检测项。",
+    change: "在 build_driver() 里加三处反检测设置。这是\"打开高级反检测\"的标准模板。",
+    code: `from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+
+def build_driver():
+    opts = Options()
+    # ① 关掉 Blink 引擎的 automation 标记
+    opts.add_argument("--disable-blink-features=AutomationControlled")
+    # ② 去掉命令行的 enable-automation 开关
+    opts.add_experimental_option("excludeSwitches", ["enable-automation"])
+    # ③ 不加载 Selenium 的 Automation 扩展
+    opts.add_experimental_option("useAutomationExtension", False)
+
+    driver = webdriver.Chrome(options=opts)
+
+    # ④ 在每次新文档加载前覆盖 navigator.webdriver
+    driver.execute_cdp_cmd(
+        "Page.addScriptToEvaluateOnNewDocument",
+        {"source": "Object.defineProperty(navigator,'webdriver',{get:()=>undefined});"},
+    )
+    return driver`,
+    explain: "前三步在浏览器启动阶段处理，第四步在 CDP 层注入脚本，确保所有页面（含 iframe）都看不到 webdriver 属性。",
+    key: "这套设置是底线，不是终点。专业反爬还会看 Canvas 指纹、字体列表、WebGL、TLS Hello 等。Selenium 只能解决\"基础显式特征\"。",
+    check: "在浏览器控制台输入 navigator.webdriver，应该返回 undefined 而不是 true。",
+  },
+  {
+    no: "03",
+    label: "等待策略",
+    title: "6.6 等待策略：用 WebDriverWait 替代 sleep",
+    problem: "刚学 Selenium 时容易把 time.sleep(5) 写得到处都是。结果是慢的页面崩、快的页面浪费时间，且无法判断真实加载状态。",
+    change: "用 WebDriverWait + expected_conditions（缩写 EC）显式等待某个条件成立，最长不超过 timeout 秒。",
+    code: `from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+
+# 等待\"职位卡片出现或反爬页出现\"，先到先得
+WebDriverWait(driver, 20).until(
+    lambda d: d.find_elements(By.CSS_SELECTOR, "div[class*='item__']")
+              or "验证" in d.title
+)
+
+# 或者用预制条件
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.CSS_SELECTOR, ".job-card"))
+)
+
+# 元素可以点击（不只是存在，还要可见且未禁用）
+WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "button.next-page"))
+).click()`,
+    explain: "WebDriverWait 每 0.5 秒轮询一次条件，条件成立立即返回；不成立则继续等待，直到超时抛 TimeoutException。",
+    key: "原则：知道在等什么，就用 EC 预制条件；条件复杂或要并联多个判断时，用 lambda。能不写 sleep 就不写。",
+    check: "如果脚本里 time.sleep 多于 2-3 处，多半可以用 WebDriverWait 重写。",
+  },
+  {
+    no: "04",
+    label: "实战：豆瓣 Top250",
+    title: "6.7 实战：抓取豆瓣电影 Top250 前 2 页",
+    problem: "本节最初想用招聘网站做案例（拉勾 / Boss 直聘），但 Selenium 第一次访问就被反爬拦下了 —— 见下一节的实拍截图。教学的第一个例子必须能跑通，所以换成更友好的目标：豆瓣电影 Top250。",
+    change: "完整脚本是 douban_top250_demo.py。默认抓 2 页（50 部），输出 douban_top250.csv，包含 11 个字段。已在 Windows + Chrome 147 上实测跑通。",
+    downloadHref: doubanDemoHref,
+    code: `# 完整代码下载：/courses/python/ch07/douban_top250_demo.py
+#
+# 关键步骤：
+# 1. build_driver()        启动带反检测的 Chrome
+# 2. open_page(page_no)    直接构造 ?start=N 翻页（比模拟点击稳）
+# 3. wait_for_list()       WebDriverWait 等 .rating_num 出现
+# 4. parse_page()           按 CSS 选择器抽每张卡片
+# 5. parse_one(card)        try/except 隔离单部电影解析失败
+# 6. write_csv()             utf-8-sig，Excel 可直接打开
+#
+# 默认参数（教学用，可按需调）：
+#   MAX_PAGES = 2                   # 共 50 部
+#   PAGE_SLEEP_RANGE = (2.0, 4.0)   # 页间随机睡眠
+#
+# 输出字段：
+#   rank / title_cn / title_en / rating / rating_count
+#   year / country / genre / director_actor / quote / detail_url
+#
+# 实跑日志（成都，2026-05）：
+#   [douban] 第 1/2 页 ... + 抓到 25 部
+#   [douban] 第 2/2 页 ... + 抓到 25 部
+#   [douban] ✓ 共 50 部 → douban_top250.csv`,
+    explain: "脚本浓缩了 Selenium 实战的核心：反检测启动、显式等待、CSS 选择器、字段隔离、CSV 导出。代码 240 行，可以原样运行，不需要填 Cookie 或额外配置。",
+    key: "关键 1：评分人数没有专属 class，用正则在所有 span 里找含\"人评价\"的文本。关键 2：第二个 .title 是英文名（前面带 \"/\"），用 lstrip 处理。关键 3：单部电影解析失败 try/except 跳过，不拖垮整批。",
+    check: "运行 `python douban_top250_demo.py`，控制台看到\"共 50 部 → ...\"且生成 douban_top250.csv 即成功。打开 CSV 应能看到肖申克救赎排第一、评分 9.7。",
+  },
+];
+
+const antiCheatChoices = [
+  {
+    title: "降速 + 随机间隔",
+    icon: IconGauge,
+    text: "页面间隔从固定改成随机（如 3-6 秒），单次抓取页数封顶。被风控后立即停手，等几小时再试，不要写重试循环。",
+  },
+  {
+    title: "换温和的目标",
+    icon: IconRoute,
+    text: "拉勾 / Boss 直聘的反爬持续在升级。智联招聘、实习僧、GitHub Jobs、StackOverflow Talent 等聚合站对爬虫更友好，技术上的练习价值是一样的。",
+  },
+  {
+    title: "用官方 API",
+    icon: IconBraces,
+    text: "GitHub、知乎、微博等都有公开 API，注册即可用，比爬 HTML 稳得多。先确认目标站有没有官方接口，再决定要不要爬页面。",
+  },
+  {
+    title: "停下来，不要硬刚",
+    icon: IconShield,
+    text: "如果目标站明确不允许爬取（robots.txt + ToS），不要尝试自动滑块、买打码服务、用代理池硬撑。这条线越过去就是法律和职业风险。",
+  },
+];
+
 const ethics = [
   {
     title: "公开数据优先",
@@ -1708,11 +1934,183 @@ const summaryCards = [
       <section
         class="section reveal"
         data-outline-level="1"
+        data-outline-label="Selenium"
+      >
+        <div class="section-head">
+          <p class="kicker">SECTION 06 · BROWSER AUTOMATION</p>
+          <h2>6 Selenium：当 requests 不够用时</h2>
+        </div>
+        <p class="lesson-cue">
+          第 5 节用 <code>requests</code> 已经能爬到大部分服务端渲染页面。但今天大量网站是
+          Vue / React / Nuxt 单页应用，<code>requests</code> 拿到的是空 HTML 壳，目标数据全在
+          JS 里。这一节学习用浏览器自动化补位 — 让 Chrome 替你把 JS 跑完，再读 DOM。
+        </p>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="何时需要 Selenium"
+      >
+        <div class="section-head">
+          <p class="kicker">6.1</p>
+          <h2>6.1 六个信号告诉你必须用 Selenium</h2>
+        </div>
+        <div class="chapter-seven-grid chapter-seven-quad-grid">
+          <article class="chapter-seven-card" v-for="item in seleniumWhenCards" :key="item.title">
+            <div class="chapter-seven-card-head">
+              <img class="chapter-seven-icon" :src="item.icon" alt="" aria-hidden="true" />
+              <h3>{{ item.title }}</h3>
+            </div>
+            <p>{{ item.text }}</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="Selenium 还能做什么"
+      >
+        <div class="section-head">
+          <p class="kicker">6.2</p>
+          <h2>6.2 Selenium 不只是爬虫工具</h2>
+        </div>
+        <p class="lesson-cue">
+          Selenium 最早就是为 QA 而生。爬虫只是它的应用场景之一，且不一定是最重要的那个。
+        </p>
+        <div class="chapter-seven-grid chapter-seven-quad-grid">
+          <article class="chapter-seven-card" v-for="item in seleniumUseCases" :key="item.title">
+            <div class="chapter-seven-card-head">
+              <img class="chapter-seven-icon" :src="item.icon" alt="" aria-hidden="true" />
+              <h3>{{ item.title }}</h3>
+            </div>
+            <p>{{ item.text }}</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="对比 requests"
+      >
+        <div class="section-head">
+          <p class="kicker">6.3</p>
+          <h2>6.3 与 requests 的能力对比</h2>
+        </div>
+        <p class="lesson-cue">
+          先看清楚 Selenium 的代价。它不是"更厉害的 requests"，而是另一种工具，适合不同的目标。
+          能用 requests 解决的问题，永远优先用 requests。
+        </p>
+        <div class="lesson-table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>维度</th>
+                <th>requests</th>
+                <th>Selenium</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in seleniumComparison" :key="row.dim">
+                <td><strong>{{ row.dim }}</strong></td>
+                <td>{{ row.req }}</td>
+                <td>{{ row.sel }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section
+        v-for="slide in seleniumSlides"
+        :key="`sel-${slide.no}`"
+        class="section reveal lesson-code-page"
+        data-outline-level="2"
+        :data-outline-label="slide.label"
+      >
+        <div class="lesson-slide-layout">
+          <div class="lesson-slide-notes">
+            <div class="section-head">
+              <p class="kicker">{{ slide.displayNo || `6.${3 + Number(slide.no)}` }} BROWSER AUTOMATION</p>
+              <h2>{{ slide.title }}</h2>
+            </div>
+            <p v-if="slide.problem" class="lesson-cue">{{ slide.problem }}</p>
+
+            <div class="lesson-teach-stack">
+              <article v-if="slide.change" class="command-card lesson-teach-card">
+                <h3>本节修改</h3>
+                <p>{{ slide.change }}</p>
+              </article>
+              <article class="command-card lesson-teach-card">
+                <h3>这一段在做什么</h3>
+                <p>{{ slide.explain }}</p>
+              </article>
+              <article class="command-card lesson-teach-card">
+                <h3>关键记忆点</h3>
+                <p>{{ slide.key }}</p>
+              </article>
+              <article class="command-card lesson-teach-card">
+                <h3>运行检查</h3>
+                <p>{{ slide.check }}</p>
+              </article>
+            </div>
+          </div>
+
+          <pre><code class="python">{{ slide.code }}</code></pre>
+          <a
+            v-if="slide.downloadHref"
+            class="lesson-download-link"
+            :href="slide.downloadHref"
+            download
+          >
+            下载完整代码：{{ slide.downloadHref }}
+          </a>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="2"
+        data-outline-label="反爬正面相遇"
+      >
+        <div class="section-head">
+          <p class="kicker">6.8</p>
+          <h2>6.8 为什么不是招聘网站：反爬的真实样子</h2>
+        </div>
+        <p class="lesson-cue">
+          准备这一节时，我们最先尝试的目标其实是招聘网站（拉勾 / Boss 直聘）—— 找工作场景对学生更有用。
+          但 Selenium 第一次访问拉勾搜索页就被风控拦下，画面如下。这不是脚本写错，是反爬命中了
+          Selenium 的浏览器特征。看到这种页面，<strong>正确的反应不是"想办法绕过去"</strong>，
+          而是承认对方不希望被自动化访问，换个温和的目标。这就是 6.7 用豆瓣的原因。
+        </p>
+        <figure class="lesson-evidence">
+          <img :src="lagouAntiBotImg" alt="拉勾访问验证页：请按住滑块，拖动到最右边" loading="lazy" />
+          <figcaption>实拍：第一次用 Selenium 打开拉勾 Python 职位搜索页时直接进了访问验证。</figcaption>
+        </figure>
+        <p class="lesson-cue">
+          遇到这种情况，工程上有四种合理选择：
+        </p>
+        <div class="chapter-seven-grid chapter-seven-quad-grid">
+          <article class="chapter-seven-card" v-for="item in antiCheatChoices" :key="item.title">
+            <div class="chapter-seven-card-head">
+              <img class="chapter-seven-icon" :src="item.icon" alt="" aria-hidden="true" />
+              <h3>{{ item.title }}</h3>
+            </div>
+            <p>{{ item.text }}</p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="1"
         data-outline-label="爬虫规范"
       >
         <div class="section-head">
           <p class="kicker">ETHICS</p>
-          <h2>6 爬虫规范：不是“想爬什么就爬什么”</h2>
+          <h2>7 爬虫规范：不是“想爬什么就爬什么”</h2>
         </div>
         <div class="chapter-seven-grid chapter-seven-quad-grid">
           <article class="chapter-seven-card" v-for="item in ethics" :key="item.title">
@@ -1732,7 +2130,7 @@ const summaryCards = [
       >
         <div class="section-head">
           <p class="kicker">CAPSTONE</p>
-          <h2>7 综合项目：爬取全校课表并保存为 CSV</h2>
+          <h2>8 综合项目：爬取全校课表并保存为 CSV</h2>
         </div>
         <p class="lesson-cue">
           最终项目不是另起一个无关案例，而是把第 5 节逐步完成的代码合并成完整流程：
@@ -1765,7 +2163,7 @@ const summaryCards = [
         data-outline-level="1"
         data-outline-label="本章总结"
       >
-        <h2>8 本章总结：把网络数据变成可分析的数据文件</h2>
+        <h2>9 本章总结：把网络数据变成可分析的数据文件</h2>
         <div class="chapter-seven-grid chapter-seven-2plus1">
           <article class="chapter-seven-card" v-for="item in summaryCards" :key="item.title">
             <div class="chapter-seven-card-head">
@@ -1947,6 +2345,31 @@ const summaryCards = [
   line-height: 1.45;
   text-decoration: underline;
   word-break: break-all;
+}
+
+.page.is-slide-deck .lesson-evidence {
+  margin: 18px 0 22px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(220, 90, 30, 0.22);
+  background: linear-gradient(180deg, rgba(255, 248, 240, 0.96), rgba(255, 255, 255, 0.96));
+  box-shadow: 0 14px 32px rgba(220, 90, 30, 0.1);
+  text-align: center;
+}
+
+.page.is-slide-deck .lesson-evidence img {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.page.is-slide-deck .lesson-evidence figcaption {
+  margin-top: 10px;
+  color: #8b3a0c;
+  font-size: 0.86rem;
+  font-weight: 600;
 }
 
 @media (max-width: 900px) {
