@@ -1,0 +1,11 @@
+{
+  "run_seconds": 90,
+  "trigger_distance_m": 25.0,
+  "event_cooldown_ticks": 20,
+  "total_events": 63,
+  "red_events": 41,
+  "yellow_events": 4,
+  "green_events": 18,
+  "red_ratio": 0.651,
+  "avg_speed_when_red_kmh": 15.48
+}

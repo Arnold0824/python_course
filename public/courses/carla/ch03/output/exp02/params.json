@@ -1,0 +1,25 @@
+{
+  "map": "Carla/Maps/Town10HD_Opt",
+  "vehicle_blueprint": "vehicle.tesla.model3",
+  "rgb_blueprint": "sensor.camera.rgb",
+  "seg_blueprint": "sensor.camera.semantic_segmentation",
+  "image_size_x": 800,
+  "image_size_y": 600,
+  "fov": 90,
+  "fixed_delta_seconds": 0.05,
+  "traffic_manager_port": 8000,
+  "ignore_lights_percentage": 100.0,
+  "autopilot_warmup_ticks": 20,
+  "capture_interval_ticks": 8,
+  "capture_interval_seconds": 0.4,
+  "target_pairs": 30,
+  "captured_pairs": 30,
+  "camera_transform": {
+    "x": 1.5,
+    "y": 0.0,
+    "z": 2.4000000953674316,
+    "pitch": 0.0,
+    "yaw": 0.0,
+    "roll": 0.0
+  }
+}

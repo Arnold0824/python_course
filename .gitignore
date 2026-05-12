@@ -23,8 +23,8 @@ lerna-debug.log*
 !.env.example
 
 output/
-!public/courses/carla/output/
-!public/courses/carla/output/**
+!public/courses/carla/**/output/
+!public/courses/carla/**/output/**
 
 # Python caches / virtual envs (project contains Python teaching files)
 __pycache__/

@@ -1,0 +1,11 @@
+{
+  "rgb_count": 7,
+  "seg_count": 7,
+  "matched_count": 7,
+  "missing_in_seg": [],
+  "missing_in_rgb": [],
+  "captured_frame_min": 454933,
+  "captured_frame_max": 455165,
+  "note": "此为发布在课程网站上的抽样版本：实际运行采集了 30 对样本，为减小下载体积已抽样保留 7 对。",
+  "is_aligned": true
+}
