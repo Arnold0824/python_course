@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"F:\\\\OneDrive\\\\吉利学院\\\\6-2025-2026第二学期\\\\python-202520262\\\\notebook\\\\python_course\" -Recurse -Name)",
-      "Bash(xargs ls -lh)"
+      "Bash(xargs ls -lh)",
+      "PowerShell(Get-PSDrive C | Select-Object Used, Free, @{Name=\"UsedGB\";Expression={[math]::Round\\($_.Used/1GB,2\\)}}, @{Name=\"FreeGB\";Expression={[math]::Round\\($_.Free/1GB,2\\)}}, @{Name=\"TotalGB\";Expression={[math]::Round\\(\\($_.Used+$_.Free\\)/1GB,2\\)}})"
     ]
   }
 }

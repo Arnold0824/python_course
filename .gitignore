@@ -57,3 +57,7 @@ __screenshots__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local diagnostic / probe scripts (may contain auth tokens — never commit)
+_probe/
+_probe_*/
