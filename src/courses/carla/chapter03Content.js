@@ -527,6 +527,18 @@ export const chapter03Resources = [
     download: "carla_ch03_all_examples.py",
   },
   {
+    title: "样例运行结果（ZIP，约 24 MB）",
+    text: "上机运行得到的 30 对 RGB + 语义分割图像 + alignment_report.json + params.json，一键打包。",
+    href: "/courses/carla/ch03/ch03_exp02_run_results.zip",
+    download: "ch03_exp02_run_results.zip",
+  },
+  {
+    title: "对齐报告样例",
+    text: "alignment_report.json：30 对样本，rgb / seg 数量匹配，缺帧均为 0。",
+    href: "/courses/carla/ch03/output/exp02/alignment_report.json",
+    download: "alignment_report.json",
+  },
+  {
     title: "实验报告提交",
     text: "完成实验后通过此链接统一提交。",
     href: "https://f.wps.cn/g/beaYRGnd/",

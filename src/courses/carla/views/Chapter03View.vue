@@ -15,32 +15,32 @@ const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
 
 const chapterAllCodeHref = "/courses/carla/ch03/carla_ch03_all_examples.py";
-const exp02OutputZipHref = "/courses/carla/output/exp02.zip";
+const exp02OutputZipHref = "/courses/carla/ch03/ch03_exp02_run_results.zip";
 
 const exp02ResultSamples = [
   {
     title: "样本 1：起始路段",
-    frame: "383767",
-    rgb: "/courses/carla/output/exp02/rgb/383767.png",
-    seg: "/courses/carla/output/exp02/seg/383767.png",
+    frame: "454933",
+    rgb: "/courses/carla/ch03/output/exp02/rgb/454933.png",
+    seg: "/courses/carla/ch03/output/exp02/seg/454933.png",
   },
   {
     title: "样本 15：中段路口",
-    frame: "383879",
-    rgb: "/courses/carla/output/exp02/rgb/383879.png",
-    seg: "/courses/carla/output/exp02/seg/383879.png",
+    frame: "455045",
+    rgb: "/courses/carla/ch03/output/exp02/rgb/455045.png",
+    seg: "/courses/carla/ch03/output/exp02/seg/455045.png",
   },
   {
     title: "样本 30：末段道路",
-    frame: "383999",
-    rgb: "/courses/carla/output/exp02/rgb/383999.png",
-    seg: "/courses/carla/output/exp02/seg/383999.png",
+    frame: "455165",
+    rgb: "/courses/carla/ch03/output/exp02/rgb/455165.png",
+    seg: "/courses/carla/ch03/output/exp02/seg/455165.png",
   },
 ];
 
 const exp02ResultStats = [
-  { title: "配对数量", text: "rgb 与 seg 目录各 30 张图像，文件名一一对应。" },
-  { title: "命名方式", text: "每一对样本都使用 CARLA frame 作为文件名，例如 383767.png。" },
+  { title: "配对数量", text: "本站发布的抽样版本含 7 对 RGB+Seg；原始运行采集 30 对，已抽样以减小下载体积。" },
+  { title: "命名方式", text: "每一对样本都使用 CARLA frame 作为文件名，例如 454933.png。" },
 ];
 
 const learningGoals = [
@@ -362,8 +362,8 @@ seg/000123.png</code></pre>
           <article class="command-card lesson-highlight-card">
             <h3>结果文件下载</h3>
             <p>下载完整 exp02 结果包，压缩包包含 rgb/ 与 seg/ 两个目录，可直接用于复查和后续分析。</p>
-            <a class="lesson-download-link" :href="exp02OutputZipHref" download="exp02.zip">
-              下载 exp02.zip（约 20.3 MB）
+            <a class="lesson-download-link" :href="exp02OutputZipHref" download="ch03_exp02_run_results.zip">
+              下载 ch03_exp02_run_results.zip（约 5.7 MB，含 7 对抽样 RGB+Seg、对齐报告）
             </a>
           </article>
         </div>

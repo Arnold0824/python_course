@@ -32,5 +32,12 @@ export const carlaCourse = {
       path: "/carla/chapter/4",
       component: () => import("./views/Chapter04View.vue"),
     },
+    {
+      no: "05",
+      id: "5",
+      label: "第五章 红灯状态监测与事件日志分析",
+      path: "/carla/chapter/5",
+      component: () => import("./views/Chapter05View.vue"),
+    },
   ],
 };

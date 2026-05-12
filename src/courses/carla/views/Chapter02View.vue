@@ -21,6 +21,14 @@ const expGuideHref = "/courses/carla/exp/《自动驾驶软件系统B》实验�
 const expReportHref = "/courses/carla/exp/实验报告1：xxxx-学生姓名.docx";
 const expSubmitHref = "https://f.wps.cn/g/8Oy5FwrA/";
 const expSubmitQrHref = "/courses/carla/ch02/自动驾驶软件系统B_ 实验报告1.png";
+
+const runResultsZipHref = "/courses/carla/ch02/ch02_run_results.zip";
+const runResultsSamples = [
+  { title: "样本 1", frame: "042029", href: "/courses/carla/ch02/output/042029.png" },
+  { title: "样本 60", frame: "071081", href: "/courses/carla/ch02/output/071081.png" },
+  { title: "样本 120", frame: "104410", href: "/courses/carla/ch02/output/104410.png" },
+  { title: "样本 170", frame: "137129", href: "/courses/carla/ch02/output/137129.png" },
+];
 </script>
 
 <template>
@@ -1126,6 +1134,37 @@ if __name__ == "__main__":
       </section>
 
       <section
+        id="ch02-run-results"
+        class="section reveal"
+        data-outline-level="1"
+        data-outline-label="运行结果"
+      >
+        <div class="section-head">
+          <p class="kicker">SAMPLE RUN</p>
+          <h2>样例运行结果：相机连续采图的真实输出</h2>
+        </div>
+        <p class="lesson-cue">
+          下面 4 张是从一次完整运行中均匀抽样得到的样例帧。每张以 CARLA frame 命名，
+          展示了同步模式下从同一辆主车获得的连续画面。完整 ZIP 含 10 张样例，方便快速下载查看。
+        </p>
+        <div class="ch02-run-grid">
+          <figure v-for="s in runResultsSamples" :key="s.frame">
+            <img :src="s.href" :alt="`${s.title}，frame=${s.frame}`" loading="lazy" />
+            <figcaption>{{ s.title }} · frame {{ s.frame }}</figcaption>
+          </figure>
+        </div>
+        <div class="command-layout chapter-three-link-grid chapter-three-link-grid--balanced">
+          <article class="command-card chapter-three-highlight-card">
+            <h3>样例运行结果（ZIP，约 8 MB）</h3>
+            <p>从一次完整运行中均匀抽样的 10 张连续帧 PNG，足以复查与对比分析；如需完整数据自行运行整章脚本即可。</p>
+            <a class="chapter-three-link" :href="runResultsZipHref" download="ch02_run_results.zip">
+              下载 ch02_run_results.zip
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <section
         class="section reveal"
         data-outline-level="2"
         data-outline-label="实验下载"
@@ -1412,5 +1451,31 @@ if __name__ == "__main__":
   .page.is-slide-deck .command-layout.chapter-three-link-grid.chapter-three-link-grid--balanced > :nth-last-child(2) {
     grid-column: span 1;
   }
+}
+
+.ch02-run-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 1.5rem;
+}
+.ch02-run-grid figure {
+  margin: 0;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.ch02-run-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ch02-run-grid figcaption {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: #555;
+  border-top: 1px solid #ececec;
+  text-align: center;
 }
 </style>

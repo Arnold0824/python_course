@@ -1,36 +1,35 @@
-# 本页是知识补充：练习定位元素的不同写法。
+import numpy as np
+import pandas as pd
 
-from bs4 import BeautifulSoup
+print("NumPy version:", np.__version__)
+print("pandas version:", pd.__version__)
 
-html = """
-<table id="courses" class="data-table">
-  <tr class="header">
-    <th>课程</th><th>教师</th><th>地点</th>
-  </tr>
-  <tr class="course-row">
-    <td class="name">Python程序设计</td>
-    <td class="teacher">张老师</td>
-    <td class="room">A101</td>
-  </tr>
-  <tr class="course-row">
-    <td class="name">大学英语</td>
-    <td class="teacher">李老师</td>
-    <td class="room">B203</td>
-  </tr>
-</table>
-"""
+from pathlib import Path
 
-soup = BeautifulSoup(html, "html.parser")
+DATA_DIR = Path("public\courses\python\ch08")
+scores_path = DATA_DIR / "scores.csv"
 
-table1 = soup.find("table")                         # 按标签名找
-table2 = soup.find("table", id="courses")           # 按属性找
-table3 = soup.select_one("#courses")                # CSS 选择器：# 表示 id
+scores_df = pd.read_csv(scores_path)
+print(scores_df.head())
+python_scores = np.array([92, 95, 80, 70, 98, 66])
 
-print(table1 is table2 is table3)
+print(python_scores)
+print("维度:", python_scores.ndim)
+print("形状:", python_scores.shape)
+print("类型:", python_scores.dtype)
 
-rows = soup.select("#courses tr.course-row")        # 只找课程数据行
-for row in rows:
-    name = row.select_one(".name").get_text(strip=True)
-    teacher = row.select_one(".teacher").get_text(strip=True)
-    room = row.select_one(".room").get_text(strip=True)
-    print(name, teacher, room)
+print(np.arange(1, 10, 2))
+print(np.linspace(0, 1, 5))
+print(np.zeros((2, 3)))
+print(np.ones((2, 3)))
+
+rng = np.random.default_rng(42)
+print(rng.integers(60, 101, size=(3, 4)))
+
+raw_scores = np.array([58, 69, 80, 92, 100])
+bonus_scores = raw_scores + 5
+bonus_scores = np.minimum(bonus_scores, 100)
+
+print("原始成绩:", raw_scores)
+print("加分后:", bonus_scores)
+print("是否及格:", bonus_scores >= 60)

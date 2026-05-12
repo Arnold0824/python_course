@@ -667,6 +667,24 @@ export const chapter04Resources = [
     download: "exp03_four_vehicle_observer.py",
   },
   {
+    title: "样例运行结果（ZIP）",
+    text: "上机运行得到的真实输出：summary.csv、samples.csv、summary.json 一键打包。",
+    href: "/courses/carla/ch04/ch04_exp03_run_results.zip",
+    download: "ch04_exp03_run_results.zip",
+  },
+  {
+    title: "summary.csv 样例",
+    text: "每组方案一行的汇总表，可直接用 Excel / pandas 打开。",
+    href: "/courses/carla/ch04/output/exp03/summary.csv",
+    download: "summary.csv",
+  },
+  {
+    title: "samples.csv 样例",
+    text: "原始按帧采样数据，复查异常组别时使用。",
+    href: "/courses/carla/ch04/output/exp03/samples.csv",
+    download: "samples.csv",
+  },
+  {
     title: "实验报告提交",
     text: "完成实验后通过此链接统一提交。",
     href: "https://f.wps.cn/g/vc9PoTwr/",
