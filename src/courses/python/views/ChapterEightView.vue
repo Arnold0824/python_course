@@ -55,6 +55,12 @@ const caseQuestions = [
   "数据里是否存在缺失、重复或异常记录？",
 ];
 
+const exp5ReportDownload = "实验报告5：清洗和预处理学生食堂消费数据（理实课程实验部分）-学生姓名.docx";
+const exp5ReportHref = `/courses/python/exp_reports/${exp5ReportDownload}`;
+const exp5MaterialDownload = "食堂消费数据.csv";
+const exp5MaterialHref = `/courses/python/ch08/${exp5MaterialDownload}`;
+const exp5SubmitHref = "https://f.wps.cn/g/FkK5Ns3v/";
+
 function isExternalLink(href) {
   return /^https?:\/\//.test(href);
 }
@@ -392,6 +398,61 @@ function isExternalLink(href) {
               :rel="isExternalLink(item.href) ? 'noopener noreferrer' : null"
             >
               下载 {{ item.download || item.title }}
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        data-outline-level="1"
+        data-outline-label="实验5报告与提交"
+      >
+        <div class="section-head">
+          <p class="kicker">EXPERIMENT 05</p>
+          <h2>实验报告 5：清洗和预处理学生食堂消费数据</h2>
+        </div>
+        <p class="lesson-cue">
+          本次实验使用 <code>食堂消费数据.csv</code>，围绕学生食堂消费明细完成读取、字段检查、缺失值处理、去重、
+          金额字段整理和按学生汇总。完成代码运行和结果分析后，下载实验报告模板填写，再通过 WPS 收集表提交。
+        </p>
+        <div class="command-layout lesson-link-grid">
+          <article class="command-card">
+            <h3>实验报告 5 下载</h3>
+            <p>下载模板后，按实验目的、实验过程、运行结果、结果分析和收获思考几个部分完成填写。</p>
+            <a
+              class="lesson-link"
+              :href="exp5ReportHref"
+              :download="exp5ReportDownload"
+            >
+              下载实验报告5：清洗和预处理学生食堂消费数据
+            </a>
+          </article>
+          <article class="command-card">
+            <h3>实验素材下载</h3>
+            <p>使用 <code>食堂消费数据.csv</code> 作为本次实验数据源，读取后先检查字段、行数、缺失值和重复记录。</p>
+            <a
+              class="lesson-link"
+              :href="exp5MaterialHref"
+              :download="exp5MaterialDownload"
+            >
+              下载 食堂消费数据.csv
+            </a>
+          </article>
+          <article class="command-card">
+            <h3>报告填写要点</h3>
+            <p>不要只粘贴代码。报告里要保留原始记录数、缺失值检查、去重后记录数、消费金额汇总结果和简短分析结论。</p>
+          </article>
+          <article class="command-card">
+            <h3>实验报告提交</h3>
+            <p>完成实验代码、运行截图、数据清洗结果和分析结论后，通过 WPS 收集表统一提交。</p>
+            <a
+              class="lesson-link"
+              :href="exp5SubmitHref"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ exp5SubmitHref }}
             </a>
           </article>
         </div>
