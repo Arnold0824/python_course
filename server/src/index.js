@@ -4,6 +4,7 @@ import { createDatabase } from './db/index.js';
 import { createLogger } from './lib/logger.js';
 import { createAnalyticsService } from './services/analytics.service.js';
 import { createDeployService } from './services/deploy.service.js';
+import { createIdeaService } from './services/ideas.service.js';
 
 async function buildRuntime() {
   const config = loadConfig();
@@ -14,6 +15,7 @@ async function buildRuntime() {
   const db = createDatabase({ config, logger });
   const deployService = createDeployService({ config, logger });
   const analyticsService = createAnalyticsService({ config, db, logger });
+  const ideaService = createIdeaService({ config, db, logger });
 
   try {
     await analyticsService.initSchema();
@@ -26,11 +28,23 @@ async function buildRuntime() {
     });
   }
 
+  try {
+    await ideaService.initSchema();
+    logger.info('idea messages schema ready', {
+      table: config.ideas.messageTable,
+    });
+  } catch (error) {
+    logger.warn('idea messages schema init failed', {
+      message: error.message,
+    });
+  }
+
   const app = createApp({
     analyticsService,
     config,
     db,
     deployService,
+    ideaService,
     logger,
   });
 
@@ -40,6 +54,7 @@ async function buildRuntime() {
     config,
     db,
     deployService,
+    ideaService,
     logger,
   };
 }

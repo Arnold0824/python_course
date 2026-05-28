@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import { courses } from "../config/courses";
 import AdminStatsView from "../views/AdminStatsView.vue";
+import IdeaWallView from "../views/IdeaWallView.vue";
 
 const lessonRoutes = courses.flatMap((course) =>
   course.chapters.map((chapter) => ({
@@ -30,6 +31,12 @@ const routes = [
   {
     path: "/carla",
     redirect: "/carla/chapter/1",
+  },
+  {
+    path: "/python/ideas",
+    name: "python-idea-wall",
+    component: IdeaWallView,
+    meta: { courseId: "python", hideChapterNav: true },
   },
   ...lessonRoutes,
   {

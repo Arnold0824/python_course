@@ -80,6 +80,11 @@ export function loadConfig() {
     analytics: {
       pageViewTable: readIdentifier('ANALYTICS_PAGE_VIEW_TABLE', 'page_views'),
     },
+    ideas: {
+      ipHashSalt: readString('IDEA_IP_HASH_SALT', readString('ADMIN_TOKEN', '')),
+      maxContentLength: readInt('IDEA_MAX_CONTENT_LENGTH', 500),
+      messageTable: readIdentifier('IDEAS_MESSAGE_TABLE', 'idea_messages'),
+    },
     admin: {
       token: readString('ADMIN_TOKEN', ''),
     },

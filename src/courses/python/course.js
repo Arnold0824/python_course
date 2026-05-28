@@ -67,5 +67,12 @@ export const pythonCourse = {
       path: "/python/chapter/9",
       component: () => import("./views/ChapterNineView.vue"),
     },
+    {
+      no: "10",
+      id: "10",
+      label: "第十章 AI 协作编程",
+      path: "/python/chapter/10",
+      component: () => import("./views/ChapterTenView.vue"),
+    },
   ],
 };

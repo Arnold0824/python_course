@@ -11,6 +11,7 @@ export function createAdminRouter(deps) {
   router.get('/analytics/dashboard', controller.getDashboard);
   router.get('/analytics/overview', controller.getOverview);
   router.get('/analytics/recent', controller.getRecentViews);
+  router.patch('/ideas/:id/hide', controller.hideIdeaMessage);
 
   return router;
 }

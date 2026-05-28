@@ -2,6 +2,7 @@ import express from 'express';
 import { createAnalyticsRouter } from './routes/analytics.js';
 import { createHealthRouter } from './routes/health.js';
 import { createAdminRouter } from './routes/admin.js';
+import { createIdeasRouter } from './routes/ideas.js';
 import { registerWebhookRoutes } from './routes/webhook.js';
 import { createErrorHandler, notFoundHandler } from './middleware/error-handler.js';
 
@@ -33,6 +34,7 @@ export function createApp(deps) {
 
   app.use('/healthz', createHealthRouter(deps));
   app.use('/api/analytics', createAnalyticsRouter(deps));
+  app.use('/api/ideas', createIdeasRouter(deps));
   app.use('/api/admin', createAdminRouter(deps));
 
   app.use(notFoundHandler);
