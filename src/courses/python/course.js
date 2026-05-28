@@ -60,5 +60,19 @@ export const pythonCourse = {
       path: "/python/chapter/8",
       component: () => import("./views/ChapterEightView.vue"),
     },
+    {
+      no: "09",
+      id: "9",
+      label: "第九章 数据可视化基础",
+      path: "/python/chapter/9",
+      component: () => import("./views/ChapterNineView.vue"),
+    },
+    {
+      no: "10",
+      id: "10",
+      label: "第十章 AI 协作编程",
+      path: "/python/chapter/10",
+      component: () => import("./views/ChapterTenView.vue"),
+    },
   ],
 };

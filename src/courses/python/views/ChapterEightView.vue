@@ -8,8 +8,6 @@ import {
   chapter08ConceptCards,
   chapter08Docs,
   chapter08MaterialSteps,
-  chapter08NumpyMethods,
-  chapter08PandasMethods,
   chapter08Pitfalls,
   chapter08Resources,
   chapter08Units,
@@ -19,40 +17,41 @@ const rootRef = ref(null);
 const { outlineItems, activeOutlineIndex, jumpToSlide } = useLessonDeck(rootRef);
 
 const learningGoals = [
-  "理解 NumPy 数组、形状、索引、向量化计算和常用统计函数。",
-  "掌握 pandas 读取 CSV、查看数据、筛选、清洗、分组、透视和保存结果。",
-  "能围绕第七章课表数据完成一条可复现的数据分析流程，并写出基于数据的结论。",
+  "能用正确编码读取食堂消费数据，并说明记录数、字段数、学生人数和日期范围。",
+  "能完成日期时间转换、消费交易筛选、异常线索标注和分析字段生成。",
+  "能输出清洗后明细、统计表和脱敏学生汇总，并写出可复查的数据结论。",
 ];
 
 const chapterMetrics = [
-  { value: "24", label: "教学单元" },
-  { value: "2", label: "核心库" },
-  { value: "CSV", label: "分析产出" },
+  { value: "12", label: "连续单元" },
+  { value: "17313", label: "原始记录" },
+  { value: "5", label: "输出表" },
 ];
 
 const workflowPhases = [
-  { no: "01", title: "先会看", text: "用 head、info、describe 认识数据结构。" },
-  { no: "02", title: "再会算", text: "用 NumPy 理解数组、向量化、统计和缺失值。" },
-  { no: "03", title: "然后会清洗", text: "用 pandas 处理字段、缺失、重复、文本和类型。" },
-  { no: "04", title: "最后会分析", text: "用分组、透视、保存和文字结论形成完整报告。" },
+  { no: "01", title: "提出问题", text: "先明确食堂消费流水要回答什么。" },
+  { no: "02", title: "读入数据", text: "用 gb18030 正确读取中文 CSV。" },
+  { no: "03", title: "清洗字段", text: "整理日期、时间、金额、交易类型和异常线索。" },
+  { no: "04", title: "分组分析", text: "统计时间、支付方式、终端和脱敏学生汇总。" },
+  { no: "05", title: "输出报告", text: "保存五张 CSV，并用具体数值支撑结论。" },
 ];
 
 const workflowSteps = [
-  "准备 scores.csv 和 course_schedule_sample.csv 两份练习数据。",
-  "从 NumPy 数组入门，理解批量计算和 axis。",
-  "进入 pandas，掌握 Series、DataFrame、读取、选择和清洗。",
-  "使用 groupby 和 pivot_table 完成统计汇总。",
-  "把第七章课表 CSV 转化为清洗数据和统计结果。",
-  "把统计结果写成可核对的分析结论。",
+  "下载并读取食堂消费数据.csv。",
+  "检查记录规模、字段类型、缺失值、重复值和交易名称。",
+  "把记账日期、交易时间和金额字段转换成可分析格式。",
+  "筛选普通消费交易，保留 0 元、非消费和余额差异记录作为复核线索。",
+  "生成餐段、食堂楼层、支付方式和异常金额标记。",
+  "输出清洗明细、每日统计、小时统计、支付方式统计和脱敏学生汇总。",
 ];
 
 const caseQuestions = [
-  "全校课表一共有多少条记录？",
-  "哪些院系开课数量最多？",
-  "哪些教师授课门数较多？",
-  "不同校区的课程分布是否均衡？",
-  "学分主要集中在哪些区间？",
-  "数据里是否存在缺失、重复或异常记录？",
+  "原始流水是否能被正确读取，中文字段是否正常？",
+  "普通消费交易和非消费交易各有多少？",
+  "学生主要集中在哪些小时和餐段消费？",
+  "支付码、IC 卡和不同食堂终端有什么差异？",
+  "哪些 0 元、非消费、余额不一致或高金额记录需要解释？",
+  "学生层面的汇总结果怎样脱敏后再展示？",
 ];
 
 const exp5ReportDownload = "实验报告5：清洗和预处理学生食堂消费数据（理实课程实验部分）-学生姓名.docx";
@@ -60,10 +59,6 @@ const exp5ReportHref = `/courses/python/exp_reports/${exp5ReportDownload}`;
 const exp5MaterialDownload = "食堂消费数据.csv";
 const exp5MaterialHref = `/courses/python/ch08/${exp5MaterialDownload}`;
 const exp5SubmitHref = "https://f.wps.cn/g/FkK5Ns3v/";
-
-function isExternalLink(href) {
-  return /^https?:\/\//.test(href);
-}
 </script>
 
 <template>
@@ -96,13 +91,13 @@ function isExternalLink(href) {
             <p class="kicker">CHAPTER 08 DATA ANALYSIS BASICS</p>
             <h1>第八章 数据分析基础</h1>
             <p class="hero-intro">
-              第七章把网页数据保存成 CSV，第八章继续往前走：用 NumPy 和 pandas 把数据读进来、看清楚、清洗干净、
-              统计汇总，并把结果写成可以复查的分析结论。
+              本章围绕一份真实的 <code>食堂消费数据.csv</code> 展开：把原始交易流水读进来、看清楚、清洗干净、
+              统计汇总，并输出可以支撑实验报告的结果表。
             </p>
             <ul class="hero-checklist">
-              <li>前半章用小型成绩表理解数组、表格和基础统计。</li>
-              <li>后半章回到课表数据，完成清洗、分组、透视和保存。</li>
-              <li>代码段按顺序复制到 notebook 中运行，变量和分析流程会逐步展开。</li>
+              <li>不把 NumPy 和 pandas 当作方法手册讲，只使用完成案例需要的操作。</li>
+              <li>从编码、字段类型、交易状态、余额差异和隐私脱敏建立分析口径。</li>
+              <li>代码段按顺序复制到 notebook 中运行，最后生成五张报告用 CSV。</li>
             </ul>
           </div>
           <aside class="lesson-hero-panel">
@@ -128,7 +123,7 @@ function isExternalLink(href) {
       >
         <div class="section-head">
           <p class="kicker">ROADMAP</p>
-          <h2>本章路线：先会看，再会算，然后会清洗，最后会分析</h2>
+          <h2>本章路线：从一份消费流水到一组可复查报告表</h2>
         </div>
         <div class="lesson-phase-track">
           <article class="lesson-phase-card" v-for="phase in workflowPhases" :key="phase.no">
@@ -149,10 +144,11 @@ function isExternalLink(href) {
       >
         <div class="section-head">
           <p class="kicker">MATERIALS</p>
-          <h2>先把两个 CSV 放到项目文件夹</h2>
+          <h2>先把食堂消费数据放到项目文件夹</h2>
         </div>
         <p class="lesson-cue">
-          后面的代码会从 <code>public/courses/python/ch08</code> 读取数据。开始学习前，先下载两个 CSV，并放到这个目录。
+          后面的代码会从 <code>public/courses/python/ch08</code> 读取数据。开始学习前，先下载
+          <code>食堂消费数据.csv</code>，并保持文件名不变。
         </p>
         <div class="lesson-phase-track">
           <article class="lesson-phase-card" v-for="step in chapter08MaterialSteps" :key="step.no">
@@ -183,11 +179,11 @@ function isExternalLink(href) {
       >
         <div class="section-head">
           <p class="kicker">CONCEPTS</p>
-          <h2>NumPy 与 pandas 分工不同，但经常一起出现</h2>
+          <h2>先理解交易流水，再选择必要的 pandas 操作</h2>
         </div>
         <p class="lesson-cue">
-          NumPy 更像“数值计算引擎”，pandas 更像“表格处理工具”。本章先用 NumPy 建立批量计算意识，
-          再用 pandas 完成真实 CSV 数据分析。
+          本章只保留完成食堂消费分析所需的工具：读取、检查、类型转换、筛选、派生字段、分组统计和保存结果。
+          NumPy 只在批量分类时作为辅助出现。
         </p>
         <div class="concept-grid lesson-quad-grid">
           <article class="concept-card" v-for="item in chapter08ConceptCards" :key="item.title">
@@ -224,71 +220,13 @@ function isExternalLink(href) {
       >
         <div class="section-head">
           <p class="kicker">CASE QUESTIONS</p>
-          <h2>本章综合案例围绕课表数据提出问题</h2>
+          <h2>本章所有代码都围绕食堂消费数据提出问题</h2>
         </div>
         <p class="lesson-cue">
           数据分析不是把所有函数都试一遍，而是带着问题去整理数据、选择方法和解释结果。
         </p>
         <div class="lesson-step-list">
           <span v-for="question in caseQuestions" :key="question">{{ question }}</span>
-        </div>
-      </section>
-
-      <section
-        class="section reveal"
-        data-outline-level="2"
-        data-outline-label="NumPy 常用方法"
-      >
-        <div class="section-head">
-          <p class="kicker">NUMPY CHEATSHEET</p>
-          <h2>NumPy 先记住这些方法就够课堂使用</h2>
-        </div>
-        <div class="lesson-table-card">
-          <table>
-            <thead>
-              <tr>
-                <th>方法</th>
-                <th>用途</th>
-                <th>例子</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in chapter08NumpyMethods" :key="item.method">
-                <td><code>{{ item.method }}</code></td>
-                <td>{{ item.use }}</td>
-                <td><code>{{ item.example }}</code></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section
-        class="section reveal"
-        data-outline-level="2"
-        data-outline-label="pandas 常用方法"
-      >
-        <div class="section-head">
-          <p class="kicker">PANDAS CHEATSHEET</p>
-          <h2>pandas 的重点是表格：读、看、选、清洗、统计、保存</h2>
-        </div>
-        <div class="lesson-table-card">
-          <table>
-            <thead>
-              <tr>
-                <th>方法</th>
-                <th>用途</th>
-                <th>例子</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in chapter08PandasMethods" :key="item.method">
-                <td><code>{{ item.method }}</code></td>
-                <td>{{ item.use }}</td>
-                <td><code>{{ item.example }}</code></td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </section>
 
@@ -345,7 +283,7 @@ function isExternalLink(href) {
           <h2>跟学时优先检查这些问题</h2>
         </div>
         <p class="lesson-cue">
-          数据分析的报错通常不是语法问题，而是路径、字段、类型、缺失值和结论证据没有处理好。
+          数据分析的报错通常不是语法问题，而是编码、路径、字段、类型、交易口径和结论证据没有处理好。
           遇到错误时，先回到表格结构本身。
         </p>
         <div class="concept-grid lesson-quad-grid">
@@ -376,35 +314,6 @@ function isExternalLink(href) {
 
       <section
         class="section reveal"
-        data-outline-level="2"
-        data-outline-label="资料下载"
-      >
-        <div class="section-head">
-          <p class="kicker">RESOURCES</p>
-          <h2>本章只提供数据文件</h2>
-        </div>
-        <p class="lesson-cue">
-          Python 代码不提供现成脚本下载。请按本章 24 个代码单元逐步运行，理解每一步为什么这样写。
-        </p>
-        <div class="command-layout lesson-link-grid">
-          <article class="command-card" v-for="item in chapter08Resources" :key="item.title">
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.text }}</p>
-            <a
-              class="lesson-link"
-              :href="item.href"
-              :download="item.download || null"
-              :target="isExternalLink(item.href) ? '_blank' : null"
-              :rel="isExternalLink(item.href) ? 'noopener noreferrer' : null"
-            >
-              下载 {{ item.download || item.title }}
-            </a>
-          </article>
-        </div>
-      </section>
-
-      <section
-        class="section reveal"
         data-outline-level="1"
         data-outline-label="实验5报告与提交"
       >
@@ -413,8 +322,8 @@ function isExternalLink(href) {
           <h2>实验报告 5：清洗和预处理学生食堂消费数据</h2>
         </div>
         <p class="lesson-cue">
-          本次实验使用 <code>食堂消费数据.csv</code>，围绕学生食堂消费明细完成读取、字段检查、缺失值处理、去重、
-          金额字段整理和按学生汇总。完成代码运行和结果分析后，下载实验报告模板填写，再通过 WPS 收集表提交。
+          本次实验使用 <code>食堂消费数据.csv</code>，围绕学生食堂消费明细完成编码读取、字段检查、交易清洗、
+          日期时间转换、分组统计、脱敏汇总和结果保存。完成代码运行和结果分析后，下载实验报告模板填写，再通过 WPS 收集表提交。
         </p>
         <div class="command-layout lesson-link-grid">
           <article class="command-card">
@@ -441,7 +350,7 @@ function isExternalLink(href) {
           </article>
           <article class="command-card">
             <h3>报告填写要点</h3>
-            <p>不要只粘贴代码。报告里要保留原始记录数、缺失值检查、去重后记录数、消费金额汇总结果和简短分析结论。</p>
+            <p>不要只粘贴代码。报告里要保留原始记录数、消费分析记录数、异常复核说明、五张输出表和带具体数值的结论。</p>
           </article>
           <article class="command-card">
             <h3>实验报告提交</h3>
@@ -470,16 +379,16 @@ function isExternalLink(href) {
         </div>
         <div class="concept-grid lesson-quad-grid">
           <article class="concept-card">
-            <h3>NumPy 主线</h3>
-            <p>数组、形状、索引、向量化、统计函数和缺失值处理。</p>
+            <h3>读取主线</h3>
+            <p>用 gb18030 正确读取中文 CSV，并先确认记录规模、字段和金额分布。</p>
           </article>
           <article class="concept-card">
-            <h3>pandas 主线</h3>
-            <p>读取、查看、选择、清洗、分组、透视、合并和保存。</p>
+            <h3>清洗主线</h3>
+            <p>转换日期时间和金额字段，筛选普通消费交易，保留复核记录。</p>
           </article>
           <article class="concept-card">
-            <h3>实战主线</h3>
-            <p>从课表 CSV 出发，产出清洗数据、统计表和文字结论。</p>
+            <h3>分析主线</h3>
+            <p>围绕每日、小时、支付方式、食堂终端和学生脱敏汇总生成统计表。</p>
           </article>
           <article class="concept-card">
             <h3>学习底线</h3>
@@ -490,7 +399,7 @@ function isExternalLink(href) {
     </main>
 
     <footer class="footer">
-      <p>课程关键句：爬到数据只是开始，能清洗、统计并解释数据，才算完成分析。</p>
+      <p>课程关键句：拿到数据只是开始，能清洗、统计、脱敏并解释数据，才算完成分析。</p>
     </footer>
 
     <LessonOutlineSidebar
