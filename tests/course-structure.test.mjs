@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 
 import { pythonCourse } from '../src/courses/python/course.js'
 
@@ -51,6 +52,17 @@ const toolNames = chapter10Content.chapter10ToolCards.map((tool) => tool.name)
 assert.ok(toolNames.includes('Codex'), 'Chapter 10 should introduce Codex')
 assert.ok(toolNames.includes('Claude Code'), 'Chapter 10 should introduce Claude Code')
 assert.ok(toolNames.includes('CC Switch'), 'Chapter 10 should introduce CC Switch')
+
+const chapter10View = await readFile(
+  new URL('../src/courses/python/views/ChapterTenView.vue', import.meta.url),
+  'utf8',
+)
+
+assert.match(
+  chapter10View,
+  /\/courses\/python\/ch10\/chatgpt-please-meme\.jpg/,
+  'Chapter 10 cover should include the ChatGPT politeness meme',
+)
 
 const promptText = chapter10Content.chapter10PromptExamples
   .map((example) => `${example.title}\n${example.bad}\n${example.good}\n${example.reason}`)

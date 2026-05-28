@@ -78,6 +78,16 @@ const chapterMetrics = [
               </div>
             </aside>
           </div>
+          <figure class="chapter-ten-cover-meme">
+            <img
+              src="/courses/python/ch10/chatgpt-please-meme.jpg"
+              alt="ChatGPT 礼貌提问梗图：人类因为总是说请而被机器人留下"
+              loading="lazy"
+            />
+            <figcaption>
+              对 AI 保持礼貌没有问题，但真正能保护学习效果的，是把任务、边界和验证方式说清楚。
+            </figcaption>
+          </figure>
           <div class="goal-cards">
             <article v-for="goal in learningGoals" :key="goal">
               <h2>学习目标</h2>
@@ -418,6 +428,31 @@ const chapterMetrics = [
 
 .chapter-ten-idea-entry:active {
   transform: translateY(1px);
+}
+
+.chapter-ten-cover-meme {
+  max-width: 560px;
+  margin: 22px auto 0;
+  display: grid;
+  gap: 8px;
+}
+
+.chapter-ten-cover-meme img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
+}
+
+.chapter-ten-cover-meme figcaption {
+  margin: 0;
+  color: #3f5f78;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  text-align: center;
 }
 
 .chapter-ten-tool-grid {
