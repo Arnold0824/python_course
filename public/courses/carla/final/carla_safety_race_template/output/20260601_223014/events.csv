@@ -1,0 +1,5 @@
+﻿frame,sim_time_s,x,y,z,speed_kmh,route_progress,event_type,penalty,detail
+5450952,13.9,-239.207,-94.488,0.002,21.428,0.125,lane_invasion,2,markings=Broken
+5451142,23.4,-274.462,-56.447,0.002,21.432,0.1875,lane_invasion,2,markings=Broken
+5451561,44.35,-275.091,68.154,0.002,21.336,0.3125,lane_invasion,2,markings=Broken
+5451713,51.95,-243.083,93.814,0.002,21.353,0.375,lane_invasion,2,markings=Broken

@@ -1,0 +1,96 @@
+{
+  "host": "127.0.0.1",
+  "port": 2000,
+  "timeout_seconds": 20.0,
+  "map_name": "Town05",
+  "random_seed": 20260531,
+  "fixed_delta_seconds": 0.05,
+  "max_ticks": 1200,
+  "traffic_manager_port": 8000,
+  "background_vehicle_count": 20,
+  "walker_count": 30,
+  "student": {
+    "student_id": "2",
+    "student_name": "2"
+  },
+  "leaderboard": {
+    "enabled": true,
+    "submit_url": "https://niuniulab.com/api/carla/scores",
+    "submit_token": "***redacted***",
+    "timeout_seconds": 5.0
+  },
+  "route": {
+    "generation": "lane_follow",
+    "route_length_m": 900.0,
+    "checkpoint_count": 16,
+    "checkpoint_radius_m": 12.0,
+    "off_route_threshold_m": 18.0,
+    "sampling_resolution_m": 2.0,
+    "target_lookahead_m": 10.0
+  },
+  "policy": {
+    "target_speed_kmh": 35.0,
+    "curve_speed_kmh": 22.0,
+    "sharp_turn_speed_kmh": 15.0,
+    "hard_turn_speed_kmh": 10.0,
+    "speed_limit_ratio": 0.92,
+    "red_light_stop_distance_m": 18.0,
+    "obstacle_slow_distance_m": 14.0,
+    "obstacle_stop_distance_m": 7.0,
+    "obstacle_slow_speed_kmh": 10.0,
+    "off_route_rejoin_distance_m": 12.0,
+    "off_route_speed_kmh": 12.0,
+    "stuck_speed_kmh": 1.0,
+    "stuck_displacement_m": 0.25,
+    "stuck_progress_delta": 0.002,
+    "stuck_recovery_seconds": 2.5,
+    "stuck_recovery_reverse_seconds": 1.6,
+    "stuck_recovery_forward_seconds": 1.2,
+    "stuck_recovery_steer": 0.75,
+    "stuck_reverse_throttle": 0.42,
+    "stuck_forward_throttle": 0.38,
+    "max_throttle": 0.62
+  },
+  "rules": {
+    "speed_limit_tolerance_ratio": 0.15,
+    "speeding_min_seconds": 2.0,
+    "stuck_speed_kmh": 1.0,
+    "stuck_min_seconds": 15.0,
+    "event_cooldown_seconds": 2.0,
+    "max_lane_invasion_penalty": 10,
+    "max_speeding_penalty": 15,
+    "pedestrian_collision_score_cap": null
+  },
+  "scoring": {
+    "duration_seconds": 60.0,
+    "distance_points_per_meter": 1.0,
+    "penalties": {
+      "collision_pedestrian": 15,
+      "collision_vehicle": 10,
+      "collision_static": 5,
+      "red_light": 5,
+      "off_route": 5,
+      "lane_invasion": 2,
+      "speeding": 3,
+      "stuck": 5
+    }
+  },
+  "output": {
+    "root": "output",
+    "trajectory_every_ticks": 5
+  },
+  "render": {
+    "enabled": true,
+    "width": 1280,
+    "height": 720,
+    "score_pages_wait_for_input": true,
+    "camera_fov": 90.0,
+    "camera_x": -7.0,
+    "camera_z": 3.0,
+    "camera_pitch": -12.0,
+    "spectator_distance": 8.0,
+    "spectator_height": 4.0,
+    "spectator_pitch": -18.0,
+    "max_fps": 30
+  }
+}
