@@ -71,6 +71,7 @@ test('CARLA leaderboard page explains the final project task and rubric', () => 
     '20 分',
     '展示答辩与个人说明',
     '10 分',
+    'timeZone: "Asia/Shanghai"',
   ];
 
   for (const text of expectedText) {

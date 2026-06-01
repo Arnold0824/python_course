@@ -91,6 +91,8 @@ server/
   后台统计接口令牌，前端后台页访问时要输入它
 - `CARLA_SCORE_SUBMIT_TOKEN`
   CARLA 期末脚本提交成绩时使用的统一令牌。公开排行榜查询不需要它，提交成绩必须带它。后端已内置默认课程令牌 `carla-final-2026-submit-token`，只有需要更换令牌时才配置此环境变量。
+- `MYSQL_TIMEZONE`
+  可选。MySQL `DATETIME` 字段按中国本地时间显示，默认 `+08:00`。如果数据库明确使用 UTC，再改为 `Z`。
 
 ## 4. 环境要求
 
@@ -139,6 +141,8 @@ $env:WEBHOOK_SECRET = "你的_webhook_secret"
 $env:ADMIN_TOKEN = "你的后台令牌"
 # 可选：不设置时使用默认课程令牌 carla-final-2026-submit-token
 $env:CARLA_SCORE_SUBMIT_TOKEN = "你的CARLA提交令牌"
+# 可选：不设置时默认 +08:00
+$env:MYSQL_TIMEZONE = "+08:00"
 ```
 
 ### 5.3 启动后端
@@ -396,6 +400,8 @@ WEBHOOK_SECRET=你的_github_webhook_secret
 ADMIN_TOKEN=你的后台令牌
 # 可选：不设置时使用默认课程令牌 carla-final-2026-submit-token
 CARLA_SCORE_SUBMIT_TOKEN=你的CARLA提交令牌
+# 可选：不设置时默认 +08:00
+MYSQL_TIMEZONE=+08:00
 DEPLOY_SCRIPT=/var/www/python_course/deploy.sh
 DEPLOY_SHELL=/bin/bash
 SERVER_LOG_FILE=/var/www/python_course/server/logs/server.log
@@ -434,6 +440,8 @@ export WEBHOOK_SECRET='你的_github_webhook_secret'
 export ADMIN_TOKEN='你的后台令牌'
 # 可选：不设置时使用默认课程令牌 carla-final-2026-submit-token
 export CARLA_SCORE_SUBMIT_TOKEN='你的CARLA提交令牌'
+# 可选：不设置时默认 +08:00
+export MYSQL_TIMEZONE='+08:00'
 pm2 start server/ecosystem.config.cjs
 pm2 save
 pm2 startup

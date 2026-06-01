@@ -15,7 +15,7 @@ export function createDatabase({ config, logger }) {
         connectTimeout: config.mysql.connectTimeout,
         charset: 'utf8mb4',
         namedPlaceholders: false,
-        timezone: 'Z',
+        timezone: config.mysql.timezone,
       });
     }
 

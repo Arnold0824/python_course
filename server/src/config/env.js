@@ -63,6 +63,7 @@ export function loadConfig() {
       database: 'python_course',
       connectionLimit: 10,
       connectTimeout: 10000,
+      timezone: readString('MYSQL_TIMEZONE', '+08:00'),
     },
     webhook: {
       path: readString('WEBHOOK_PATH', '/api/webhooks/github'),

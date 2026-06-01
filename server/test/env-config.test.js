@@ -33,3 +33,35 @@ test('CARLA score submit token env value overrides the course default', () => {
     }
   }
 });
+
+test('MySQL timezone defaults to China local time for DATETIME display', () => {
+  const originalTimezone = process.env.MYSQL_TIMEZONE;
+  delete process.env.MYSQL_TIMEZONE;
+
+  try {
+    const config = loadConfig();
+    assert.equal(config.mysql.timezone, '+08:00');
+  } finally {
+    if (originalTimezone === undefined) {
+      delete process.env.MYSQL_TIMEZONE;
+    } else {
+      process.env.MYSQL_TIMEZONE = originalTimezone;
+    }
+  }
+});
+
+test('MySQL timezone env value overrides the China local default', () => {
+  const originalTimezone = process.env.MYSQL_TIMEZONE;
+  process.env.MYSQL_TIMEZONE = 'Z';
+
+  try {
+    const config = loadConfig();
+    assert.equal(config.mysql.timezone, 'Z');
+  } finally {
+    if (originalTimezone === undefined) {
+      delete process.env.MYSQL_TIMEZONE;
+    } else {
+      process.env.MYSQL_TIMEZONE = originalTimezone;
+    }
+  }
+});
