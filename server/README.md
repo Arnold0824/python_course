@@ -80,7 +80,6 @@ server/
 - `MYSQL_PASSWORD`
 - `WEBHOOK_SECRET`
 - `ADMIN_TOKEN`
-- `CARLA_SCORE_SUBMIT_TOKEN`
 
 其中：
 
@@ -91,7 +90,7 @@ server/
 - `ADMIN_TOKEN`
   后台统计接口令牌，前端后台页访问时要输入它
 - `CARLA_SCORE_SUBMIT_TOKEN`
-  CARLA 期末脚本提交成绩时使用的统一令牌。公开排行榜查询不需要它，提交成绩必须带它。
+  CARLA 期末脚本提交成绩时使用的统一令牌。公开排行榜查询不需要它，提交成绩必须带它。后端已内置默认课程令牌 `carla-final-2026-submit-token`，只有需要更换令牌时才配置此环境变量。
 
 ## 4. 环境要求
 
@@ -138,6 +137,7 @@ PowerShell 示例：
 $env:MYSQL_PASSWORD = "你的数据库密码"
 $env:WEBHOOK_SECRET = "你的_webhook_secret"
 $env:ADMIN_TOKEN = "你的后台令牌"
+# 可选：不设置时使用默认课程令牌 carla-final-2026-submit-token
 $env:CARLA_SCORE_SUBMIT_TOKEN = "你的CARLA提交令牌"
 ```
 
@@ -394,6 +394,7 @@ sudo nano /etc/python-course-server.env
 MYSQL_PASSWORD=你的数据库密码
 WEBHOOK_SECRET=你的_github_webhook_secret
 ADMIN_TOKEN=你的后台令牌
+# 可选：不设置时使用默认课程令牌 carla-final-2026-submit-token
 CARLA_SCORE_SUBMIT_TOKEN=你的CARLA提交令牌
 DEPLOY_SCRIPT=/var/www/python_course/deploy.sh
 DEPLOY_SHELL=/bin/bash
@@ -431,6 +432,7 @@ npm install -g pm2
 export MYSQL_PASSWORD='你的数据库密码'
 export WEBHOOK_SECRET='你的_github_webhook_secret'
 export ADMIN_TOKEN='你的后台令牌'
+# 可选：不设置时使用默认课程令牌 carla-final-2026-submit-token
 export CARLA_SCORE_SUBMIT_TOKEN='你的CARLA提交令牌'
 pm2 start server/ecosystem.config.cjs
 pm2 save

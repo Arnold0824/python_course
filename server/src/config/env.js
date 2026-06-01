@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { REPO_ROOT, SERVER_LOG_DIR } from './paths.js';
 
+const DEFAULT_CARLA_SCORE_SUBMIT_TOKEN = 'carla-final-2026-submit-token';
+
 function readString(name, fallback = '') {
   const value = process.env[name];
   if (value === undefined || value === null || value === '') {
@@ -86,7 +88,7 @@ export function loadConfig() {
       messageTable: readIdentifier('IDEAS_MESSAGE_TABLE', 'idea_messages'),
     },
     carlaScore: {
-      submitToken: readString('CARLA_SCORE_SUBMIT_TOKEN', ''),
+      submitToken: readString('CARLA_SCORE_SUBMIT_TOKEN', DEFAULT_CARLA_SCORE_SUBMIT_TOKEN),
       tableName: readIdentifier('CARLA_SCORE_TABLE', 'carla_score_submissions'),
     },
     admin: {
