@@ -1,0 +1,61 @@
+{
+  "completed": false,
+  "duration_s": 60.0,
+  "lap_time_s": null,
+  "distance_traveled_m": 352.471,
+  "distance_points": 352.47,
+  "protected_settings_checksum": "b7dce18a9349",
+  "fixed_settings": {
+    "map_name": "Town05",
+    "random_seed": 20260531,
+    "fixed_delta_seconds": 0.05,
+    "traffic_manager_port": 8000,
+    "background_vehicle_count": 20,
+    "walker_count": 30,
+    "route": {
+      "generation": "lane_follow",
+      "route_length_m": 900.0,
+      "checkpoint_count": 16,
+      "checkpoint_radius_m": 12.0,
+      "off_route_threshold_m": 18.0,
+      "sampling_resolution_m": 2.0,
+      "target_lookahead_m": 10.0
+    },
+    "rules": {
+      "speed_limit_tolerance_ratio": 0.15,
+      "speeding_min_seconds": 2.0,
+      "max_lane_invasion_penalty": 10,
+      "max_speeding_penalty": 15
+    },
+    "scoring": {
+      "duration_seconds": 60.0,
+      "distance_points_per_meter": 1.0,
+      "penalties": {
+        "collision_pedestrian": 15,
+        "collision_vehicle": 10,
+        "collision_static": 5,
+        "red_light": 5,
+        "off_route": 5,
+        "lane_invasion": 2,
+        "speeding": 3,
+        "stuck": 5
+      }
+    }
+  },
+  "student": {
+    "student_id": "123",
+    "student_name": "lee"
+  },
+  "completion_points": 0,
+  "time_points": 0,
+  "penalty_points": 8,
+  "raw_score": 344.47,
+  "final_score": 344.47,
+  "penalty_breakdown": {
+    "lane_invasion": 8
+  },
+  "leaderboard_submission": {
+    "status": "disabled",
+    "message": "排行榜提交未启用"
+  }
+}

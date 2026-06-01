@@ -1,5 +1,6 @@
 import express from 'express';
 import { createAnalyticsRouter } from './routes/analytics.js';
+import { createCarlaRouter } from './routes/carla.js';
 import { createHealthRouter } from './routes/health.js';
 import { createAdminRouter } from './routes/admin.js';
 import { createIdeasRouter } from './routes/ideas.js';
@@ -35,6 +36,7 @@ export function createApp(deps) {
   app.use('/healthz', createHealthRouter(deps));
   app.use('/api/analytics', createAnalyticsRouter(deps));
   app.use('/api/ideas', createIdeasRouter(deps));
+  app.use('/api/carla', createCarlaRouter(deps));
   app.use('/api/admin', createAdminRouter(deps));
 
   app.use(notFoundHandler);

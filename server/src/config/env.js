@@ -85,6 +85,10 @@ export function loadConfig() {
       maxContentLength: readInt('IDEA_MAX_CONTENT_LENGTH', 500),
       messageTable: readIdentifier('IDEAS_MESSAGE_TABLE', 'idea_messages'),
     },
+    carlaScore: {
+      submitToken: readString('CARLA_SCORE_SUBMIT_TOKEN', ''),
+      tableName: readIdentifier('CARLA_SCORE_TABLE', 'carla_score_submissions'),
+    },
     admin: {
       token: readString('ADMIN_TOKEN', ''),
     },

@@ -3,6 +3,7 @@ import { loadConfig } from './config/env.js';
 import { createDatabase } from './db/index.js';
 import { createLogger } from './lib/logger.js';
 import { createAnalyticsService } from './services/analytics.service.js';
+import { createCarlaScoreService } from './services/carla-score.service.js';
 import { createDeployService } from './services/deploy.service.js';
 import { createIdeaService } from './services/ideas.service.js';
 
@@ -16,6 +17,7 @@ async function buildRuntime() {
   const deployService = createDeployService({ config, logger });
   const analyticsService = createAnalyticsService({ config, db, logger });
   const ideaService = createIdeaService({ config, db, logger });
+  const carlaScoreService = createCarlaScoreService({ config, db, logger });
 
   try {
     await analyticsService.initSchema();
@@ -39,8 +41,20 @@ async function buildRuntime() {
     });
   }
 
+  try {
+    await carlaScoreService.initSchema();
+    logger.info('carla score schema ready', {
+      table: config.carlaScore.tableName,
+    });
+  } catch (error) {
+    logger.warn('carla score schema init failed', {
+      message: error.message,
+    });
+  }
+
   const app = createApp({
     analyticsService,
+    carlaScoreService,
     config,
     db,
     deployService,
@@ -51,6 +65,7 @@ async function buildRuntime() {
   return {
     app,
     analyticsService,
+    carlaScoreService,
     config,
     db,
     deployService,

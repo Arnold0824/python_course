@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch src/main.js",
     "start": "node src/main.js",
-    "check": "node --check src/main.js"
+    "check": "node --check src/main.js",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "express": "^4.21.2",

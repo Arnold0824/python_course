@@ -80,6 +80,7 @@ server/
 - `MYSQL_PASSWORD`
 - `WEBHOOK_SECRET`
 - `ADMIN_TOKEN`
+- `CARLA_SCORE_SUBMIT_TOKEN`
 
 其中：
 
@@ -89,6 +90,8 @@ server/
   GitHub Webhook 的密钥，必须和 GitHub 仓库里的配置一致
 - `ADMIN_TOKEN`
   后台统计接口令牌，前端后台页访问时要输入它
+- `CARLA_SCORE_SUBMIT_TOKEN`
+  CARLA 期末脚本提交成绩时使用的统一令牌。公开排行榜查询不需要它，提交成绩必须带它。
 
 ## 4. 环境要求
 
@@ -135,6 +138,7 @@ PowerShell 示例：
 $env:MYSQL_PASSWORD = "你的数据库密码"
 $env:WEBHOOK_SECRET = "你的_webhook_secret"
 $env:ADMIN_TOKEN = "你的后台令牌"
+$env:CARLA_SCORE_SUBMIT_TOKEN = "你的CARLA提交令牌"
 ```
 
 ### 5.3 启动后端
@@ -177,8 +181,9 @@ npm run dev
 访问统计表结构在：
 
 - [001_init_page_views.sql](/f:/OneDrive/吉利学院/6-2025-2026第二学期/python-202520262/notebook/python_course/server/sql/001_init_page_views.sql)
+- [002_init_carla_score_submissions.sql](/f:/OneDrive/吉利学院/6-2025-2026第二学期/python-202520262/notebook/python_course/server/sql/002_init_carla_score_submissions.sql)
 
-后端启动时也会尝试自动创建表，所以一般不需要你手工建表。
+后端启动时也会尝试自动创建访问统计表和 CARLA 成绩表，所以一般不需要你手工建表。
 
 如果你想手工执行，也可以在 MySQL 里运行该 SQL 文件。
 
@@ -256,7 +261,58 @@ Authorization: Bearer 你的_ADMIN_TOKEN
 x-admin-token: 你的_ADMIN_TOKEN
 ```
 
-### 7.4 GitHub Webhook
+### 7.4 CARLA 成绩提交
+
+```http
+POST /api/carla/scores
+```
+
+请求头必须带：
+
+```http
+X-Carla-Submit-Token: 你的_CARLA_SCORE_SUBMIT_TOKEN
+```
+
+请求体示例：
+
+```json
+{
+  "studentId": "2023123456",
+  "studentName": "张三",
+  "summary": {
+    "completed": false,
+    "duration_s": 60.0,
+    "lap_time_s": null,
+    "distance_traveled_m": 137.5,
+    "distance_points": 137.5,
+    "completion_points": 0,
+    "time_points": 0,
+    "penalty_points": 12,
+    "raw_score": 125.5,
+    "final_score": 125.5,
+    "protected_settings_checksum": "3efcb66a7dca",
+    "penalty_breakdown": {
+      "collision_static": 5
+    }
+  }
+}
+```
+
+### 7.5 CARLA 公开排行榜
+
+```http
+GET /api/carla/leaderboard?limit=50
+```
+
+这个接口公开可访问，不需要令牌。同一学号多次提交时，只取最佳成绩上榜。当前 CARLA 期末规则为 60 秒距离挑战，返回项会包含 `distanceTraveledM`、`distancePoints` 和 `durationS`，前端排行榜以最终成绩和沿路线有效行驶距离为主要展示指标。
+
+前端页面地址：
+
+```text
+/#/carla/leaderboard
+```
+
+### 7.6 GitHub Webhook
 
 ```http
 POST /api/webhooks/github
@@ -338,6 +394,7 @@ sudo nano /etc/python-course-server.env
 MYSQL_PASSWORD=你的数据库密码
 WEBHOOK_SECRET=你的_github_webhook_secret
 ADMIN_TOKEN=你的后台令牌
+CARLA_SCORE_SUBMIT_TOKEN=你的CARLA提交令牌
 DEPLOY_SCRIPT=/var/www/python_course/deploy.sh
 DEPLOY_SHELL=/bin/bash
 SERVER_LOG_FILE=/var/www/python_course/server/logs/server.log
@@ -374,6 +431,7 @@ npm install -g pm2
 export MYSQL_PASSWORD='你的数据库密码'
 export WEBHOOK_SECRET='你的_github_webhook_secret'
 export ADMIN_TOKEN='你的后台令牌'
+export CARLA_SCORE_SUBMIT_TOKEN='你的CARLA提交令牌'
 pm2 start server/ecosystem.config.cjs
 pm2 save
 pm2 startup

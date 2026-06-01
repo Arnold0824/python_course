@@ -39,5 +39,12 @@ export const carlaCourse = {
       path: "/carla/chapter/5",
       component: () => import("./views/Chapter05View.vue"),
     },
+    {
+      no: "榜",
+      id: "leaderboard",
+      label: "期末安全竞速排行榜",
+      path: "/carla/leaderboard",
+      component: () => import("./views/CarlaLeaderboardView.vue"),
+    },
   ],
 };

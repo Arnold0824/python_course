@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS carla_score_submissions (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  student_id VARCHAR(64) NOT NULL,
+  student_name VARCHAR(100) NOT NULL,
+  final_score DECIMAL(6,2) NOT NULL,
+  completed TINYINT(1) NOT NULL DEFAULT 0,
+  lap_time_s DECIMAL(10,3) NULL,
+  completion_points DECIMAL(6,2) NOT NULL DEFAULT 0,
+  time_points DECIMAL(6,2) NOT NULL DEFAULT 0,
+  penalty_points DECIMAL(6,2) NOT NULL DEFAULT 0,
+  raw_score DECIMAL(6,2) NOT NULL DEFAULT 0,
+  protected_settings_checksum VARCHAR(64) NULL,
+  penalty_breakdown_json JSON NULL,
+  summary_json JSON NOT NULL,
+  ip_address VARCHAR(64) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_carla_scores_student_id (student_id),
+  KEY idx_carla_scores_final_score (final_score),
+  KEY idx_carla_scores_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
