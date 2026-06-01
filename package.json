@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
+    "test:course": "node tests/course-structure.test.mjs",
+    "test:ideas": "node tests/ideas-api.test.mjs && node tests/idea-wall-structure.test.mjs",
     "preview": "vite preview",
     "format": "prettier --write --experimental-cli src/",
     "server:dev": "npm --prefix server run dev",

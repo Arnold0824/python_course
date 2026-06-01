@@ -7,7 +7,7 @@ function readPositiveInt(value, fallback, max) {
   return Math.min(parsed, max);
 }
 
-export function createAdminController({ analyticsService }) {
+export function createAdminController({ analyticsService, ideaService }) {
   return {
     getDashboard: async (req, res, next) => {
       try {
@@ -46,6 +46,37 @@ export function createAdminController({ analyticsService }) {
         });
       } catch (error) {
         next(error);
+      }
+    },
+
+    hideIdeaMessage: async (req, res, next) => {
+      try {
+        const id = readPositiveInt(req.params.id, 0, Number.MAX_SAFE_INTEGER);
+        if (!id) {
+          return res.status(400).json({
+            ok: false,
+            message: 'valid message id is required',
+          });
+        }
+
+        const result = await ideaService.hideMessage({
+          id,
+          reason: typeof req.body?.reason === 'string' ? req.body.reason.trim().slice(0, 255) : '',
+        });
+
+        if (!result.hidden) {
+          return res.status(404).json({
+            ok: false,
+            message: 'message not found',
+          });
+        }
+
+        return res.json({
+          ok: true,
+          data: result,
+        });
+      } catch (error) {
+        return next(error);
       }
     },
   };

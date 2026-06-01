@@ -1,681 +1,547 @@
 export const chapter08Docs = [
   {
-    title: "NumPy 官方文档",
-    text: "数组创建、索引、统计函数和广播规则都可以在这里查。",
-    href: "https://numpy.org/doc/stable/",
-  },
-  {
     title: "pandas 官方文档",
-    text: "DataFrame、Series、读写文件、分组和透视表是本章重点。",
+    text: "本章只用到读写 CSV、字段处理、分组统计和保存结果，遇到参数问题优先查这里。",
     href: "https://pandas.pydata.org/docs/",
   },
   {
     title: "pandas 入门教程",
-    text: "适合在课后继续查阅 DataFrame 的常见操作。",
+    text: "适合课后继续练习 DataFrame、Series、筛选和分组统计。",
     href: "https://pandas.pydata.org/docs/getting_started/intro_tutorials/",
+  },
+  {
+    title: "NumPy 官方文档",
+    text: "本章只用少量 NumPy 做向量化分类，不把 NumPy 当作单独方法清单展开。",
+    href: "https://numpy.org/doc/stable/",
   },
 ];
 
 export const chapter08ConceptCards = [
   {
-    title: "NumPy",
-    text: "面向数值数组，适合批量计算、矩阵形状、统计函数和科学计算底层能力。",
+    title: "一行交易",
+    text: "食堂消费流水中，每一行代表一次刷卡、支付码消费或账户相关操作。",
   },
   {
-    title: "pandas",
-    text: "面向表格数据，适合读取 CSV、选择字段、清洗缺失值、分组统计和保存结果。",
+    title: "一个字段",
+    text: "学工号、记账日期、交易时间、终端名称、交易金额等列共同描述一笔交易。",
   },
   {
-    title: "Series",
-    text: "pandas 中的一列数据，既有值，也有索引和名称。",
+    title: "先清洗再统计",
+    text: "日期、时间、金额、非消费交易和异常余额都要先检查，否则统计结果会被污染。",
   },
   {
-    title: "DataFrame",
-    text: "pandas 中的二维表，最接近 Excel、CSV 和数据库查询结果。",
+    title: "结论要可复查",
+    text: "报告里的判断必须能回到清洗后 CSV 或统计表核对，不能只写主观感受。",
   },
-];
-
-export const chapter08NumpyMethods = [
-  { method: "np.array()", use: "把列表转换为数组", example: "np.array([80, 90, 70])" },
-  { method: "np.arange()", use: "生成等间隔整数序列", example: "np.arange(1, 10, 2)" },
-  { method: "np.linspace()", use: "生成指定数量的等间隔数", example: "np.linspace(0, 1, 5)" },
-  { method: "np.zeros() / np.ones()", use: "生成全 0 或全 1 数组", example: "np.zeros((2, 3))" },
-  { method: "np.mean() / np.sum()", use: "计算均值或总和", example: "np.mean(scores)" },
-  { method: "np.nanmean()", use: "忽略 NaN 计算均值", example: "np.nanmean(scores)" },
-];
-
-export const chapter08PandasMethods = [
-  { method: "pd.read_csv()", use: "读取 CSV 文件", example: "pd.read_csv('scores.csv')" },
-  { method: "head() / info()", use: "快速查看数据", example: "df.head()" },
-  { method: "loc[] / iloc[]", use: "按标签或位置选择行列", example: "df.loc[df['python'] >= 85]" },
-  { method: "isna() / fillna()", use: "检查和处理缺失值", example: "df['english'].fillna(0)" },
-  { method: "groupby()", use: "按类别分组统计", example: "df.groupby('major').mean()" },
-  { method: "pivot_table()", use: "生成交叉统计表", example: "pd.pivot_table(df, index='性质')" },
-  { method: "merge() / concat()", use: "合并或拼接表格", example: "pd.merge(left, right)" },
-  { method: "to_csv()", use: "保存分析结果", example: "df.to_csv('result.csv')" },
 ];
 
 export const chapter08Resources = [
   {
-    title: "成绩练习数据",
-    text: "用于 NumPy 与 pandas 基础操作的小型 CSV。",
-    href: "/courses/python/ch08/scores.csv",
-    download: "scores.csv",
-  },
-  {
-    title: "课表示例数据",
-    text: "字段结构与第七章最终课表 CSV 保持一致。",
-    href: "/courses/python/ch08/course_schedule_sample.csv",
-    download: "course_schedule_sample.csv",
+    title: "食堂消费数据",
+    text: "本章唯一核心数据源，包含 17313 条学生食堂消费与账户流水记录。",
+    href: "/courses/python/ch08/食堂消费数据.csv",
+    download: "食堂消费数据.csv",
   },
 ];
 
 export const chapter08MaterialSteps = [
   {
     no: "01",
-    title: "下载成绩练习数据",
-    text: "下载 scores.csv，用于前半章练习 NumPy 与 pandas 的基础操作。",
+    title: "下载数据",
+    text: "下载食堂消费数据.csv，保持文件名不变。",
   },
   {
     no: "02",
-    title: "下载课表示例数据",
-    text: "下载 course_schedule_sample.csv，用于后半章完成课表清洗、统计和结论分析。",
+    title: "放到目录",
+    text: "把 CSV 放到 public/courses/python/ch08/ 目录，和代码中的 DATA_DIR 保持一致。",
   },
   {
     no: "03",
-    title: "放到指定目录",
-    text: "把两个 CSV 都放到 public/courses/python/ch08/ 目录下，和第 2 个代码段中的 DATA_DIR 保持一致。",
+    title: "按 gb18030 读取",
+    text: "这份 CSV 不是 UTF-8 编码，读取时要写 encoding='gb18030'，否则中文会乱码。",
   },
   {
     no: "04",
-    title: "再开始运行",
-    text: "先运行环境检查和准备数据两段代码，确认能读到 scores.csv，再继续后面的分析。",
+    title: "输出报告材料",
+    text: "最后生成清洗后数据和多张统计表，用它们填写实验报告 5。",
   },
 ];
 
 export const chapter08Pitfalls = [
   {
-    title: "路径找不到",
-    problem: "报错里出现 FileNotFoundError，通常是当前 notebook 工作目录和代码里的相对路径不一致。",
-    fix: "先运行 Path.cwd() 看当前位置，再确认 public/courses/python/ch08 目录是否能从当前位置访问。",
+    title: "中文乱码",
+    problem: "表头显示成问号或乱码，多半是按 UTF-8 读取了 GB 编码 CSV。",
+    fix: "读取时使用 pd.read_csv(path, encoding='gb18030')，保存结果时使用 encoding='utf-8-sig'。",
   },
   {
-    title: "列名写错",
-    problem: "报错里出现 KeyError，多半是字段名和 CSV 里的真实列名不一致，中文列名尤其要注意空格和换行。",
-    fix: "先打印 df.columns.tolist()，必要时使用 df.columns.str.replace('\\n', '').str.strip() 清理列名。",
+    title: "时间少了前导 0",
+    problem: "交易时间 95718 实际表示 09:57:18，直接按整数处理会丢掉前面的 0。",
+    fix: "先转字符串并用 str.zfill(6) 补齐，再切出小时、分钟和秒。",
   },
   {
-    title: "axis 混乱",
-    problem: "均分结果数量不对，经常是 axis=0 和 axis=1 用反了。",
-    fix: "axis=0 常用于按列汇总，axis=1 常用于按行计算；学生均分通常使用 axis=1。",
+    title: "把非消费交易算进消费额",
+    problem: "卡挂失、卡补办、换卡成本费和现金充值不是普通食堂消费。",
+    fix: "统计消费行为时先筛选交易名称包含“消费”且交易金额大于 0 的记录。",
   },
   {
-    title: "数字列变成文字",
-    problem: "学分求和或平均值结果异常，可能是 CSV 读取后把数字当成了字符串。",
-    fix: "用 pd.to_numeric(df['学分'], errors='coerce') 转成数值，再检查是否产生缺失值。",
+    title: "余额差异没检查",
+    problem: "交易前余额减交易金额不等于交易后余额，可能是记录需要复核。",
+    fix: "计算余额差额，绝对值大于 0.01 的记录单独列出，不直接删除。",
   },
   {
-    title: "中文 CSV 乱码",
-    problem: "CSV 用 Excel 打开后中文显示异常，通常是编码不匹配。",
-    fix: "保存中文 CSV 时使用 encoding='utf-8-sig'，这样更适合直接交给 Excel 查看。",
+    title: "公开个人排名",
+    problem: "学生消费数据涉及个人信息，直接展示姓名和学号排名不合适。",
+    fix: "学生层面只做汇总和脱敏展示，用 Student001 这类编号替代姓名学号。",
   },
   {
-    title: "结论没有证据",
-    problem: "报告只写“比较多”“比较集中”，但没有引用具体统计表和数值。",
-    fix: "每条结论都至少写清楚统计表名称、排名对象和具体数值。",
+    title: "报告没有证据",
+    problem: "只写“中午很多”“支付码更多”，没有引用表格和数值。",
+    fix: "每条结论至少说明来自哪张统计表，并写出具体人数、笔数、金额或占比。",
   },
 ];
 
 export const chapter08Units = [
   {
     no: "01",
-    label: "环境检查",
-    title: "1 环境检查：确认 NumPy 与 pandas 可以导入",
-    lead: "第八章先不急着分析数据。第一步是确认库已经安装，并形成统一的导入别名。",
-    code: String.raw`import numpy as np
-import pandas as pd
+    label: "任务导入",
+    title: "1 情境引入：食堂消费流水能回答什么问题",
+    lead: "这一章不从方法清单开始，而是从一份真实 CSV 开始：怎样把原始消费流水整理成可复查的分析报告。",
+    code: String.raw`analysis_questions = [
+    "原始流水一共有多少条记录、多少名学生？",
+    "学生主要在哪些时间段消费？",
+    "支付码消费和 IC 卡消费分别占多少？",
+    "哪些食堂楼层或 POS 终端更常用？",
+    "哪些 0 元、非消费或余额不一致记录需要解释？",
+]
 
-print("NumPy version:", np.__version__)
-print("pandas version:", pd.__version__)`,
-    explain: "这段代码导入 NumPy 和 pandas，并打印版本号。后面统一使用 np 和 pd 作为别名。",
-    why: "数据分析代码通常从导入库开始。统一别名能减少代码长度，也方便阅读官方文档和他人代码。",
-    points: ["NumPy 常写作 np。", "pandas 常写作 pd。", "如果导入失败，先回到第一章复习 pip 或 conda 安装。"],
+for no, question in enumerate(analysis_questions, start=1):
+    print(no, question)`,
+    explain: "先把分析问题写清楚，再决定要读哪些字段、清洗哪些问题、生成哪些统计表。",
+    why: "数据分析不是把所有 pandas 方法都试一遍，而是围绕问题选择必要操作。",
+    points: ["一行是一笔交易。", "一列是一个字段。", "本章最终要交付清洗后数据、统计表和文字结论。"],
     terms: [
-      { title: "import", text: "导入第三方库。" },
-      { title: "alias", text: "别名，np 和 pd 都是行业惯例。" },
-      { title: "__version__", text: "查看当前库版本。" },
+      { title: "交易流水", text: "按时间记录的一笔笔消费或账户操作。" },
+      { title: "字段", text: "描述交易的列，例如交易金额、终端名称、交易时间。" },
+      { title: "可复查", text: "别人能用同一份数据重新得到你的结果。" },
     ],
   },
   {
     no: "02",
-    label: "准备数据",
-    title: "2 准备数据：先从一张小成绩表开始",
-    lead: "正式分析课表前，先用一张 12 行成绩表练习基础操作。小数据更适合理解概念。",
+    label: "读取数据",
+    title: "2 读取数据：用正确编码打开中文 CSV",
+    lead: "本章只有一个核心数据源：食堂消费数据.csv。读取时必须指定 gb18030 编码。",
     code: String.raw`from pathlib import Path
 
-DATA_DIR = Path("public/courses/python/ch08")
-scores_path = DATA_DIR / "scores.csv"
+import numpy as np
+import pandas as pd
 
-scores_df = pd.read_csv(scores_path)
-print(scores_df.head())`,
-    explain: "这段代码用 Path 定位示例数据目录，再用 pd.read_csv 读取成绩表。",
-    why: "真实项目经常从文件开始。先把路径、读取和预览写清楚，后面的分析才有对象。",
-    points: ["Path 负责拼接路径。", "pd.read_csv 读取 CSV。", "head 默认查看前 5 行。"],
+DATA_DIR = Path("public/courses/python/ch08")
+data_path = DATA_DIR / "食堂消费数据.csv"
+
+raw_df = pd.read_csv(data_path, encoding="gb18030")
+
+print(raw_df.shape)
+print(raw_df.columns.tolist())
+print(raw_df.head())`,
+    explain: "Path 负责定位文件，pd.read_csv 读取 CSV，encoding='gb18030' 用来正确识别中文内容。",
+    why: "如果第一步读取就乱码，后面的字段选择、统计和报告都会出错。",
+    points: ["不要改文件名。", "先看 shape 和 columns。", "确认中文字段能正常显示后再继续。"],
     terms: [
-      { title: "CSV", text: "用逗号分隔字段的文本表格。" },
-      { title: "DataFrame", text: "pandas 的二维表。" },
-      { title: "head", text: "查看表格前几行。" },
+      { title: "encoding", text: "文件字符编码，决定中文能否正确读出。" },
+      { title: "DataFrame", text: "pandas 中最常用的二维表结构。" },
+      { title: "head", text: "查看前几行，确认数据读入是否正常。" },
     ],
   },
   {
     no: "03",
-    label: "NumPy 数组",
-    title: "3 NumPy 数组：从 Python 列表进入批量计算",
-    lead: "NumPy 的核心是数组。数组看起来像列表，但它更适合做整列、整块数据的批量计算。",
-    code: String.raw`python_scores = np.array([92, 95, 80, 70, 98, 66])
+    label: "认识字段",
+    title: "3 认识字段：先看规模、类型和金额分布",
+    lead: "正式清洗前，先回答这份表有多大、有哪些字段、金额列是否像数字。",
+    code: String.raw`print("记录数和字段数:", raw_df.shape)
+print("学生人数:", raw_df["学工号"].nunique())
+print("日期范围:", raw_df["记账日期"].min(), raw_df["记账日期"].max())
 
-print(python_scores)
-print("维度:", python_scores.ndim)
-print("形状:", python_scores.shape)
-print("类型:", python_scores.dtype)`,
-    explain: "np.array 把普通列表转换成数组，ndim、shape 和 dtype 分别查看维度、形状和元素类型。",
-    why: "后面理解 DataFrame 数值列、矩阵和统计函数时，都绕不开数组形状。",
-    points: ["一维数组像一列数据。", "shape 是理解数组结构的入口。", "dtype 决定数组能做什么类型的计算。"],
+print(raw_df.info())
+print(raw_df["交易金额"].describe())`,
+    explain: "shape 看整体规模，nunique 看学生数量，info 看字段类型，describe 看金额列的统计摘要。",
+    why: "先认识数据结构，可以避免一上来就 groupby，最后却不知道统计对象是否可靠。",
+    points: ["本数据有 17313 条记录。", "学工号可用于学生去重。", "交易金额是后续统计的核心数值列。"],
     terms: [
-      { title: "ndim", text: "数组维度数量。" },
-      { title: "shape", text: "数组每个维度的长度。" },
-      { title: "dtype", text: "数组元素类型。" },
+      { title: "nunique", text: "统计不同值的数量。" },
+      { title: "info", text: "查看字段类型和非空数量。" },
+      { title: "describe", text: "查看数值列的均值、分位数、最大最小值。" },
     ],
   },
   {
     no: "04",
-    label: "数组创建",
-    title: "4 数组创建：不用手写每一个数字",
-    lead: "除了从列表创建数组，NumPy 还能快速生成等差序列、全 0、全 1 和随机数组。",
-    code: String.raw`print(np.arange(1, 10, 2))
-print(np.linspace(0, 1, 5))
-print(np.zeros((2, 3)))
-print(np.ones((2, 3)))
+    label: "质量检查",
+    title: "4 数据质量检查：缺失、重复、状态和非消费交易",
+    lead: "清洗不是直接删除数据，而是先列出问题：哪些字段缺失、哪些记录重复、哪些交易不属于普通消费。",
+    code: String.raw`print("缺失值数量:")
+print(raw_df.isna().sum())
 
-rng = np.random.default_rng(42)
-print(rng.integers(60, 101, size=(3, 4)))`,
-    explain: "arange、linspace、zeros、ones 和随机数生成器都用于快速创建数组。",
-    why: "学习数据分析时，经常需要构造测试数据、模拟数据或初始化计算结果。",
-    points: ["arange 更像 range。", "linspace 控制生成数量。", "default_rng 是推荐的随机数入口。"],
+print("完全重复行数量:", raw_df.duplicated().sum())
+
+print("交易状态:")
+print(raw_df["状态"].value_counts())
+
+print("交易名称:")
+print(raw_df["交易名称"].value_counts())`,
+    explain: "isna 检查缺失，duplicated 检查完全重复，value_counts 查看类别字段的分布。",
+    why: "这一步决定后面哪些记录保留、哪些记录标注、哪些记录不进入普通消费统计。",
+    points: ["先检查再处理。", "非消费交易要单独解释。", "状态字段可以帮助判断交易是否成功。"],
     terms: [
-      { title: "size", text: "随机数组形状。" },
-      { title: "zeros", text: "生成全 0 数组。" },
-      { title: "ones", text: "生成全 1 数组。" },
+      { title: "isna", text: "判断缺失值。" },
+      { title: "duplicated", text: "判断重复行。" },
+      { title: "value_counts", text: "统计每个类别出现多少次。" },
     ],
   },
   {
     no: "05",
-    label: "索引筛选",
-    title: "5 索引、切片与布尔筛选",
-    lead: "数组不只是能存数据，还能快速取出一部分数据。布尔筛选是数据分析中最常用的思想之一。",
-    code: String.raw`scores = np.array([86, 91, 72, 65, 95, 58, 77, 88])
+    label: "字段转换",
+    title: "5 字段转换：把日期、时间和金额变成可分析格式",
+    lead: "原始日期和时间是整数形式。分析消费高峰前，要先把它们转换成日期、时间和小时。",
+    code: String.raw`df = raw_df.copy()
+df.columns = df.columns.str.strip()
 
-print("第 1 个成绩:", scores[0])
-print("前 3 个成绩:", scores[:3])
-print("及格成绩:", scores[scores >= 60])
-print("优秀成绩:", scores[scores >= 85])`,
-    explain: "索引用位置取单个值，切片取连续片段，布尔表达式筛选满足条件的数据。",
-    why: "pandas 中的条件筛选本质上也会用到类似的布尔判断。",
-    points: ["Python 索引从 0 开始。", "scores >= 60 会得到布尔数组。", "把布尔数组放回中括号就能筛选。"],
+money_cols = ["可用余额（交易前）", "交易金额", "可用余额（交易后）"]
+for col in money_cols:
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+
+df["交易日期"] = pd.to_datetime(df["记账日期"].astype(str), format="%Y%m%d", errors="coerce")
+df["交易时间文本"] = df["交易时间"].astype(str).str.zfill(6)
+df["交易小时"] = df["交易时间文本"].str[:2].astype(int)
+df["交易时刻"] = pd.to_datetime(
+    df["记账日期"].astype(str) + df["交易时间文本"],
+    format="%Y%m%d%H%M%S",
+    errors="coerce",
+)
+
+print(df[["记账日期", "交易时间", "交易日期", "交易小时", "交易时刻"]].head())`,
+    explain: "to_numeric 统一金额类型，to_datetime 转换日期时间，zfill(6) 保留 09:57:18 这类前导 0。",
+    why: "只有字段类型正确，后面才能按日期、小时、金额做可靠统计。",
+    points: ["交易时间必须补齐 6 位。", "日期转换失败会得到 NaT。", "金额转换失败会得到 NaN。"],
     terms: [
-      { title: "索引", text: "按位置取值。" },
-      { title: "切片", text: "按范围取值。" },
-      { title: "布尔筛选", text: "按 True / False 选择数据。" },
+      { title: "to_numeric", text: "把字段转成数值。" },
+      { title: "to_datetime", text: "把文本或数字转成日期时间。" },
+      { title: "zfill", text: "在字符串左侧补 0 到指定长度。" },
     ],
   },
   {
     no: "06",
-    label: "向量化",
-    title: "6 向量化计算：整列数据一起算",
-    lead: "NumPy 的优势不是少写几行代码，而是把对每个元素的重复计算变成整体计算。",
-    code: String.raw`raw_scores = np.array([58, 69, 80, 92, 100])
-bonus_scores = raw_scores + 5
-bonus_scores = np.minimum(bonus_scores, 100)
+    label: "筛选清洗",
+    title: "6 清洗原始流水：筛选消费交易并保留复核线索",
+    lead: "普通消费分析只统计真实消费记录，但异常线索不能悄悄删掉，要先标注出来。",
+    code: String.raw`df["余额差额"] = (
+    df["可用余额（交易前）"] - df["交易金额"] - df["可用余额（交易后）"]
+).round(2)
+df["余额是否异常"] = df["余额差额"].abs() > 0.01
 
-print("原始成绩:", raw_scores)
-print("加分后:", bonus_scores)
-print("是否及格:", bonus_scores >= 60)`,
-    explain: "数组可以直接和数字相加，np.minimum 用于限制最高值不超过 100。",
-    why: "向量化能让代码更接近数学表达，也更适合大规模数据。",
-    points: ["数组和数字运算会作用到每个元素。", "np.minimum 可以逐元素取较小值。", "避免一开始就写复杂 for 循环。"],
+review_rows = df[
+    (df["交易金额"] <= 0)
+    | (~df["交易名称"].str.contains("消费", na=False))
+    | (df["余额是否异常"])
+]
+
+consume_df = df[
+    df["交易名称"].str.contains("消费", na=False)
+    & (df["交易金额"] > 0)
+    & df["交易日期"].notna()
+].copy()
+
+print("需要复核的记录数:", len(review_rows))
+print("进入消费分析的记录数:", len(consume_df))
+print(review_rows[["学工号", "交易名称", "交易金额", "余额差额"]].head())`,
+    explain: "先计算余额差额，再把 0 元、非消费和余额异常记录列为复核对象；普通消费分析只使用消费且金额大于 0 的记录。",
+    why: "清洗的重点不是让问题消失，而是让分析口径清楚、异常记录有解释。",
+    points: ["非消费交易不进入普通消费额。", "余额异常要保留复核表。", "筛选结果要报告行数。"],
     terms: [
-      { title: "向量化", text: "整组数据一次性计算。" },
-      { title: "逐元素", text: "数组中每个元素分别参与计算。" },
-      { title: "广播", text: "不同形状数据自动扩展后计算的机制。" },
+      { title: "分析口径", text: "本次统计到底包含哪些记录。" },
+      { title: "复核记录", text: "不直接用于常规统计，但需要在报告中说明的记录。" },
+      { title: "copy", text: "复制筛选后的数据，避免后续赋值警告。" },
     ],
   },
   {
     no: "07",
-    label: "统计与 axis",
-    title: "7 统计函数与 axis：按列算还是按行算",
-    lead: "二维数组里，axis 是最容易混淆的概念。本节用成绩矩阵理解按列和按行统计。",
-    code: String.raw`score_matrix = np.array([
-    [86, 78, 92],
-    [91, 85, 95],
-    [72, 69, 80],
-])
+    label: "分析字段",
+    title: "7 生成分析字段：餐段、楼层、支付方式和金额等级",
+    lead: "原始字段不一定直接回答问题。要把时间、终端和金额转换成更适合分析的字段。",
+    code: String.raw`consume_df["餐段"] = pd.cut(
+    consume_df["交易小时"],
+    bins=[0, 10, 14, 17, 20, 24],
+    labels=["早间", "午餐", "下午", "晚餐", "夜间"],
+    right=False,
+)
 
-print("每门课均分:", score_matrix.mean(axis=0))
-print("每个学生均分:", score_matrix.mean(axis=1))
-print("最高分位置:", np.argmax(score_matrix))`,
-    explain: "axis=0 表示沿着行方向汇总，得到每一列的结果；axis=1 表示沿着列方向汇总，得到每一行的结果。",
-    why: "pandas 的按行、按列计算也会遇到 axis，先在 NumPy 中理解更直观。",
-    points: ["axis=0 常理解为按列统计。", "axis=1 常理解为按行统计。", "argmax 返回最大值的位置编号。"],
-    terms: [
-      { title: "axis", text: "统计时压缩哪一个方向。" },
-      { title: "mean", text: "平均值。" },
-      { title: "argmax", text: "最大值所在位置。" },
-    ],
-  },
-  {
-    no: "08",
-    label: "缺失值",
-    title: "8 NaN：数据缺失不能简单当作 0",
-    lead: "真实数据经常缺字段。NumPy 用 NaN 表示缺失数值，统计时要选择合适的方法。",
-    code: String.raw`scores = np.array([86, 91, np.nan, 72, 65])
+floor_match = consume_df["终端名称"].str.extract(r"食堂(\d)层|食堂(\d)F")
+floor_no = floor_match.bfill(axis=1).iloc[:, 0]
+consume_df["食堂楼层"] = np.where(floor_no.notna(), floor_no + "层", "非食堂终端")
 
-print("普通均值:", np.mean(scores))
-print("忽略缺失后的均值:", np.nanmean(scores))
-print("缺失位置:", np.isnan(scores))`,
-    explain: "np.nan 表示缺失值。普通 mean 遇到 NaN 会得到 NaN，nanmean 会忽略缺失值。",
-    why: "把缺失值当作 0 会拉低统计结果。正确识别缺失，是数据清洗的第一步。",
-    points: ["NaN 不是 0。", "np.isnan 可以判断缺失位置。", "nanmean 适合忽略缺失后计算均值。"],
-    terms: [
-      { title: "NaN", text: "Not a Number，常用于表示缺失数值。" },
-      { title: "np.isnan", text: "判断哪些位置是 NaN。" },
-      { title: "np.nanmean", text: "忽略 NaN 计算均值。" },
-    ],
-  },
-  {
-    no: "09",
-    label: "Series 与 DataFrame",
-    title: "9 pandas 的两种核心对象：Series 与 DataFrame",
-    lead: "pandas 面向表格。Series 是一列，DataFrame 是一张表。",
-    code: String.raw`python_series = scores_df["python"]
-print(type(python_series))
+consume_df["支付方式"] = np.where(
+    consume_df["交易名称"].str.contains("支付码", na=False),
+    "支付码",
+    "IC卡",
+)
 
-mini_df = scores_df[["name", "major", "python"]]
-print(type(mini_df))
-print(mini_df.head())`,
-    explain: "从 DataFrame 中取一列会得到 Series，取多列仍然是 DataFrame。",
-    why: "很多 pandas 报错都来自混淆 Series 和 DataFrame。先分清对象类型，后面操作更稳。",
-    points: ["单列通常是 Series。", "双中括号取多列。", "DataFrame 最接近一张二维表。"],
-    terms: [
-      { title: "Series", text: "带索引的一维数据。" },
-      { title: "DataFrame", text: "带行索引和列名的二维表。" },
-      { title: "列名", text: "DataFrame 中定位字段的名称。" },
-    ],
-  },
-  {
-    no: "10",
-    label: "查看数据",
-    title: "10 读取后先查看：不要直接开始算",
-    lead: "数据分析的第一步不是写复杂代码，而是先看表格长什么样。",
-    code: String.raw`print(scores_df.shape)
-print(scores_df.columns)
-print(scores_df.info())
-print(scores_df.describe())`,
-    explain: "shape 看行列数，columns 看字段名，info 看类型和缺失，describe 看数值列摘要。",
-    why: "先查看数据结构，可以避免字段名写错、类型不对、缺失值没发现等问题。",
-    points: ["shape 是整体规模。", "info 重点看非空数量和数据类型。", "describe 只对数值列做统计摘要。"],
-    terms: [
-      { title: "shape", text: "行数和列数。" },
-      { title: "columns", text: "所有列名。" },
-      { title: "describe", text: "数值列的统计摘要。" },
-    ],
-  },
-  {
-    no: "11",
-    label: "行列选择",
-    title: "11 选择列、选择行与条件筛选",
-    lead: "pandas 最常见的操作就是取字段、取行和按条件筛选。",
-    code: String.raw`print(scores_df["python"].head())
-print(scores_df[["name", "major", "python"]].head())
+amount_99 = consume_df["交易金额"].quantile(0.99)
+consume_df["是否异常金额"] = np.where(
+    consume_df["交易金额"] > amount_99,
+    "高金额复核",
+    "常规金额",
+)
 
-excellent = scores_df.loc[scores_df["python"] >= 85, ["name", "python"]]
-print(excellent)
-
-print(scores_df.iloc[0:3, 0:4])`,
-    explain: "中括号按列名取字段，loc 按标签和条件筛选，iloc 按位置筛选。",
-    why: "后面分析课表时，要频繁筛选某个院系、某个校区、某类课程。",
-    points: ["loc 更适合按条件筛选。", "iloc 更适合按位置截取。", "多列选择要用列表。"],
+print(consume_df[["交易小时", "餐段", "终端名称", "食堂楼层", "支付方式", "是否异常金额"]].head())`,
+    explain: "pd.cut 把小时切成餐段，正则表达式从终端名称中提取楼层，np.where 根据条件批量生成分类字段。",
+    why: "这些派生字段把原始流水变成可分析对象，后面的 groupby 才能直接回答业务问题。",
+    points: ["NumPy 在这里用于向量化分类。", "pd.cut 适合把连续数值分箱。", "正则提取要兼容不同终端命名。"],
     terms: [
-      { title: "loc", text: "按标签和条件选择数据。" },
-      { title: "iloc", text: "按整数位置选择数据。" },
-      { title: "条件筛选", text: "筛选满足条件的行。" },
-    ],
-  },
-  {
-    no: "12",
-    label: "排序新增列",
-    title: "12 排序与新增列：让原始数据更有解释力",
-    lead: "分析不是只看原字段。经常要根据已有字段生成新字段，再排序观察。",
-    code: String.raw`scores_df["score_mean"] = scores_df[["math", "english", "python"]].mean(axis=1)
-scores_df["python_level"] = np.where(scores_df["python"] >= 85, "优秀", "继续练习")
-
-ranked = scores_df.sort_values("score_mean", ascending=False)
-print(ranked[["name", "score_mean", "python_level"]].head())`,
-    explain: "mean(axis=1) 计算每个学生三门课均分，np.where 根据条件生成等级字段。",
-    why: "新增列能把计算逻辑保存下来，排序能快速找到重点对象。",
-    points: ["axis=1 表示按行计算。", "sort_values 用于排序。", "np.where 适合简单二分类。"],
-    terms: [
-      { title: "新增列", text: "把计算结果作为新字段放回表格。" },
-      { title: "sort_values", text: "按某列排序。" },
+      { title: "派生字段", text: "根据原字段计算出的新字段。" },
+      { title: "pd.cut", text: "把连续数值切成区间类别。" },
       { title: "np.where", text: "按条件批量生成结果。" },
     ],
   },
   {
-    no: "13",
-    label: "清洗数据",
-    title: "13 缺失值、重复值与异常值",
-    lead: "真实数据不会天然干净。pandas 提供了一组专门处理脏数据的方法。",
-    code: String.raw`print(scores_df.isna().sum())
-
-scores_df["english"] = scores_df["english"].fillna(scores_df["english"].mean())
-
-print("重复行数量:", scores_df.duplicated().sum())
-scores_df = scores_df.drop_duplicates()
-
-print(scores_df[["name", "english"]])`,
-    explain: "isna 检查缺失，fillna 填充缺失，duplicated 和 drop_duplicates 处理重复。",
-    why: "缺失和重复会直接影响均值、计数和排行榜，必须在分析前处理。",
-    points: ["先检查，再决定怎么处理。", "均值填充适合数值列的简单练习。", "去重前要确认重复的定义。"],
-    terms: [
-      { title: "isna", text: "判断缺失值。" },
-      { title: "fillna", text: "填充缺失值。" },
-      { title: "drop_duplicates", text: "删除重复行。" },
-    ],
-  },
-  {
-    no: "14",
-    label: "字符串处理",
-    title: "14 字符串处理：清理字段中的文字",
-    lead: "课表数据里很多字段是文字，例如课程名称、时间地点、校区。字符串方法很重要。",
-    code: String.raw`course_path = DATA_DIR / "course_schedule_sample.csv"
-course_df = pd.read_csv(course_path)
-
-course_df.columns = course_df.columns.str.strip()
-course_df["课程名称"] = course_df["课程名称"].str.strip()
-python_courses = course_df[course_df["课程名称"].str.contains("数据|Python", na=False)]
-
-print(python_courses[["课程名称", "教师", "时间地点"]])`,
-    explain: "str.strip 清理前后空格，str.contains 按关键词筛选文本字段。",
-    why: "网页和 CSV 中的文字经常带空格、换行或混合信息。字符串处理能让字段更规范。",
-    points: ["字符串列使用 .str 访问字符串方法。", "contains 支持关键词筛选。", "na=False 避免缺失值导致筛选报错。"],
-    terms: [
-      { title: ".str", text: "pandas 字符串方法入口。" },
-      { title: "contains", text: "判断是否包含关键词。" },
-      { title: "strip", text: "去掉前后空白字符。" },
-    ],
-  },
-  {
-    no: "15",
-    label: "分组统计",
-    title: "15 groupby：按类别统计",
-    lead: "groupby 是 pandas 数据分析的核心。它能回答“每个类别分别怎么样”。",
-    code: String.raw`department_summary = (
-    course_df.groupby("开课院系")
+    no: "08",
+    label: "时间分析",
+    title: "8 时间分析：每日消费和餐段高峰",
+    lead: "消费流水最自然的问题是时间：哪天消费多，哪个餐段最集中。",
+    code: String.raw`daily_summary = (
+    consume_df.groupby("交易日期")
     .agg(
-        课程数=("课程名称", "count"),
-        总学分=("学分", "sum"),
-        平均学分=("学分", "mean"),
+        交易笔数=("交易金额", "count"),
+        消费总额=("交易金额", "sum"),
+        人均单笔金额=("交易金额", "mean"),
     )
     .round(2)
-    .sort_values("课程数", ascending=False)
+    .sort_index()
 )
 
-print(department_summary)`,
-    explain: "按开课院系分组，再统计课程数、总学分和平均学分。",
-    why: "分组统计能把明细数据变成可解释的汇总结果，是实验报告最常用的分析方法。",
-    points: ["groupby 后通常接 agg。", "count 统计数量。", "sum 和 mean 用于数值列。"],
-    terms: [
-      { title: "groupby", text: "按类别分组。" },
-      { title: "agg", text: "一次计算多个统计指标。" },
-      { title: "sort_values", text: "让结果按重点指标排序。" },
-    ],
-  },
-  {
-    no: "16",
-    label: "透视表",
-    title: "16 pivot_table：做二维交叉统计",
-    lead: "当问题变成“某类课程在不同校区分别有多少”时，透视表比普通分组更直观。",
-    code: String.raw`nature_by_campus = pd.pivot_table(
-    course_df,
-    index="性质",
-    columns="校区",
-    values="课程名称",
-    aggfunc="count",
-    fill_value=0,
+hour_summary = (
+    consume_df.groupby(["交易小时", "餐段"], observed=True)
+    .agg(交易笔数=("交易金额", "count"), 消费总额=("交易金额", "sum"))
+    .round(2)
+    .reset_index()
+    .sort_values("交易小时")
 )
 
-print(nature_by_campus)`,
-    explain: "index 指定行分类，columns 指定列分类，values 指定被统计字段，aggfunc 指定统计方式。",
-    why: "透视表适合观察两个分类变量之间的关系，和 Excel 数据透视表思路一致。",
-    points: ["index 是行。", "columns 是列。", "fill_value=0 可以把空组合填成 0。"],
+print(daily_summary.head())
+print(hour_summary.head(10))`,
+    explain: "按交易日期和交易小时分组，分别统计交易笔数、消费总额和平均单笔金额。",
+    why: "时间统计能支撑报告里关于消费节奏和高峰时段的结论。",
+    points: ["每日统计适合看趋势。", "小时统计适合找高峰。", "平均值要和笔数一起解释。"],
     terms: [
-      { title: "pivot_table", text: "数据透视表。" },
-      { title: "aggfunc", text: "聚合函数。" },
-      { title: "交叉统计", text: "两个类别维度共同统计。" },
+      { title: "groupby", text: "按类别或时间分组。" },
+      { title: "agg", text: "一次生成多个统计指标。" },
+      { title: "observed", text: "分组时只保留真实出现过的分类组合。" },
     ],
   },
   {
-    no: "17",
-    label: "合并拼接",
-    title: "17 concat 与 merge：把多张表连接起来",
-    lead: "真实分析常常不止一张表。concat 适合上下拼接，merge 适合按共同字段横向合并。",
-    code: String.raw`department_info = pd.DataFrame({
-    "开课院系": ["计算机学院", "人工智能学院", "数据科学学院"],
-    "院系类别": ["工科", "工科", "工科"],
-})
+    no: "09",
+    label: "方式终端",
+    title: "9 支付方式与终端分析：看消费发生在哪里",
+    lead: "除了时间，还要看支付方式、食堂楼层和 POS 终端，这些结果更接近管理和服务问题。",
+    code: String.raw`payment_summary = (
+    consume_df.groupby("支付方式")
+    .agg(交易笔数=("交易金额", "count"), 消费总额=("交易金额", "sum"))
+    .round(2)
+    .sort_values("交易笔数", ascending=False)
+)
+payment_summary["笔数占比"] = (
+    payment_summary["交易笔数"] / payment_summary["交易笔数"].sum()
+).round(4)
 
-course_with_info = pd.merge(course_df, department_info, on="开课院系", how="left")
-print(course_with_info[["课程名称", "开课院系", "院系类别"]].head())
+floor_summary = (
+    consume_df.groupby("食堂楼层")
+    .agg(交易笔数=("交易金额", "count"), 消费总额=("交易金额", "sum"))
+    .round(2)
+    .sort_values("交易笔数", ascending=False)
+)
 
-double_rows = pd.concat([course_df.head(2), course_df.tail(2)])
-print(double_rows[["课程名称", "教师"]])`,
-    explain: "merge 按开课院系补充院系类别，concat 把两段表格上下拼接。",
-    why: "合并数据能把孤立字段连成更完整的分析对象。",
-    points: ["merge 需要共同字段。", "how='left' 保留左表所有行。", "concat 默认上下拼接。"],
+pos_summary = consume_df["终端名称"].value_counts().head(10)
+
+print(payment_summary)
+print(floor_summary)
+print(pos_summary)`,
+    explain: "按支付方式和楼层分组统计，再用 value_counts 找出最常出现的 POS 终端。",
+    why: "这些统计表能回答支付习惯和食堂终端使用情况，而不需要介绍 pandas 的所有方法。",
+    points: ["占比比单纯数量更容易解释。", "POS 热度用前 10 名即可。", "楼层提取失败的记录要保留为非食堂终端。"],
     terms: [
-      { title: "merge", text: "按键合并表格。" },
-      { title: "concat", text: "拼接表格。" },
-      { title: "left join", text: "保留左表全部记录的合并方式。" },
+      { title: "占比", text: "某类记录数除以总记录数。" },
+      { title: "POS 终端", text: "食堂刷卡或支付设备。" },
+      { title: "排序", text: "把重点对象排到前面，方便解释。" },
     ],
   },
   {
-    no: "18",
+    no: "10",
+    label: "脱敏汇总",
+    title: "10 学生汇总：只做脱敏展示，不公开姓名学号",
+    lead: "学生消费数据涉及个人信息。课堂和报告可以统计学生层面，但展示时要脱敏。",
+    code: String.raw`student_summary = (
+    consume_df.groupby(["学工号", "姓名"])
+    .agg(
+        消费笔数=("交易金额", "count"),
+        消费总额=("交易金额", "sum"),
+        平均单笔金额=("交易金额", "mean"),
+        首次消费=("交易日期", "min"),
+        最后消费=("交易日期", "max"),
+    )
+    .round(2)
+    .reset_index()
+    .sort_values("消费总额", ascending=False)
+    .reset_index(drop=True)
+)
+
+student_summary.insert(
+    0,
+    "学生编号",
+    [f"Student{i:03d}" for i in range(1, len(student_summary) + 1)],
+)
+student_summary_anonymized = student_summary.drop(columns=["学工号", "姓名"])
+
+print(student_summary_anonymized.head())`,
+    explain: "先按学工号和姓名汇总，再生成 Student001 这类编号，并删除姓名和学号。",
+    why: "分析要尊重数据边界。个人信息可以参与计算，但不应作为公开展示重点。",
+    points: ["学生层面只交脱敏结果。", "保留消费笔数、总额、均值和日期范围。", "报告不展示原始姓名学号排名。"],
+    terms: [
+      { title: "脱敏", text: "去掉能直接识别个人身份的信息。" },
+      { title: "reset_index", text: "把分组索引还原成普通列。" },
+      { title: "平均单笔金额", text: "总消费额除以消费笔数。" },
+    ],
+  },
+  {
+    no: "11",
     label: "保存结果",
-    title: "18 保存结果：分析必须能复查",
-    lead: "只在屏幕上 print 不够。分析结果要保存为文件，便于提交、复查和继续处理。",
+    title: "11 保存结果：把报告需要的 CSV 全部写出来",
+    lead: "只在屏幕上 print 不够。实验报告需要可提交、可复查的结果文件。",
     code: String.raw`OUTPUT_DIR = DATA_DIR / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-department_summary.to_csv(
-    OUTPUT_DIR / "department_summary.csv",
+consume_df.to_csv(
+    OUTPUT_DIR / "clean_canteen_transactions.csv",
+    index=False,
     encoding="utf-8-sig",
 )
-nature_by_campus.to_csv(
-    OUTPUT_DIR / "nature_by_campus.csv",
+daily_summary.to_csv(OUTPUT_DIR / "daily_summary.csv", encoding="utf-8-sig")
+hour_summary.to_csv(OUTPUT_DIR / "hour_summary.csv", index=False, encoding="utf-8-sig")
+payment_summary.to_csv(OUTPUT_DIR / "payment_summary.csv", encoding="utf-8-sig")
+student_summary_anonymized.to_csv(
+    OUTPUT_DIR / "student_summary_anonymized.csv",
+    index=False,
     encoding="utf-8-sig",
 )
 
-print("已保存到:", OUTPUT_DIR)`,
-    explain: "创建 output 目录，并把两个统计结果保存成 CSV。",
-    why: "实验报告需要结果文件。utf-8-sig 能让 Excel 更稳定地打开中文 CSV。",
-    points: ["mkdir 创建输出目录。", "to_csv 保存表格。", "encoding='utf-8-sig' 适合中文 CSV。"],
+print("已输出报告材料:")
+for path in sorted(OUTPUT_DIR.glob("*.csv")):
+    print(path.name)`,
+    explain: "把清洗后明细、每日统计、小时统计、支付方式统计和脱敏学生汇总分别保存成 CSV。",
+    why: "报告结论必须能回到文件核对，CSV 文件就是本章的主要产出。",
+    points: ["保存中文 CSV 用 utf-8-sig。", "明细表不要丢掉派生字段。", "学生汇总只保存脱敏版本。"],
     terms: [
-      { title: "to_csv", text: "保存为 CSV 文件。" },
-      { title: "encoding", text: "文件编码。" },
-      { title: "output", text: "建议统一放分析结果。" },
+      { title: "to_csv", text: "把 DataFrame 保存为 CSV。" },
+      { title: "index=False", text: "保存时不额外写入行索引。" },
+      { title: "报告材料", text: "实验报告中引用的结果表。" },
     ],
   },
   {
-    no: "19",
-    label: "NumPy 配合 pandas",
-    title: "19 NumPy 与 pandas 配合：标准分示例",
-    lead: "pandas 负责字段和表格，NumPy 负责数值计算。两者经常一起使用。",
-    code: String.raw`python_array = scores_df["python"].to_numpy()
-python_zscore = (python_array - np.nanmean(python_array)) / np.nanstd(python_array)
-
-scores_df["python_zscore"] = python_zscore.round(2)
-print(scores_df[["name", "python", "python_zscore"]].head())`,
-    explain: "把 pandas 列转成 NumPy 数组，计算标准分，再放回 DataFrame。",
-    why: "复杂数值计算用 NumPy 更自然，结果放回 pandas 后更方便继续按字段分析。",
-    points: ["to_numpy 把列转为数组。", "标准分描述距离均值几个标准差。", "计算结果可以作为新列保存。"],
-    terms: [
-      { title: "to_numpy", text: "从 pandas 转到 NumPy。" },
-      { title: "z-score", text: "标准分。" },
-      { title: "nanstd", text: "忽略 NaN 的标准差。" },
-    ],
-  },
-  {
-    no: "20",
-    label: "读取课表",
-    title: "20 综合实战：读取课表数据",
-    lead: "从这里开始进入第七章的延续任务：分析课表 CSV。",
-    code: String.raw`course_path = DATA_DIR / "course_schedule_sample.csv"
-courses = pd.read_csv(course_path)
-
-print(courses.shape)
-print(courses.columns.tolist())
-print(courses.head(3))`,
-    explain: "读取课表示例数据，查看行列规模、字段名和前三行。",
-    why: "正式分析前必须先确认字段是否符合预期。第七章最终 CSV 也可以替换成同样字段的数据。",
-    points: ["先看 shape。", "再看 columns。", "最后抽样看内容。"],
-    terms: [
-      { title: "课表明细", text: "每一行代表一个教学班或选课记录。" },
-      { title: "字段", text: "课程名称、教师、院系、学分等列。" },
-      { title: "抽样查看", text: "先看几行，避免盲目处理。" },
-    ],
-  },
-  {
-    no: "21",
-    label: "清洗课表",
-    title: "21 综合实战：清洗课表数据",
-    lead: "课表字段来自网页，可能有换行、空格、重复记录和学分类型问题。",
-    code: String.raw`courses.columns = courses.columns.str.replace("\n", "").str.strip()
-courses = courses.apply(lambda col: col.str.strip() if col.dtype == "object" else col)
-courses["学分"] = pd.to_numeric(courses["学分"], errors="coerce")
-
-courses = courses.drop_duplicates(subset=["选课编号", "课程代码", "教学班号"])
-courses["是否高学分"] = np.where(courses["学分"] >= 3, "高学分", "普通学分")
-courses["是否专业课"] = np.where(courses["性质"].str.contains("专业", na=False), "专业课", "公共课")
-
-print(courses[["课程名称", "学分", "是否高学分", "是否专业课"]].head())`,
-    explain: "清理列名和文本空格，把学分转成数值，按关键字段去重，并新增两个分析字段。",
-    why: "清洗后的数据才适合统计。新增字段能把后续分析问题表达得更清楚。",
-    points: ["字段名要统一。", "学分必须是数值才能求和求均值。", "drop_duplicates 要指定判断重复的字段。"],
-    terms: [
-      { title: "to_numeric", text: "把文本转成数值。" },
-      { title: "subset", text: "指定去重依据字段。" },
-      { title: "派生字段", text: "根据已有字段计算的新字段。" },
-    ],
-  },
-  {
-    no: "22",
-    label: "课表统计",
-    title: "22 综合实战：统计院系、教师、校区和学分",
-    lead: "清洗完成后，开始把明细数据转成统计表。",
-    code: String.raw`department_count = (
-    courses.groupby("开课院系")
-    .agg(课程数=("课程名称", "count"), 总学分=("学分", "sum"))
-    .sort_values("课程数", ascending=False)
-)
-
-teacher_count = (
-    courses.groupby("教师")
-    .agg(授课门数=("课程名称", "count"), 学分合计=("学分", "sum"))
-    .sort_values(["授课门数", "学分合计"], ascending=False)
-)
-
-campus_count = courses["校区"].value_counts()
-credit_count = courses["学分"].value_counts().sort_index()
-
-print(department_count)
-print(teacher_count.head(10))
-print(campus_count)
-print(credit_count)`,
-    explain: "分别统计院系课程数、教师授课量、校区分布和学分分布。",
-    why: "这些统计表能直接支撑实验报告中的数据分析结论。",
-    points: ["不同问题对应不同分组字段。", "value_counts 适合单列计数。", "排行榜要排序后再解释。"],
-    terms: [
-      { title: "课程数", text: "明细记录数量。" },
-      { title: "授课门数", text: "教师对应的课程记录数。" },
-      { title: "学分分布", text: "不同学分课程各有多少。" },
-    ],
-  },
-  {
-    no: "23",
-    label: "解释结论",
-    title: "23 写出分析结论：把统计表翻译成人话",
-    lead: "数据分析的最后一步不是表格，而是基于数据写出可核对的结论。",
-    code: String.raw`top_department = department_count.index[0]
-top_teacher = teacher_count.index[0]
-top_campus = campus_count.index[0]
-
-print(f"开课数量最多的院系是：{top_department}")
-print(f"授课门数最多的教师是：{top_teacher}")
-print(f"课程数量最多的校区是：{top_campus}")
-print("写报告时，要同时引用表格名称和具体数值。")`,
-    explain: "从统计结果中取出排名第一的类别，并生成简短文字结论。",
-    why: "实验报告不能只贴代码和表格。结论要说明从哪个统计结果得出，最好带具体数值。",
-    points: ["结论必须能回到数据表核对。", "不要只写主观感受。", "排名、数量、比例都可以成为结论依据。"],
-    terms: [
-      { title: "分析结论", text: "从统计结果中得到的文字解释。" },
-      { title: "可核对", text: "读者能回到数据文件验证。" },
-      { title: "具体数值", text: "比笼统形容更可靠。" },
-    ],
-  },
-  {
-    no: "24",
+    no: "12",
     label: "完整流程",
-    title: "24 完整流程：读取、清洗、分析、保存",
-    lead: "最后把本章主线串起来，形成一份可以独立运行的分析脚本。",
-    code: String.raw`def run_course_analysis():
-    courses = pd.read_csv(DATA_DIR / "course_schedule_sample.csv")
-    courses.columns = courses.columns.str.replace("\n", "").str.strip()
-    courses = courses.apply(lambda col: col.str.strip() if col.dtype == "object" else col)
-    courses["学分"] = pd.to_numeric(courses["学分"], errors="coerce")
-    courses = courses.drop_duplicates(subset=["选课编号", "课程代码", "教学班号"])
+    title: "12 完整流程：从原始 CSV 到五张报告结果表",
+    lead: "最后把读取、清洗、分析和保存合成一个可独立运行的函数。",
+    code: String.raw`def run_canteen_analysis():
+    df = pd.read_csv(DATA_DIR / "食堂消费数据.csv", encoding="gb18030")
+    df.columns = df.columns.str.strip()
 
-    department_count = courses.groupby("开课院系").agg(
-        课程数=("课程名称", "count"),
-        总学分=("学分", "sum"),
-        平均学分=("学分", "mean"),
-    ).round(2)
-    teacher_count = courses.groupby("教师").agg(
-        授课门数=("课程名称", "count"),
-        学分合计=("学分", "sum"),
+    money_cols = ["可用余额（交易前）", "交易金额", "可用余额（交易后）"]
+    for col in money_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    df["交易日期"] = pd.to_datetime(df["记账日期"].astype(str), format="%Y%m%d", errors="coerce")
+    df["交易时间文本"] = df["交易时间"].astype(str).str.zfill(6)
+    df["交易小时"] = df["交易时间文本"].str[:2].astype(int)
+    df["交易时刻"] = pd.to_datetime(
+        df["记账日期"].astype(str) + df["交易时间文本"],
+        format="%Y%m%d%H%M%S",
+        errors="coerce",
     )
+    df["余额差额"] = (
+        df["可用余额（交易前）"] - df["交易金额"] - df["可用余额（交易后）"]
+    ).round(2)
+    df["余额是否异常"] = df["余额差额"].abs() > 0.01
+
+    clean = df[
+        df["交易名称"].str.contains("消费", na=False)
+        & (df["交易金额"] > 0)
+        & df["交易日期"].notna()
+    ].copy()
+    clean["餐段"] = pd.cut(
+        clean["交易小时"],
+        bins=[0, 10, 14, 17, 20, 24],
+        labels=["早间", "午餐", "下午", "晚餐", "夜间"],
+        right=False,
+    )
+    floor_match = clean["终端名称"].str.extract(r"食堂(\d)层|食堂(\d)F")
+    floor_no = floor_match.bfill(axis=1).iloc[:, 0]
+    clean["食堂楼层"] = np.where(floor_no.notna(), floor_no + "层", "非食堂终端")
+    clean["支付方式"] = np.where(clean["交易名称"].str.contains("支付码", na=False), "支付码", "IC卡")
+    clean["是否异常金额"] = np.where(
+        clean["交易金额"] > clean["交易金额"].quantile(0.99),
+        "高金额复核",
+        "常规金额",
+    )
+
+    daily = clean.groupby("交易日期").agg(
+        交易笔数=("交易金额", "count"),
+        消费总额=("交易金额", "sum"),
+        人均单笔金额=("交易金额", "mean"),
+    ).round(2)
+    hour = clean.groupby(["交易小时", "餐段"], observed=True).agg(
+        交易笔数=("交易金额", "count"),
+        消费总额=("交易金额", "sum"),
+    ).round(2).reset_index()
+    payment = clean.groupby("支付方式").agg(
+        交易笔数=("交易金额", "count"),
+        消费总额=("交易金额", "sum"),
+    ).round(2)
+    payment["笔数占比"] = (payment["交易笔数"] / payment["交易笔数"].sum()).round(4)
+    student = clean.groupby(["学工号", "姓名"]).agg(
+        消费笔数=("交易金额", "count"),
+        消费总额=("交易金额", "sum"),
+        平均单笔金额=("交易金额", "mean"),
+        首次消费=("交易日期", "min"),
+        最后消费=("交易日期", "max"),
+    ).round(2).reset_index().sort_values("消费总额", ascending=False).reset_index(drop=True)
+    student.insert(0, "学生编号", [f"Student{i:03d}" for i in range(1, len(student) + 1)])
+    student_public = student.drop(columns=["学工号", "姓名"])
 
     output_dir = DATA_DIR / "output"
     output_dir.mkdir(exist_ok=True)
-    courses.to_csv(output_dir / "course_schedule_clean.csv", index=False, encoding="utf-8-sig")
-    department_count.to_csv(output_dir / "department_count.csv", encoding="utf-8-sig")
-    teacher_count.to_csv(output_dir / "teacher_count.csv", encoding="utf-8-sig")
-    print("分析完成，结果已保存。")
+    clean.to_csv(output_dir / "clean_canteen_transactions.csv", index=False, encoding="utf-8-sig")
+    daily.to_csv(output_dir / "daily_summary.csv", encoding="utf-8-sig")
+    hour.to_csv(output_dir / "hour_summary.csv", index=False, encoding="utf-8-sig")
+    payment.to_csv(output_dir / "payment_summary.csv", encoding="utf-8-sig")
+    student_public.to_csv(output_dir / "student_summary_anonymized.csv", index=False, encoding="utf-8-sig")
+
+    print("原始记录数:", len(df))
+    print("消费分析记录数:", len(clean))
+    print("学生人数:", clean["学工号"].nunique())
+    print("输出目录:", output_dir)
 
 
-run_course_analysis()`,
-    explain: "这段代码把读取、清洗、分组统计和保存结果串成一个函数，并在函数内部创建输出目录。",
-    why: "完整流程能让分析过程可复现。课堂练习时逐段理解，最后再把步骤整理成函数。",
-    points: ["函数封装让主流程更清楚。", "函数内部创建输出目录，减少对前面代码段的依赖。", "不要直接跳到最后一段，前面的代码用于理解每一步的意义。"],
+run_canteen_analysis()`,
+    explain: "完整函数重复了前面每一步，并把五张报告表写入 output 目录。",
+    why: "课堂上逐段理解，实验提交前运行完整流程，能保证结果可复现。",
+    points: ["完整流程不能依赖手工中间变量。", "输出文件名要和实验要求一致。", "报告文字要引用这些输出表。"],
     terms: [
-      { title: "可复现", text: "再次运行能得到同样的处理流程和结果。" },
-      { title: "清洗后数据", text: "已经规范字段和类型的数据。" },
-      { title: "统计结果", text: "用于报告分析的汇总表。" },
+      { title: "可复现", text: "重新运行仍能得到同样处理逻辑和结果。" },
+      { title: "完整流程", text: "读取、清洗、分析、保存串成一个函数。" },
+      { title: "输出目录", text: "集中存放实验结果文件的位置。" },
     ],
   },
 ];
 
 export const chapter08AssessmentCards = [
-  { title: "基础达标", text: "能读取 CSV，查看数据结构，完成筛选、排序和保存。" },
-  { title: "核心达标", text: "能用 groupby 和 pivot_table 生成统计表。" },
-  { title: "优秀表现", text: "能发现缺失、重复或异常，并用具体数据写出结论。" },
-  { title: "提交材料", text: "代码、清洗后 CSV、统计结果 CSV 和分析说明。" },
+  { title: "基础达标", text: "能正确读取 GB 编码 CSV，并说明记录数、字段数、学生人数和日期范围。" },
+  { title: "核心达标", text: "能完成日期时间转换、消费交易筛选、余额差异检查和派生字段生成。" },
+  { title: "分析达标", text: "能生成每日、小时、支付方式、终端楼层和脱敏学生汇总结果。" },
+  { title: "提交材料", text: "提交代码、五张输出 CSV、实验报告 5，并在结论中引用具体表格和数值。" },
 ];

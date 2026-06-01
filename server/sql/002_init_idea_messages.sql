@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS `idea_messages` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `content` VARCHAR(500) NOT NULL,
+  `display_name` VARCHAR(64) NOT NULL DEFAULT '匿名同学',
+  `course_id` VARCHAR(64) NOT NULL DEFAULT 'python',
+  `chapter_id` VARCHAR(64) NULL,
+  `page_path` VARCHAR(255) NULL,
+  `session_id` VARCHAR(128) NULL,
+  `ip_hash` CHAR(64) NULL,
+  `user_agent` VARCHAR(500) NULL,
+  `status` ENUM('visible', 'hidden', 'pending') NOT NULL DEFAULT 'visible',
+  `hidden_reason` VARCHAR(255) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `hidden_at` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_idea_messages_status_created` (`status`, `created_at`),
+  KEY `idx_idea_messages_course_chapter` (`course_id`, `chapter_id`),
+  KEY `idx_idea_messages_session` (`session_id`),
+  KEY `idx_idea_messages_ip_hash_created` (`ip_hash`, `created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
