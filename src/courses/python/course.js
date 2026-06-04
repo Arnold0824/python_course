@@ -75,4 +75,12 @@ export const pythonCourse = {
       component: () => import("./views/ChapterTenView.vue"),
     },
   ],
+  resources: [
+    {
+      no: "复习",
+      id: "final-review",
+      label: "期末复习资料",
+      path: "/python/final-review",
+    },
+  ],
 };

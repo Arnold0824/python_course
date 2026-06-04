@@ -38,6 +38,12 @@ const routes = [
     component: IdeaWallView,
     meta: { courseId: "python", hideChapterNav: true },
   },
+  {
+    path: "/python/final-review",
+    name: "python-final-review",
+    component: () => import("../courses/python/views/FinalReviewView.vue"),
+    meta: { courseId: "python", chapterId: "final-review" },
+  },
   ...lessonRoutes,
   {
     path: "/admin/stats",

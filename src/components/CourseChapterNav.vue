@@ -15,8 +15,14 @@ const props = defineProps({
 });
 
 const course = computed(() => getCourseById(String(props.activeCourse || "python")));
-const chapters = computed(() => course.value?.chapters || []);
 const active = computed(() => String(props.activeChapter || "1"));
+const navigationItems = computed(() => {
+  const chapters = course.value?.chapters || [];
+  const resources = course.value?.resources || [];
+  const activeIsResource = resources.some((item) => item.id === active.value);
+
+  return activeIsResource ? [...resources, ...chapters] : [...chapters, ...resources];
+});
 </script>
 
 <template>
@@ -24,7 +30,7 @@ const active = computed(() => String(props.activeChapter || "1"));
     <section class="chapter-nav">
       <h3>{{ course?.label || "章节导航" }}</h3>
       <ol class="chapter-list">
-        <li v-for="chapter in chapters" :key="chapter.id">
+        <li v-for="chapter in navigationItems" :key="chapter.id">
           <RouterLink
             :to="chapter.path"
             class="chapter-link level-1"
